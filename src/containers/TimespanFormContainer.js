@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import TimespanForm from '../components/TimespanForm';
 import { connect } from 'react-redux';
+import { CSSTransitionGroup } from 'react-transition-group';
 
 class TimespanFormContainer extends Component {
   submit = values => {
@@ -9,7 +10,16 @@ class TimespanFormContainer extends Component {
 
   render() {
     const { timespan } = this.props.showForms;
-    return timespan ? <TimespanForm onSubmit={this.submit} /> : null;
+
+    return (
+      <CSSTransitionGroup
+        transitionName="example"
+        transitionEnterTimeout={500}
+        transitionLeaveTimeout={300}
+      >
+        {timespan ? <TimespanForm onSubmit={this.submit} /> : null}
+      </CSSTransitionGroup>
+    );
   }
 }
 
