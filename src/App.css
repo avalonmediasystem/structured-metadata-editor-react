@@ -31,7 +31,7 @@ section {
   margin-bottom: 10px;
 }
 
-.edit-controls-wrapper i,
+.edit-controls-wrapper svg,
 .edit-controls-wrapper a {
   margin: 0 5px;
   cursor: pointer;
