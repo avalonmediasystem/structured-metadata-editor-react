@@ -8,6 +8,7 @@ class StructureOutputContainer extends Component {
 
     return (
       <section>
+        <hr />
         <h2>Output</h2>
         <List items={smData} />
       </section>

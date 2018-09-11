@@ -3,29 +3,17 @@ import HeadingForm from '../components/HeadingForm';
 import { connect } from 'react-redux';
 import { CSSTransitionGroup } from 'react-transition-group';
 import * as actions from '../actions/sm-data';
+import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+
+const structuralMetadataUtils = new StructuralMetadataUtils();
 
 class HeadingFormContainer extends Component {
-  prepData(values) {
-    let returnObj = {
-      type: 'div',
-      label: values.headingInputTitle,
-      parent: values.headingSelectChildOf
-    };
-
-    const numChildren = this.props.smData.filter(
-      item => item.parent === values.headingSelectChildOf
-    ).length;
-    returnObj.id = `${returnObj.parent}-${numChildren + 1}`;
-
-    console.log('returnObj', returnObj);
-    return returnObj;
-  }
-
   submit = values => {
-    console.log('values', values);
-    const data = this.prepData(values);
+    // Update the data structure with new heading
+    const updatedData = structuralMetadataUtils.insertNewHeader(values, this.props.smData);
+
     // Update redux store
-    this.props.addHeading(data);
+    this.props.buildSMUI(updatedData);
   };
 
   render() {
@@ -43,10 +31,6 @@ class HeadingFormContainer extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  addHeading: values => dispatch(actions.addHeading(values))
-});
-
 const mapStateToProps = state => ({
   showForms: state.showForms,
   smData: state.smData
@@ -54,5 +38,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  actions
 )(HeadingFormContainer);
