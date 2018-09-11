@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import RenderField from './form/RenderField';
 import RenderSelect from './form/RenderSelect';
+import { ButtonToolbar, Button } from 'react-bootstrap';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -19,7 +20,7 @@ const validate = values => {
 };
 
 let HeadingForm = props => {
-  const { handleSubmit, submitting, rules, smData } = props;
+  const { handleSubmit, submitting, smData } = props;
   let allHeaders = structuralMetadataUtils.getAllHeaders(smData);
   let options = allHeaders.map(header => (
     <option value={header} key={header}>
@@ -42,12 +43,10 @@ let HeadingForm = props => {
         component={RenderField}
         type="text"
       />
-      <button type="submit" disabled={submitting} className="btn btn-default">
-        Add
-      </button>
-      <button type="button" className="btn btn-light cancel-button">
-        Cancel
-      </button>
+      <ButtonToolbar>
+        <Button bsStyle="primary" type="submit" disabled={submitting}>Add</Button>
+        <Button>Cancel</Button>
+      </ButtonToolbar>
     </form>
   );
 };

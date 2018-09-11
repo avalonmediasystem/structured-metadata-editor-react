@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../actions/showForms';
+import { ButtonToolbar, Button } from 'react-bootstrap';
 
 class ButtonSection extends Component {
   handleHeadingClick = () => {
@@ -18,10 +19,10 @@ class ButtonSection extends Component {
   render() {
     return (
       <section className="button-section">
-        <div className="alert alert-warning" role="alert">New heading and New Time span buttons currently are not working</div>
-        <button className="btn btn-default" onClick={this.handleHeadingClick}>New Heading</button>
-        <button className="btn btn-default" onClick={this.handleTimeSpanClick}>New Time Span</button>
-        <button className="btn btn-link">Advanced Editor (xml)</button>
+        <ButtonToolbar>
+          <Button onClick={this.handleHeadingClick}>Add a Heading</Button>
+          <Button onClick={this.handleTimeSpanClick}>Add a Timespan</Button>
+        </ButtonToolbar>
       </section>
     );
   }

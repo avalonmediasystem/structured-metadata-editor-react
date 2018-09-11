@@ -1,8 +1,9 @@
 import React from 'react';
 import { Field, reduxForm } from 'redux-form';
+import { ButtonToolbar, Button } from 'react-bootstrap';
 
 let TimespanForm = props => {
-  const { handleSubmit } = props;
+  const { handleSubmit, submitting } = props;
 
   return (
     <form onSubmit={handleSubmit}>
@@ -53,12 +54,10 @@ let TimespanForm = props => {
           </div>
         </div>
       </div>
-      <button type="submit" className="btn btn-default">
-        Add
-      </button>
-      <button type="button" className="btn btn-light cancel-button">
-        Cancel
-      </button>
+      <ButtonToolbar>
+        <Button bsStyle="primary" type="submit" disabled={submitting}>Add</Button>
+        <Button>Cancel</Button>
+      </ButtonToolbar>
     </form>
   );
 };
