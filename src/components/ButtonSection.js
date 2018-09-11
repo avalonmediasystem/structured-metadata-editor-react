@@ -18,6 +18,7 @@ class ButtonSection extends Component {
   render() {
     return (
       <section className="button-section">
+        <div class="alert alert-warning" role="alert">New heading and New Time span buttons currently are not working</div>
         <button className="btn btn-default" onClick={this.handleHeadingClick}>New Heading</button>
         <button className="btn btn-default" onClick={this.handleTimeSpanClick}>New Time Span</button>
         <button className="btn btn-link">Advanced Editor (xml)</button>

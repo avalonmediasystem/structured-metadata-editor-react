@@ -1,8 +1,18 @@
 import React from 'react';
 import { Field, reduxForm } from 'redux-form';
+import { connect } from 'react-redux';
 
 let HeadingForm = props => {
-  const { handleSubmit } = props;
+  const { handleSubmit, smData } = props;
+  let options = smData.map((item, i) => {
+    if (item.type === 'div') {
+      return (
+        <option value={item.id} key={item.id}>
+          {item.label}
+        </option>
+      );
+    }
+  });
 
   return (
     <form onSubmit={handleSubmit}>
@@ -13,8 +23,9 @@ let HeadingForm = props => {
           name="headingSelectChildOf"
           component="select"
           className="form-control"
+          value={1}
         >
-          <option value="">None</option>
+          {options}
         </Field>
       </div>
       <div className="form-group">
@@ -27,7 +38,7 @@ let HeadingForm = props => {
         />
       </div>
       <button type="submit" className="btn btn-default">
-        Save
+        Add
       </button>
       <button type="button" className="btn btn-light cancel-button">
         Cancel
@@ -36,8 +47,12 @@ let HeadingForm = props => {
   );
 };
 
+const mapStateToProps = state => ({
+  smData: state.smData
+});
+
 HeadingForm = reduxForm({
   form: 'heading'
 })(HeadingForm);
 
-export default HeadingForm;
+export default connect(mapStateToProps)(HeadingForm);

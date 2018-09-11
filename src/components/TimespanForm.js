@@ -54,7 +54,7 @@ let TimespanForm = props => {
         </div>
       </div>
       <button type="submit" className="btn btn-default">
-        Save
+        Add
       </button>
       <button type="button" className="btn btn-light cancel-button">
         Cancel

@@ -1,19 +1,23 @@
 import React, { Component} from 'react';
+import structuralTree from '../data/sample-json3.json';
+import { connect } from 'react-redux';
+import * as actions from '../actions/sm-data';
 
 class SampleGenerateButtonContainer extends Component {
+  handleBuildItClick = () => {
+    this.props.buildSMUI(structuralTree);
+  }
+
   render() {
     return (
       <section className="demo-html-structure-tree">
         <hr />
         <h4>HTML Structure Tree from hardcoded JSON</h4>
-        <button id="build-structure-button" className="btn btn-default build-structure-button">Build It</button>
-        <button id="build-flat-structure-button" className="btn btn-default build-structure-button">Build From Flat List</button>
-
-        <section id="mount-nested-list"></section>
-
+        <p><a href="../data/sample-json3.json" target="_blank">Uses this JSON file</a></p>
+        <button onClick={this.handleBuildItClick} className="btn btn-default build-structure-button">Build It</button>
       </section>
     );
   }
 }
 
-export default SampleGenerateButtonContainer;
+export default connect(null, actions)(SampleGenerateButtonContainer);
