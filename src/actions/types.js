@@ -4,3 +4,5 @@ export const ADD_HEADING = 'ADD_HEADING';
 export const ADD_TIME_SPAN = 'ADD_TIME_SPAN';
 
 export const BUILD_SM_UI = 'BUILD_SM_UI';
+
+export const DELETE_ITEM = 'DELETE_ITEM';

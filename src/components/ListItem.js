@@ -3,11 +3,15 @@ import List from './List';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const EditControls = props => {
+  const handleDelete = () => {
+    console.log('Delete it');
+  }
+
   return (
     <div className="edit-controls-wrapper">
       <a href="/">(add {props.heading ? 'child' : 'parent'})</a>
       <FontAwesomeIcon icon="pen" />
-      <FontAwesomeIcon icon="trash" />
+      <FontAwesomeIcon icon="trash" onClick={handleDelete} />
     </div>
   );
 };

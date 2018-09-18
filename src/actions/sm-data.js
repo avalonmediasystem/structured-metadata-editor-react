@@ -13,3 +13,10 @@ export function buildSMUI(json) {
     payload: json
   };
 }
+
+export function deleteItem(item) {
+  return {
+    type: types.DELETE_ITEM,
+    payload: item
+  };
+}

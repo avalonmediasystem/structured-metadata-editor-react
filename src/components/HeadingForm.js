@@ -5,6 +5,7 @@ import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import RenderField from './form/RenderField';
 import RenderSelect from './form/RenderSelect';
 import { ButtonToolbar, Button } from 'react-bootstrap';
+import * as actions from '../actions/show-forms';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -19,14 +20,19 @@ const validate = values => {
   return errors;
 };
 
+
 let HeadingForm = props => {
   const { handleSubmit, submitting, smData } = props;
-  let allHeaders = structuralMetadataUtils.getAllHeaders(smData);
+  let allHeaders = structuralMetadataUtils.getItemsOfType('div', smData);
   let options = allHeaders.map(header => (
-    <option value={header} key={header}>
-      {header}
+    <option value={header.label} key={header.label}>
+      {header.label}
     </option>
   ));
+
+  const handleCancelClick = () => {
+    props.toggleHeading();
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -45,7 +51,7 @@ let HeadingForm = props => {
       />
       <ButtonToolbar>
         <Button bsStyle="primary" type="submit" disabled={submitting}>Add</Button>
-        <Button>Cancel</Button>
+        <Button onClick={handleCancelClick}>Cancel</Button>
       </ButtonToolbar>
     </form>
   );
@@ -60,4 +66,4 @@ HeadingForm = reduxForm({
   validate // validation function given to redux-form
 })(HeadingForm);
 
-export default connect(mapStateToProps)(HeadingForm);
+export default connect(mapStateToProps, actions)(HeadingForm);

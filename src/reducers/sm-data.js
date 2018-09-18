@@ -12,6 +12,10 @@ const smData = (state = initialState, action) => {
     case types.BUILD_SM_UI:
       return action.payload;
 
+    case types.DELETE_ITEM:
+      let stateClone2 = [...state];
+      return state;
+
     default:
       return state;
   }

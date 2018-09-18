@@ -18,11 +18,11 @@ class App extends Component {
       <div className="container">
         <h1>Test Structural Metadata Editor</h1>
         <Waveform />
+        <SampleGenerateButtonContainer />
         <ButtonSection />
         <HeadingFormContainer />
         <TimespanFormContainer />
         <StructureOutputContainer />
-        <SampleGenerateButtonContainer />
       </div>
     );
   }

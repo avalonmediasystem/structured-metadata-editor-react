@@ -5,6 +5,7 @@ const RenderField = ({
   label,
   name,
   type,
+  placeholder,
   meta: { touched, error }
 }) => (
   <div className={`form-group ${touched && error ? 'has-error' : ''}`}>
@@ -14,9 +15,10 @@ const RenderField = ({
     <input
       className="form-control"
       {...input}
-      placeholder={label}
+      placeholder={placeholder}
       type={type}
     />
+    <span className="text-danger">{touched && error}</span>
   </div>
 );
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import * as actions from '../actions/showForms';
+import * as actions from '../actions/show-forms';
 import { ButtonToolbar, Button } from 'react-bootstrap';
 
 class ButtonSection extends Component {
@@ -19,6 +19,7 @@ class ButtonSection extends Component {
   render() {
     return (
       <section className="button-section">
+        <hr />
         <ButtonToolbar>
           <Button onClick={this.handleHeadingClick}>Add a Heading</Button>
           <Button onClick={this.handleTimeSpanClick}>Add a Timespan</Button>
