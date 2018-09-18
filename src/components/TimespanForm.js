@@ -26,27 +26,34 @@ const validate = (values, props) => {
   if (!values.timeSpanInputTitle) {
     errors.timeSpanInputTitle = 'Required';
   }
-  if (!values.timeSpanInputStartTime) {
-    errors.timeSpanInputStartTime = 'Required';
+  if (!values.timespanInputBeginTime) {
+    errors.timespanInputBeginTime = 'Required';
   } else if (
     // Check for valid begin time
     !structuralMetadataUtils.validateBeginTime(
-      values.timeSpanInputStartTime,
+      values.timespanInputBeginTime,
       allSpans
     )
   ) {
-    errors.timeSpanInputStartTime = 'Invalid Begin Time';
+    errors.timespanInputBeginTime = 'Invalid Begin Time';
   }
-  if (!values.timeSpanInputEndTime) {
-    errors.timeSpanInputEndTime = 'Required';
+  if (!values.timespanInputEndTime) {
+    errors.timespanInputEndTime = 'Required';
   } else if (
     // Check for valid end time
     !structuralMetadataUtils.validateEndTime(
-      values.timeSpanInputEndTime,
+      values.timespanInputEndTime,
       allSpans
     )
   ) {
-    errors.timeSpanInputEndTime = 'Invalid End Time';
+    errors.timespanInputEndTime = 'Invalid End Time';
+  } else if (
+    !(structuralMetadataUtils.validateBeforeEndTimeOrder(
+      values.timespanInputBeginTime,
+      values.timespanInputEndTime
+    ))
+  ) {
+    errors.timespanInputEndTime = 'End time must come after begin time';
   }
   return errors;
 };
@@ -86,14 +93,14 @@ let TimespanForm = props => {
         </div>
         <div className="col-sm-6">
           <Field
-            name="timeSpanInputStartTime"
+            name="timespanInputBeginTime"
             component={RenderField}
             type="text"
             label="Begin"
             placeholder="00:00:00"
           />
           <Field
-            name="timeSpanInputEndTime"
+            name="timespanInputEndTime"
             component={RenderField}
             type="text"
             label="End"

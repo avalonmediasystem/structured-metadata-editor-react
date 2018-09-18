@@ -1,5 +1,6 @@
 import React, { Component} from 'react';
-import structuralTree from '../data/sample-json3.json';
+import structuralTree2 from '../data/sample-json3.json';
+import structuralTree from '../data/sample-json3-edited.json';
 import { connect } from 'react-redux';
 import * as actions from '../actions/sm-data';
 

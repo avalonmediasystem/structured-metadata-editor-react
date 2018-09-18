@@ -1,29 +1,14 @@
 import moment from 'moment';
 
 export default class StructuralMetadataUtils {
-  checkIllegalBeginEndTimes(newSpan, allSpans) {
-    let messages = [];
-
-    // Loop through existing spans
-    for (let i in allSpans) {
-      let spanBegin = this.milliseconds(allSpans[i].begin);
-      let spanEnd = this.milliseconds(allSpans[i].end);
-      let newSpanBegin = this.milliseconds(newSpan.begin);
-      let newSpanEnd = this.milliseconds(newSpan.end);
-
-      // Illegal begin time (falls between existing start/end times)
-      if (newSpanBegin >= spanBegin && newSpanBegin < spanEnd) {
-        messages.push('Illegal begin time');
-        break;
-      }
-      // Illegal end time (falls between existing start/end times)
-      if (newSpanEnd >= spanBegin && newSpanEnd < spanEnd) {
-        messages.push('Illegal end time');
-        break;
-      }
+  validateBeforeEndTimeOrder(begin, end) {
+    if (!(begin || end)) {
+      return true;
     }
-    console.log('messages', messages);
-    return messages;
+    if (this.milliseconds(begin) >= this.milliseconds(end)) {
+      return false;
+    }
+    return true;
   }
 
   validateBeginTime(beginTime, allSpans) {
@@ -66,8 +51,8 @@ export default class StructuralMetadataUtils {
     return {
       type: 'span',
       label: obj.timeSpanInputTitle,
-      begin: obj.timeSpanInputStartTime,
-      end: obj.timeSpanInputEndTime
+      begin: obj.timespanInputBeginTime,
+      end: obj.timespanInputEndTime
     };
   }
 
@@ -162,10 +147,6 @@ export default class StructuralMetadataUtils {
     // Get all spans
     let allSpans = this.getItemsOfType('span', items);
     console.log('allSpans', allSpans);
-
-    if (this.checkIllegalBeginEndTimes(newSpan, allSpans).length > 0) {
-      // return error object or something
-    }
 
     return clonedItems;
   }
