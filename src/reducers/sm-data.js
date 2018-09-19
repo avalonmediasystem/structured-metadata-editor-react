@@ -13,7 +13,6 @@ const smData = (state = initialState, action) => {
       return action.payload;
 
     case types.DELETE_ITEM:
-      let stateClone2 = [...state];
       return state;
 
     default:

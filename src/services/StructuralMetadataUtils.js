@@ -2,7 +2,7 @@ export default class StructuralMetadataUtils {
   createSpanObject(obj) {
     return {
       type: 'span',
-      label: obj.timeSpanInputTitle,
+      label: obj.timespanInputTitle,
       begin: obj.timespanInputBeginTime,
       end: obj.timespanInputEndTime
     };
@@ -31,20 +31,28 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Find and return the sibling span which ends right before new span begins
+   * Find the <span>s which come before and after new span
    * @param {Object} newSpan - new span object
-   * @param {Array} allSpans - all span objects in current structured metadata
-   * @returns {Object} - preceding sibling object (if it exists)
+   * @param {Array} allSpans - all type <span> objects in current structured metadata
+   * @returns {Object} - wrapper <span>s object: { before: spanObject, after: spanObject }
    */
-  findPrecedingSibling(newSpan, allSpans) {
-    let precedingSpan = {};
+  findWrapperSpans(newSpan, allSpans) {
+    let wrapperSpans = {
+      before: null,
+      after: null
+    };
     let spansBefore = allSpans.filter(
       span => this.milliseconds(newSpan.begin) >= this.milliseconds(span.end)
     );
-    if (spansBefore.length > 0) {
-      precedingSpan = spansBefore[spansBefore.length - 1];
-    }
-    return precedingSpan;
+    let spansAfter = allSpans.filter(
+      span => this.milliseconds(newSpan.end) <= span.begin
+    );
+
+    wrapperSpans.before =
+      spansBefore.length > 0 ? spansBefore[spansBefore.length - 1] : null;
+    wrapperSpans.after = spansAfter.length > 0 ? spansAfter[0] : null;
+
+    return wrapperSpans;
   }
 
   /**
@@ -73,31 +81,37 @@ export default class StructuralMetadataUtils {
     return options;
   }
 
-  getValidHeadings(newSpan, precedingSpan, allItems) {
-    // Find div which is directly above preceding span
-    let divAbovePrecedingSpan = null;
+  /**
+   *
+   * @param {Object} newSpan - Object which has (at the least) { begin: '00:10:20.33', end: '00:15:88' } properties
+   * @param {Object} wrapperSpans Object in JSON tree which is the span which ends before new span
+   * @param {Array} allItems - All structural metadata items in tree
+   * @return {Array} - of valid <div> objects in structural metadata tree
+   */
+  getValidHeadings(newSpan, wrapperSpans, allItems) {
     let validHeadings = [];
 
     let findItem = items => {
       for (let item of items) {
         if (item.items) {
           let precedingSpanMatch = item.items.filter(
-            childItem => childItem.label === precedingSpan.label
+            childItem => childItem.label === wrapperSpans.before.label
           );
           // Match found for preceding span
           if (precedingSpanMatch.length > 0) {
             // Add parent div to valid array
             validHeadings.push(item);
 
-            // Are there any items with type span who have a begin time after newSpan's end time?
-            let afterSpanMatch = item.items.filter(
+            // Are there any sibling spans in "items" who have a begin time after newSpan's end time?
+            // If so, then this is the only possible header
+            let siblingAfterSpanMatch = item.items.filter(
               childItem =>
                 this.milliseconds(childItem.begin) >=
                 this.milliseconds(newSpan.end)
             );
-            console.log('afterSpanMatch', afterSpanMatch);
 
-            if (afterSpanMatch.length === 0) {
+            console.log('siblingAfterSpanMatch', siblingAfterSpanMatch);
+            if (siblingAfterSpanMatch.length === 0) {
               // TODO: get next heading after end time of newSpan, and newSpan could be the first child
               // of that heading
             } else {
@@ -121,9 +135,9 @@ export default class StructuralMetadataUtils {
    * @returns {Array} - The updated structured metadata collection, with new object inserted
    */
   insertNewHeader(obj, allItems) {
-    let clonedJson = [...allItems];
+    let clonedItems = [...allItems];
     const targetLabel = obj.headingSelectChildOf;
-    let foundDiv = this.findItemByLabel(targetLabel, clonedJson);
+    let foundDiv = this.findItemByLabel(targetLabel, clonedItems);
 
     // If children exist, add to list
     if (foundDiv) {
@@ -134,7 +148,7 @@ export default class StructuralMetadataUtils {
       });
     }
 
-    return clonedJson;
+    return clonedItems;
   }
 
   /**
@@ -145,24 +159,13 @@ export default class StructuralMetadataUtils {
    */
   insertNewTimespan(obj, allItems) {
     let clonedItems = [...allItems];
-    const parentDivLabel = obj.timeSpanSelectChildOf;
+    const parentDivLabel = obj.timespanSelectChildOf;
     let foundDiv = this.findItemByLabel(parentDivLabel, clonedItems);
-    const newSpan = this.createSpanObject(obj);
 
-    // Get all spans
-    let allSpans = this.getItemsOfType('span', allItems);
-    console.log('allSpans', allSpans);
-
-    // Find the span which ends right before start of our new span,
-    // so we know where to place it.
-    let precedingSpan = this.findPrecedingSibling(newSpan, allSpans);
-    console.log('precedingSpan', precedingSpan);
-
-    // No preceding item exists.  Insert at beginning of list?
-    if (Object.keys(precedingSpan).length === 0) {
+    // If children exist, add to list
+    if (foundDiv) {
+      foundDiv.items.push(this.createSpanObject(obj));
     }
-
-    let validHeadings = this.getValidHeadings(newSpan, precedingSpan, allItems);
 
     return clonedItems;
   }
@@ -174,6 +177,9 @@ export default class StructuralMetadataUtils {
    */
   milliseconds(timeStr) {
     let timeParts = timeStr.split(':');
+    if (timeParts.length === 1) {
+      return 0;
+    }
     return parseFloat(
       timeParts[0] * 60 * 60 + timeParts[1] * 60 + timeParts[2]
     );

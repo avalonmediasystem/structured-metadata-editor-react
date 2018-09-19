@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Field, getFormValues, formValueSelector, reduxForm } from 'redux-form';
+import { Field, formValueSelector, reduxForm } from 'redux-form';
 import { ButtonToolbar, Button } from 'react-bootstrap';
 import * as actions from '../actions/show-forms';
 import { connect } from 'react-redux';
@@ -20,15 +20,9 @@ const validate = (values, props) => {
     allSpans = structuralMetadataUtils.getItemsOfType('span', smData);
   }
 
-  // Check timespan parent select has a value
-  // TODO: Determine whether we want to validate this or not
-  // if (!values.timeSpanSelectChildOf) {
-  //   errors.timeSpanSelectChildOf = 'Required';
-  // }
-
   // Check timespan title has a value
-  if (!values.timeSpanInputTitle) {
-    errors.timeSpanInputTitle = 'Required';
+  if (!values.timespanInputTitle) {
+    errors.timespanInputTitle = 'Required';
   }
 
   // Check begin time has a value
@@ -81,8 +75,29 @@ class TimespanForm extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-
     // TODO: Additional check that the begin and end time values didn't change
+    // If so, don't move forward
+    console.log(
+      'prevProps',
+      prevProps.valid,
+      prevProps.timespanInputBeginTime,
+      prevProps.timespanInputEndTime
+    );
+    console.log(
+      'props',
+      this.props.valid,
+      this.props.timespanInputBeginTime,
+      this.props.timespanInputEndTime
+    );
+
+    // During a form submit, values may be empty.  Just return, no need to do anything
+    if (
+      !this.props.timespanInputBeginTime ||
+      !this.props.timespanInputEndTime
+    ) {
+      return;
+    }
+
     // If form is valid (begin and end times are valid), populate heading options
     if (this.props.valid && !this.headingUpdateInProgress) {
       this.headingUpdateInProgress = true;
@@ -91,14 +106,32 @@ class TimespanForm extends Component {
   }
 
   buildHeadingsOptions = () => {
-    // TODO: Get valid heading options here
-    this.validHeadings.splice(0, 2);
+    let newSpan = {
+      begin: this.props.timespanInputBeginTime,
+      end: this.props.timespanInputEndTime
+    };
+    // Get preceding span whose time ends before start time of new span
+    let wrapperSpans = structuralMetadataUtils.findWrapperSpans(
+      newSpan,
+      allSpans
+    );
+    console.log('wrapperSpans', wrapperSpans);
+
+    // Get all valid div headings
+    let validHeadings = structuralMetadataUtils.getValidHeadings(
+      newSpan,
+      wrapperSpans,
+      this.props.smData
+    );
+    console.log('validHeadings', validHeadings);
 
     // Update state with valid headings
     this.setState(
-      { validHeadings: this.validHeadings },
+      { validHeadings },
       () => (this.headingUpdateInProgress = false)
     );
+
+    // TODO: Update the value itself of the select dropdown
   };
 
   clearHeadingOptions = () => {
@@ -113,7 +146,7 @@ class TimespanForm extends Component {
   };
 
   render() {
-    const { handleSubmit, submitting} = this.props;
+    const { handleSubmit, submitting } = this.props;
 
     return (
       <form onSubmit={handleSubmit}>
@@ -124,20 +157,18 @@ class TimespanForm extends Component {
               <label className="control-label" htmlFor="Child of">
                 Child of
               </label>
-              <select
-                name="timeSpanSelectChildOf"
-                className="form-control"
-              >
+              <Field name="timespanSelectChildOf" component="select" className="form-control">
                 <option value="">Select one...</option>
                 {this.state.validHeadings.map(option => (
                   <option value={option.label} key={option.label}>
                     {option.label}
                   </option>
                 ))}
-              </select>
+              </Field>
             </div>
+
             <Field
-              name="timeSpanInputTitle"
+              name="timespanInputTitle"
               component={RenderField}
               type="text"
               label="Title"

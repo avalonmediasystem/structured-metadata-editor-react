@@ -31,7 +31,7 @@ class TimespanFormContainer extends Component {
       message: {
         type: 'success',
         header: 'Success',
-        body: `Timespan "${values.timeSpanInputTitle}" has been added.`
+        body: `Timespan "${values.timespanInputTitle}" has been added.`
       }
     });
 
