@@ -1,52 +1,4 @@
-import moment from 'moment';
-
 export default class StructuralMetadataUtils {
-  validateBeforeEndTimeOrder(begin, end) {
-    if (!(begin || end)) {
-      return true;
-    }
-    if (this.milliseconds(begin) >= this.milliseconds(end)) {
-      return false;
-    }
-    return true;
-  }
-
-  validateBeginTime(beginTime, allSpans) {
-    let valid = true;
-
-    // Loop through all spans
-    for (let i in allSpans) {
-      let spanBegin = this.milliseconds(allSpans[i].begin);
-      let spanEnd = this.milliseconds(allSpans[i].end);
-      let newSpanBegin = this.milliseconds(beginTime);
-
-      // Illegal begin time (falls between existing start/end times)
-      if (newSpanBegin >= spanBegin && newSpanBegin < spanEnd) {
-        valid = false;
-        break;
-      }
-    }
-    return valid;
-  }
-
-  validateEndTime (endTime, allSpans) {
-    let valid = true;
-
-    // Loop through all spans
-    for (let i in allSpans) {
-      let spanBegin = this.milliseconds(allSpans[i].begin);
-      let spanEnd = this.milliseconds(allSpans[i].end);
-      let newSpanEnd = this.milliseconds(endTime);
-
-      // Illegal begin time (falls between existing start/end times)
-      if (newSpanEnd >= spanBegin && newSpanEnd < spanEnd) {
-        valid = false;
-        break;
-      }
-    }
-    return valid;
-  }
-
   createSpanObject(obj) {
     return {
       type: 'span',
@@ -78,9 +30,21 @@ export default class StructuralMetadataUtils {
     return foundItem;
   }
 
-  findPrecedingSibling(newSpan, siblingSpans) {
-    let spansBefore = siblingSpans.filter(span => newSpan.begin >= span.end);
-    console.log('spansBefore', spansBefore);
+  /**
+   * Find and return the sibling span which ends right before new span begins
+   * @param {Object} newSpan - new span object
+   * @param {Array} allSpans - all span objects in current structured metadata
+   * @returns {Object} - preceding sibling object (if it exists)
+   */
+  findPrecedingSibling(newSpan, allSpans) {
+    let precedingSpan = {};
+    let spansBefore = allSpans.filter(
+      span => this.milliseconds(newSpan.begin) >= this.milliseconds(span.end)
+    );
+    if (spansBefore.length > 0) {
+      precedingSpan = spansBefore[spansBefore.length - 1];
+    }
+    return precedingSpan;
   }
 
   /**
@@ -109,14 +73,55 @@ export default class StructuralMetadataUtils {
     return options;
   }
 
+  getValidHeadings(newSpan, precedingSpan, allItems) {
+    // Find div which is directly above preceding span
+    let divAbovePrecedingSpan = null;
+    let validHeadings = [];
+
+    let findItem = items => {
+      for (let item of items) {
+        if (item.items) {
+          let precedingSpanMatch = item.items.filter(
+            childItem => childItem.label === precedingSpan.label
+          );
+          // Match found for preceding span
+          if (precedingSpanMatch.length > 0) {
+            // Add parent div to valid array
+            validHeadings.push(item);
+
+            // Are there any items with type span who have a begin time after newSpan's end time?
+            let afterSpanMatch = item.items.filter(
+              childItem =>
+                this.milliseconds(childItem.begin) >=
+                this.milliseconds(newSpan.end)
+            );
+            console.log('afterSpanMatch', afterSpanMatch);
+
+            if (afterSpanMatch.length === 0) {
+              // TODO: get next heading after end time of newSpan, and newSpan could be the first child
+              // of that heading
+            } else {
+              break;
+            }
+          }
+          // Try deeper in list
+          findItem(item.items);
+        }
+      }
+    };
+    findItem(allItems);
+
+    return validHeadings;
+  }
+
   /**
    * Insert a new heading as child of an existing heading
    * @param {Object} obj - new heading object to insert
-   * @param {Array} json - The entire structured metadata collection
+   * @param {Array} allItems - The entire structured metadata collection
    * @returns {Array} - The updated structured metadata collection, with new object inserted
    */
-  insertNewHeader(obj, json) {
-    let clonedJson = [...json];
+  insertNewHeader(obj, allItems) {
+    let clonedJson = [...allItems];
     const targetLabel = obj.headingSelectChildOf;
     let foundDiv = this.findItemByLabel(targetLabel, clonedJson);
 
@@ -135,18 +140,29 @@ export default class StructuralMetadataUtils {
   /**
    * Insert a new timespan as child of an existing heading
    * @param {Object} obj - new timespan object to insert
-   * @param {Array} items - The entire structured metadata collection
+   * @param {Array} allItems - The entire structured metadata collection
    * @returns {Array} - The updated structured metadata collection, with new object inserted
    */
-  insertNewTimespan(obj, items) {
-    let clonedItems = [...items];
-    const targetLabel = obj.timeSpanSelectChildOf;
-    let foundItem = this.findItemByLabel(targetLabel, clonedItems);
+  insertNewTimespan(obj, allItems) {
+    let clonedItems = [...allItems];
+    const parentDivLabel = obj.timeSpanSelectChildOf;
+    let foundDiv = this.findItemByLabel(parentDivLabel, clonedItems);
     const newSpan = this.createSpanObject(obj);
 
     // Get all spans
-    let allSpans = this.getItemsOfType('span', items);
+    let allSpans = this.getItemsOfType('span', allItems);
     console.log('allSpans', allSpans);
+
+    // Find the span which ends right before start of our new span,
+    // so we know where to place it.
+    let precedingSpan = this.findPrecedingSibling(newSpan, allSpans);
+    console.log('precedingSpan', precedingSpan);
+
+    // No preceding item exists.  Insert at beginning of list?
+    if (Object.keys(precedingSpan).length === 0) {
+    }
+
+    let validHeadings = this.getValidHeadings(newSpan, precedingSpan, allItems);
 
     return clonedItems;
   }
@@ -161,5 +177,51 @@ export default class StructuralMetadataUtils {
     return parseFloat(
       timeParts[0] * 60 * 60 + timeParts[1] * 60 + timeParts[2]
     );
+  }
+
+  validateEndTime(endTime, allSpans) {
+    let valid = true;
+
+    // Loop through all spans
+    for (let i in allSpans) {
+      let spanBegin = this.milliseconds(allSpans[i].begin);
+      let spanEnd = this.milliseconds(allSpans[i].end);
+      let newSpanEnd = this.milliseconds(endTime);
+
+      // Illegal begin time (falls between existing start/end times)
+      if (newSpanEnd >= spanBegin && newSpanEnd < spanEnd) {
+        valid = false;
+        break;
+      }
+    }
+    return valid;
+  }
+
+  validateBeforeEndTimeOrder(begin, end) {
+    if (!begin || !end) {
+      return true;
+    }
+    if (this.milliseconds(begin) >= this.milliseconds(end)) {
+      return false;
+    }
+    return true;
+  }
+
+  validateBeginTime(beginTime, allSpans) {
+    let valid = true;
+
+    // Loop through all spans
+    for (let i in allSpans) {
+      let spanBegin = this.milliseconds(allSpans[i].begin);
+      let spanEnd = this.milliseconds(allSpans[i].end);
+      let newSpanBegin = this.milliseconds(beginTime);
+
+      // Illegal begin time (falls between existing start/end times)
+      if (newSpanBegin >= spanBegin && newSpanBegin < spanEnd) {
+        valid = false;
+        break;
+      }
+    }
+    return valid;
   }
 }
