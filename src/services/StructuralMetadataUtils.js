@@ -120,7 +120,7 @@ export default class StructuralMetadataUtils {
             console.log('siblingAfterSpanMatch', siblingAfterSpanMatch);
             if (siblingAfterSpanMatch.length === 0 && wrapperSpans.after) {
               precedingFound = true;
-              // TODO: Get <div> heading for the "after" <span>
+              // Now get <div> heading for the "after" <span>
               findSpanItem(wrapperSpans.after, allItems);
             } else {
               break;
@@ -163,7 +163,7 @@ export default class StructuralMetadataUtils {
 
   /**
    * Insert a new timespan as child of an existing heading
-   * @param {Object} obj - new timespan object to insert
+   * @param {Object} obj - object of form values submitted
    * @param {Array} allItems - The entire structured metadata collection
    * @returns {Array} - The updated structured metadata collection, with new object inserted
    */
@@ -171,10 +171,28 @@ export default class StructuralMetadataUtils {
     let clonedItems = [...allItems];
     const parentDivLabel = obj.timespanSelectChildOf;
     let foundDiv = this.findItemByLabel(parentDivLabel, clonedItems);
+    const spanObj = this.createSpanObject(obj);
+    let insertAfterIndex = 0;
 
     // If children exist, add to list
     if (foundDiv) {
-      foundDiv.items.push(this.createSpanObject(obj));
+      // Are there children spans?
+      let childSpans = foundDiv.items.filter(item => item.type === 'span');
+
+      // Get before and after sibling spans
+      let wrapperSpans = this.findWrapperSpans(spanObj, childSpans);
+      console.log('wrapperSpans', wrapperSpans);
+
+      // Spans exist before, find the target insert index
+      if (wrapperSpans.before) {
+        foundDiv.items.forEach((item, i) => {
+          if (item.label === wrapperSpans.before.label) {
+            insertAfterIndex = i;
+          }
+        });
+      }
+      // Insert new span at appropriate index
+      foundDiv.items.splice(insertAfterIndex, 0, spanObj);
     }
 
     return clonedItems;
@@ -185,7 +203,7 @@ export default class StructuralMetadataUtils {
    * @param {String} timeStr
    * @returns {Number} - float milliseconds value
    */
-  milliseconds(timeStr) {
+  milliseconds(timeStr = '0') {
     let timeParts = timeStr.split(':');
     if (timeParts.length === 1) {
       return 0;

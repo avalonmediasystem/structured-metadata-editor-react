@@ -6,7 +6,7 @@ import { CSSTransitionGroup } from 'react-transition-group';
 import * as smActions from '../actions/sm-data';
 import * as showFormsActions from '../actions/show-forms';
 import AlertDismissable from '../components/AlertDismissable';
-import { reset } from 'redux-form';
+import { reset, getFormSyncErrors } from 'redux-form';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -58,7 +58,7 @@ class TimespanFormContainer extends Component {
             message={message.body}
           />
         )}
-        {timespan ? <TimespanForm onSubmit={this.submit} /> : null}
+        {timespan ? <TimespanForm onSubmit={this.submit} mySyncErrors={this.props.syncErrors} /> : null}
       </CSSTransitionGroup>
     );
   }
@@ -72,7 +72,8 @@ const mapDispatchToProps = dispatch => ({
 
 const mapStateToProps = state => ({
   showForms: state.showForms,
-  smData: state.smData
+  smData: state.smData,
+  syncErrors: getFormSyncErrors('timespan')(state)
 });
 
 export default connect(

@@ -5,101 +5,59 @@ import * as actions from '../actions/show-forms';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import RenderField from './form/RenderField';
+import RenderTimespanSelect from './form/RenderTimespanSelect';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 let allSpans = null;
 
 /**
- * Validate function for time span inputs
+ * Field level validation
  */
-const validate = (values, props) => {
-  const { smData } = props;
-  const errors = {};
+const required = value => (value ? undefined : 'Required');
+const timeFormat = value =>
+  value && value.split(':').length !== 3
+    ? 'Invalid time format, must be 00:00:00'
+    : undefined;
+const timeOrdering = (value, allValues) =>
+  structuralMetadataUtils.validateBeforeEndTimeOrder(
+    allValues.timespanInputBeginTime,
+    allValues.timespanInputEndTime
+  )
+    ? undefined
+    : 'End time must come after begin time';
+const validBegin = value =>
+  structuralMetadataUtils.validateBeginTime(value, allSpans)
+    ? undefined
+    : 'Invalid begin time';
+const validEnd = value =>
+  structuralMetadataUtils.validateEndTime(value, allSpans)
+    ? undefined
+    : 'Invalid end time';
 
-  if (!allSpans) {
-    allSpans = structuralMetadataUtils.getItemsOfType('span', smData);
-  }
-
-  // Check timespan title has a value
-  if (!values.timespanInputTitle) {
-    errors.timespanInputTitle = 'Required';
-  }
-
-  // Check begin time has a value
-  if (!values.timespanInputBeginTime) {
-    errors.timespanInputBeginTime = 'Required';
-  } else if (
-    // Check begin time is valid
-    !structuralMetadataUtils.validateBeginTime(
-      values.timespanInputBeginTime,
-      allSpans
-    )
-  ) {
-    errors.timespanInputBeginTime = 'Invalid Begin Time';
-  }
-
-  // Check end time has a value
-  if (!values.timespanInputEndTime) {
-    errors.timespanInputEndTime = 'Required';
-  } else if (
-    // Check for valid end time
-    !structuralMetadataUtils.validateEndTime(
-      values.timespanInputEndTime,
-      allSpans
-    )
-  ) {
-    errors.timespanInputEndTime = 'Invalid End Time';
-  } else if (
-    !structuralMetadataUtils.validateBeforeEndTimeOrder(
-      values.timespanInputBeginTime,
-      values.timespanInputEndTime
-    )
-  ) {
-    errors.timespanInputEndTime = 'End time must come after begin time';
-  }
-
-  return errors;
-};
-
+/**
+ * The form component itself
+ */
 class TimespanForm extends Component {
   constructor(props) {
     super(props);
-    this.validHeadings = structuralMetadataUtils.getItemsOfType(
-      'div',
-      props.smData
-    );
+    this.state = {};
+    this.state.validHeadings = [];
     this.headingUpdateInProgress = false;
 
-    this.state = {};
-    this.state.validHeadings = this.validHeadings;
+    allSpans = structuralMetadataUtils.getItemsOfType('span', props.smData);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    // TODO: Additional check that the begin and end time values didn't change
-    // If so, don't move forward
-    console.log(
-      'prevProps',
-      prevProps.valid,
-      prevProps.timespanInputBeginTime,
-      prevProps.timespanInputEndTime
-    );
-    console.log(
-      'props',
-      this.props.valid,
-      this.props.timespanInputBeginTime,
-      this.props.timespanInputEndTime
-    );
+  componentDidUpdate() {
+    const { mySyncErrors } = this.props;
+    const timeSyncErrors =
+      mySyncErrors.timespanInputBeginTime || mySyncErrors.timespanInputEndTime;
+    const timesExist =
+      this.props.timespanInputBeginTime && this.props.timespanInputEndTime;
 
-    // During a form submit, values may be empty.  Just return, no need to do anything
-    if (
-      !this.props.timespanInputBeginTime ||
-      !this.props.timespanInputEndTime
-    ) {
-      return;
-    }
-
-    // If form is valid (begin and end times are valid), populate heading options
-    if (this.props.valid && !this.headingUpdateInProgress) {
+    // If no sync errors for begin and end times, and an update is not already in progress,
+    // and times exist, update heading dropdown
+    if (!timeSyncErrors && timesExist && !this.headingUpdateInProgress) {
+      console.log('GOES IN');
       this.headingUpdateInProgress = true;
       this.buildHeadingsOptions();
     }
@@ -130,8 +88,6 @@ class TimespanForm extends Component {
       { validHeadings },
       () => (this.headingUpdateInProgress = false)
     );
-
-    // TODO: Update the value itself of the select dropdown
   };
 
   clearHeadingOptions = () => {
@@ -157,6 +113,7 @@ class TimespanForm extends Component {
           type="text"
           label="Title"
           placeholder="Title"
+          validate={[required]}
         />
         <div className="row">
           <div className="col-sm-6">
@@ -166,6 +123,7 @@ class TimespanForm extends Component {
               type="text"
               label="Begin"
               placeholder="00:00:00"
+              validate={[required, timeFormat, validBegin]}
             />
           </div>
           <div className="col-sm-6">
@@ -175,27 +133,17 @@ class TimespanForm extends Component {
               type="text"
               label="End"
               placeholder="00:00:00"
+              validate={[required, timeFormat, timeOrdering, validEnd]}
             />
           </div>
         </div>
-        <div className="form-group">
-          <label className="control-label" htmlFor="Child of">
-            Child of
-          </label>
-          <Field
-            name="timespanSelectChildOf"
-            component="select"
-            className="form-control"
-          >
-            <option value="">Select one...</option>
-            {this.state.validHeadings.map(option => (
-              <option value={option.label} key={option.label}>
-                {option.label}
-              </option>
-            ))}
-          </Field>
-        </div>
-
+        <Field
+          name="timespanSelectChildOf"
+          component={RenderTimespanSelect}
+          label="Child of"
+          options={this.state.validHeadings}
+          validate={[required]}
+        />
         <ButtonToolbar>
           <Button bsStyle="primary" type="submit" disabled={submitting}>
             Add
@@ -208,16 +156,15 @@ class TimespanForm extends Component {
 }
 
 TimespanForm = reduxForm({
-  form: 'timespan',
-  validate
+  form: 'timespan'
 })(TimespanForm);
 
 const selector = formValueSelector('timespan');
 
 const mapStateToProps = state => ({
+  smData: state.smData,
   timespanInputBeginTime: selector(state, 'timespanInputBeginTime'),
-  timespanInputEndTime: selector(state, 'timespanInputEndTime'),
-  smData: state.smData
+  timespanInputEndTime: selector(state, 'timespanInputEndTime')
 });
 
 TimespanForm = connect(
