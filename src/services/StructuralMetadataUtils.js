@@ -45,7 +45,7 @@ export default class StructuralMetadataUtils {
       span => this.milliseconds(newSpan.begin) >= this.milliseconds(span.end)
     );
     let spansAfter = allSpans.filter(
-      span => this.milliseconds(newSpan.end) <= span.begin
+      span => this.milliseconds(newSpan.end) <= this.milliseconds(span.begin)
     );
 
     wrapperSpans.before =
@@ -90,17 +90,24 @@ export default class StructuralMetadataUtils {
    */
   getValidHeadings(newSpan, wrapperSpans, allItems) {
     let validHeadings = [];
+    let precedingFound = false;
 
-    let findItem = items => {
+    let findSpanItem = (targetSpan, items) => {
       for (let item of items) {
+        // Children items exist
         if (item.items) {
-          let precedingSpanMatch = item.items.filter(
-            childItem => childItem.label === wrapperSpans.before.label
+          // Check for a match in children items
+          let targetSpanMatch = item.items.filter(
+            childItem => childItem.label === targetSpan.label
           );
           // Match found for preceding span
-          if (precedingSpanMatch.length > 0) {
+          if (targetSpanMatch.length > 0) {
             // Add parent div to valid array
             validHeadings.push(item);
+
+            if (precedingFound) {
+              return;
+            }
 
             // Are there any sibling spans in "items" who have a begin time after newSpan's end time?
             // If so, then this is the only possible header
@@ -111,20 +118,23 @@ export default class StructuralMetadataUtils {
             );
 
             console.log('siblingAfterSpanMatch', siblingAfterSpanMatch);
-            if (siblingAfterSpanMatch.length === 0) {
-              // TODO: get next heading after end time of newSpan, and newSpan could be the first child
-              // of that heading
+            if (siblingAfterSpanMatch.length === 0 && wrapperSpans.after) {
+              precedingFound = true;
+              // TODO: Get <div> heading for the "after" <span>
+              findSpanItem(wrapperSpans.after, allItems);
             } else {
               break;
             }
           }
           // Try deeper in list
-          findItem(item.items);
+          findSpanItem(targetSpan, item.items);
         }
       }
     };
-    findItem(allItems);
+    // Find the preceding span first.  Might not need to find the after span
+    findSpanItem(wrapperSpans.before, allItems);
 
+    console.log('validHeadings', validHeadings);
     return validHeadings;
   }
 

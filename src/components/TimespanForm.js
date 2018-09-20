@@ -151,30 +151,14 @@ class TimespanForm extends Component {
     return (
       <form onSubmit={handleSubmit}>
         <h4>Add New Time Span</h4>
+        <Field
+          name="timespanInputTitle"
+          component={RenderField}
+          type="text"
+          label="Title"
+          placeholder="Title"
+        />
         <div className="row">
-          <div className="col-sm-6">
-            <div className={`form-group`}>
-              <label className="control-label" htmlFor="Child of">
-                Child of
-              </label>
-              <Field name="timespanSelectChildOf" component="select" className="form-control">
-                <option value="">Select one...</option>
-                {this.state.validHeadings.map(option => (
-                  <option value={option.label} key={option.label}>
-                    {option.label}
-                  </option>
-                ))}
-              </Field>
-            </div>
-
-            <Field
-              name="timespanInputTitle"
-              component={RenderField}
-              type="text"
-              label="Title"
-              placeholder="Title"
-            />
-          </div>
           <div className="col-sm-6">
             <Field
               name="timespanInputBeginTime"
@@ -183,6 +167,8 @@ class TimespanForm extends Component {
               label="Begin"
               placeholder="00:00:00"
             />
+          </div>
+          <div className="col-sm-6">
             <Field
               name="timespanInputEndTime"
               component={RenderField}
@@ -192,6 +178,24 @@ class TimespanForm extends Component {
             />
           </div>
         </div>
+        <div className="form-group">
+          <label className="control-label" htmlFor="Child of">
+            Child of
+          </label>
+          <Field
+            name="timespanSelectChildOf"
+            component="select"
+            className="form-control"
+          >
+            <option value="">Select one...</option>
+            {this.state.validHeadings.map(option => (
+              <option value={option.label} key={option.label}>
+                {option.label}
+              </option>
+            ))}
+          </Field>
+        </div>
+
         <ButtonToolbar>
           <Button bsStyle="primary" type="submit" disabled={submitting}>
             Add

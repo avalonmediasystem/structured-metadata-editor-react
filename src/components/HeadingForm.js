@@ -20,7 +20,6 @@ const validate = values => {
   return errors;
 };
 
-
 let HeadingForm = props => {
   const { handleSubmit, submitting, smData } = props;
   let allHeaders = structuralMetadataUtils.getItemsOfType('div', smData);
@@ -32,25 +31,28 @@ let HeadingForm = props => {
 
   const handleCancelClick = () => {
     props.toggleHeading();
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
       <h4>Add New Heading</h4>
-      <Field
-        label="Child of"
-        name="headingSelectChildOf"
-        component={RenderSelect}
-        options={options}
-      />
       <Field
         label="Title"
         name="headingInputTitle"
         component={RenderField}
         type="text"
       />
+      <Field
+        label="Child of"
+        name="headingSelectChildOf"
+        component={RenderSelect}
+        options={options}
+      />
+
       <ButtonToolbar>
-        <Button bsStyle="primary" type="submit" disabled={submitting}>Add</Button>
+        <Button bsStyle="primary" type="submit" disabled={submitting}>
+          Add
+        </Button>
         <Button onClick={handleCancelClick}>Cancel</Button>
       </ButtonToolbar>
     </form>
@@ -66,4 +68,7 @@ HeadingForm = reduxForm({
   validate // validation function given to redux-form
 })(HeadingForm);
 
-export default connect(mapStateToProps, actions)(HeadingForm);
+export default connect(
+  mapStateToProps,
+  actions
+)(HeadingForm);
