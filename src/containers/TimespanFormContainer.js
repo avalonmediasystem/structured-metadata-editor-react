@@ -16,7 +16,7 @@ class TimespanFormContainer extends Component {
   };
 
   submit = values => {
-    console.log('values', values);
+    console.log('Submit new timespan values', values);
     // Update the data structure with new heading
     const updatedData = structuralMetadataUtils.insertNewTimespan(
       values,
@@ -43,7 +43,8 @@ class TimespanFormContainer extends Component {
   };
 
   render() {
-    const { message, timespan } = this.props.showForms;
+    const { timespan } = this.props.showForms;
+    const { message } = this.state;
 
     return (
       <CSSTransitionGroup

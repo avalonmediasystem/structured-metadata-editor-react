@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export default class StructuralMetadataUtils {
   createSpanObject(obj) {
     return {
@@ -6,6 +8,21 @@ export default class StructuralMetadataUtils {
       begin: obj.timespanInputBeginTime,
       end: obj.timespanInputEndTime
     };
+  }
+
+  /**
+   * Remove a targeted span object from data structure
+   * @param {Object} item - span object
+   * @param {Array} allItems array of items, usually all current items in the data structure
+   */
+  deleteSpan(item, allItems) {
+    let clonedItems = [...allItems];
+    let parentDiv = this.getParentDiv(item, clonedItems);
+    let indexToDelete = _.findIndex(parentDiv.items, { label: item.label });
+
+    parentDiv.items.splice(indexToDelete, 1);
+    
+    return clonedItems;
   }
 
   /**
@@ -81,6 +98,28 @@ export default class StructuralMetadataUtils {
     return options;
   }
 
+  getParentDiv(child, allItems) {
+    let foundDiv = null;
+
+    let findItem = (child, items) => {
+      for (let item of items) {
+        if (item.items) {
+          let childItem = item.items.filter(
+            currentChild => child.label === currentChild.label
+          );
+          // Found it
+          if (childItem.length > 0) {
+            foundDiv = item;
+            break;
+          }
+          findItem(child, item.items);
+        }
+      }
+    };
+    findItem(child, allItems);
+    return foundDiv;
+  }
+
   /**
    *
    * @param {Object} newSpan - Object which has (at the least) { begin: '00:10:20.33', end: '00:15:88' } properties
@@ -93,6 +132,7 @@ export default class StructuralMetadataUtils {
     let precedingFound = false;
 
     let findSpanItem = (targetSpan, items) => {
+      
       for (let item of items) {
         // Children items exist
         if (item.items) {
@@ -117,7 +157,6 @@ export default class StructuralMetadataUtils {
                 this.milliseconds(newSpan.end)
             );
 
-            console.log('siblingAfterSpanMatch', siblingAfterSpanMatch);
             if (siblingAfterSpanMatch.length === 0 && wrapperSpans.after) {
               precedingFound = true;
               // Now get <div> heading for the "after" <span>
@@ -132,9 +171,9 @@ export default class StructuralMetadataUtils {
       }
     };
     // Find the preceding span first.  Might not need to find the after span
+    console.log('wrapperSpans', wrapperSpans);
     findSpanItem(wrapperSpans.before, allItems);
 
-    console.log('validHeadings', validHeadings);
     return validHeadings;
   }
 
@@ -181,7 +220,6 @@ export default class StructuralMetadataUtils {
 
       // Get before and after sibling spans
       let wrapperSpans = this.findWrapperSpans(spanObj, childSpans);
-      console.log('wrapperSpans', wrapperSpans);
 
       // Spans exist before, find the target insert index
       if (wrapperSpans.before) {

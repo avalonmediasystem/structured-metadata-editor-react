@@ -1,40 +1,53 @@
 import React from 'react';
 import List from './List';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { connect } from 'react-redux';
+import * as actions from '../actions/sm-data';
 
 const EditControls = props => {
-  const handleDelete = () => {
-    console.log('Delete it');
-  }
-
   return (
     <div className="edit-controls-wrapper">
-      <a href="/">(add {props.heading ? 'child' : 'parent'})</a>
       <FontAwesomeIcon icon="pen" />
-      <FontAwesomeIcon icon="trash" onClick={handleDelete} />
+      <FontAwesomeIcon icon="trash" onClick={props.handleDelete} />
     </div>
   );
 };
 
 const ListItem = props => {
-  const { begin, end, items, label, type } = props.item;
-  const subMenu =
-    items && items.length > 0 ? <List items={items} /> : null;
+  const {
+    item,
+    item: { begin },
+    item: { end },
+    item: { items },
+    item: { label },
+    item: { type }
+  } = props;
+  const subMenu = items && items.length > 0 ? <List items={items} /> : null;
+
+  const handleDelete = () => {
+    props.deleteItem(item);
+  };
 
   return (
     <li>
       <div className="row-wrapper">
         {type === 'span' && (
-          <span className="structure-title">{label} ({begin} - {end})</span>
+          <span className="structure-title">
+            {label} ({begin} - {end})
+          </span>
         )}
         {type === 'div' && (
           <div className="structure-title heading">{label}</div>
         )}
-        <EditControls heading={type === 'div'} />
+        <EditControls handleDelete={handleDelete} />
       </div>
       {subMenu}
     </li>
   );
 };
 
-export default ListItem;
+const mapStateToProps = state => ({
+  smData: state.smData
+});
+
+export default connect(mapStateToProps, actions)(ListItem);

@@ -1,11 +1,14 @@
 import * as types from '../actions/types';
+import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 
+const structrualMetadataUtils = new StructuralMetadataUtils();
 const initialState = [];
+let stateClone = null;
 
 const smData = (state = initialState, action) => {
   switch (action.type) {
     case types.ADD_HEADING:
-      let stateClone = [...state];
+      stateClone = [...state];
       stateClone.push(action.payload);
       return stateClone;
 
@@ -13,8 +16,7 @@ const smData = (state = initialState, action) => {
       return action.payload;
 
     case types.DELETE_ITEM:
-      return state;
-
+      return structrualMetadataUtils.deleteSpan(action.payload, [...state]);
     default:
       return state;
   }

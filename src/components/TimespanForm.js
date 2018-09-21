@@ -54,10 +54,15 @@ class TimespanForm extends Component {
     const timesExist =
       this.props.timespanInputBeginTime && this.props.timespanInputEndTime;
 
+    // console.log('mySyncErrors', mySyncErrors);
+    // console.log('timeSyncErrors', timeSyncErrors);
+    // console.log('timesExist', timesExist);
+    // console.log('headingUpdateInProgress', this.headingUpdateInProgress);
+    // console.log(' ');
+
     // If no sync errors for begin and end times, and an update is not already in progress,
     // and times exist, update heading dropdown
     if (!timeSyncErrors && timesExist && !this.headingUpdateInProgress) {
-      console.log('GOES IN');
       this.headingUpdateInProgress = true;
       this.buildHeadingsOptions();
     }
@@ -68,12 +73,11 @@ class TimespanForm extends Component {
       begin: this.props.timespanInputBeginTime,
       end: this.props.timespanInputEndTime
     };
-    // Get preceding span whose time ends before start time of new span
+    // Get spans in overall span list which fall before and after the new span
     let wrapperSpans = structuralMetadataUtils.findWrapperSpans(
       newSpan,
       allSpans
     );
-    console.log('wrapperSpans', wrapperSpans);
 
     // Get all valid div headings
     let validHeadings = structuralMetadataUtils.getValidHeadings(
@@ -81,7 +85,6 @@ class TimespanForm extends Component {
       wrapperSpans,
       this.props.smData
     );
-    console.log('validHeadings', validHeadings);
 
     // Update state with valid headings
     this.setState(
