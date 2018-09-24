@@ -21,7 +21,7 @@ export default class StructuralMetadataUtils {
     let indexToDelete = _.findIndex(parentDiv.items, { label: item.label });
 
     parentDiv.items.splice(indexToDelete, 1);
-    
+
     return clonedItems;
   }
 
@@ -121,58 +121,47 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   *
+   * Overall logic is to find existing before and after spans for the new object (time flow), and then
+   * their parent 'divs' would be valid headings.
    * @param {Object} newSpan - Object which has (at the least) { begin: '00:10:20.33', end: '00:15:88' } properties
-   * @param {Object} wrapperSpans Object in JSON tree which is the span which ends before new span
+   * @param {Object} wrapperSpans Object representing before and after spans of newSpan (if they exist)
    * @param {Array} allItems - All structural metadata items in tree
    * @return {Array} - of valid <div> objects in structural metadata tree
    */
   getValidHeadings(newSpan, wrapperSpans, allItems) {
     let validHeadings = [];
-    let precedingFound = false;
 
     let findSpanItem = (targetSpan, items) => {
-      
       for (let item of items) {
         // Children items exist
         if (item.items) {
-          // Check for a match in children items
+          // Check for a target span match
           let targetSpanMatch = item.items.filter(
             childItem => childItem.label === targetSpan.label
           );
-          // Match found for preceding span
+          // Match found
           if (targetSpanMatch.length > 0) {
             // Add parent div to valid array
             validHeadings.push(item);
-
-            if (precedingFound) {
-              return;
-            }
-
-            // Are there any sibling spans in "items" who have a begin time after newSpan's end time?
-            // If so, then this is the only possible header
-            let siblingAfterSpanMatch = item.items.filter(
-              childItem =>
-                this.milliseconds(childItem.begin) >=
-                this.milliseconds(newSpan.end)
-            );
-
-            if (siblingAfterSpanMatch.length === 0 && wrapperSpans.after) {
-              precedingFound = true;
-              // Now get <div> heading for the "after" <span>
-              findSpanItem(wrapperSpans.after, allItems);
-            } else {
-              break;
-            }
           }
           // Try deeper in list
           findSpanItem(targetSpan, item.items);
         }
       }
     };
-    // Find the preceding span first.  Might not need to find the after span
-    console.log('wrapperSpans', wrapperSpans);
-    findSpanItem(wrapperSpans.before, allItems);
+
+    // There are currently no spans, ALL headings are valid
+    if (!wrapperSpans.before && !wrapperSpans.after) {
+      // Get all headings and return them
+      validHeadings = this.getItemsOfType('div', allItems);
+    }
+
+    if (wrapperSpans.before) {
+      findSpanItem(wrapperSpans.before, allItems);
+    }
+    if (wrapperSpans.after) {
+      findSpanItem(wrapperSpans.after, allItems);
+    }
 
     return validHeadings;
   }
@@ -208,29 +197,22 @@ export default class StructuralMetadataUtils {
    */
   insertNewTimespan(obj, allItems) {
     let clonedItems = [...allItems];
-    const parentDivLabel = obj.timespanSelectChildOf;
-    let foundDiv = this.findItemByLabel(parentDivLabel, clonedItems);
+    let foundDiv = this.findItemByLabel(obj.timespanSelectChildOf, clonedItems);
     const spanObj = this.createSpanObject(obj);
-    let insertAfterIndex = 0;
+    let insertIndex = 0;
 
     // If children exist, add to list
     if (foundDiv) {
-      // Are there children spans?
       let childSpans = foundDiv.items.filter(item => item.type === 'span');
 
       // Get before and after sibling spans
       let wrapperSpans = this.findWrapperSpans(spanObj, childSpans);
 
-      // Spans exist before, find the target insert index
       if (wrapperSpans.before) {
-        foundDiv.items.forEach((item, i) => {
-          if (item.label === wrapperSpans.before.label) {
-            insertAfterIndex = i;
-          }
-        });
+        insertIndex = _.findIndex(foundDiv.items, { 'label': wrapperSpans.before.label }) + 1;
       }
       // Insert new span at appropriate index
-      foundDiv.items.splice(insertAfterIndex, 0, spanObj);
+      foundDiv.items.splice(insertIndex, 0, spanObj);
     }
 
     return clonedItems;

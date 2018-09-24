@@ -4,8 +4,8 @@ import List from '../components/List';
 
 class StructureOutputContainer extends Component {
   render() {
-    const {smData = []} = this.props;
-    
+    const { smData = [] } = this.props;
+
     return (
       <section>
         <hr />
