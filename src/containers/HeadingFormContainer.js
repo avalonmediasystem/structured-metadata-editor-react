@@ -6,7 +6,6 @@ import * as smActions from '../actions/sm-data';
 import * as showFormsActions from '../actions/show-forms';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import AlertDismissable from '../components/AlertDismissable';
-import { reset } from 'redux-form';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -31,13 +30,10 @@ class HeadingFormContainer extends Component {
         type: 'success',
         header: 'Success',
         body: `Heading "${
-          values.headingInputTitle
+          values.headingTitle
         }" has been added.`
       }
     });
-
-    // Reset the form values
-    this.props.reset('heading');
 
     // Close the form
     this.props.toggleHeading();
@@ -67,7 +63,6 @@ class HeadingFormContainer extends Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-  reset: formName => dispatch(reset(formName)),
   buildSMUI: data => dispatch(smActions.buildSMUI(data)),
   toggleHeading: () => dispatch(showFormsActions.toggleHeading())
 });

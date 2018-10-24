@@ -28,6 +28,10 @@ const ListItem = props => {
     props.deleteItem(item);
   };
 
+  const handleEditClick = () => {
+    
+  }
+
   return (
     <li>
       <div className="row-wrapper">
@@ -39,7 +43,7 @@ const ListItem = props => {
         {type === 'div' && (
           <div className="structure-title heading">{label}</div>
         )}
-        <EditControls handleDelete={handleDelete} />
+        <EditControls handleDelete={handleDelete} handleEditClick={handleEditClick} />
       </div>
       {subMenu}
     </li>

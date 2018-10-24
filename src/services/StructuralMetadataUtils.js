@@ -174,14 +174,14 @@ export default class StructuralMetadataUtils {
    */
   insertNewHeader(obj, allItems) {
     let clonedItems = [...allItems];
-    const targetLabel = obj.headingSelectChildOf;
+    const targetLabel = obj.headingChildOf;
     let foundDiv = this.findItemByLabel(targetLabel, clonedItems);
 
     // If children exist, add to list
     if (foundDiv) {
       foundDiv.items.push({
         type: 'div',
-        label: obj.headingInputTitle,
+        label: obj.headingTitle,
         items: []
       });
     }

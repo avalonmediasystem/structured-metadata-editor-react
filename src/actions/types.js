@@ -1,8 +1,11 @@
 export const TOGGLE_HEADING_FORM = 'TOGGLE_HEADING_FORM';
 export const TOGGLE_TIMESPAN_FORM = 'TOGGLE_TIMESPAN_FORM';
 export const ADD_HEADING = 'ADD_HEADING';
+export const EDIT_HEADING = 'EDIT_HEADING';
 export const ADD_TIME_SPAN = 'ADD_TIME_SPAN';
-
+export const EDIT_TIME_SPAN = 'EDIT_TIME_SPAN';
 export const BUILD_SM_UI = 'BUILD_SM_UI';
 
 export const DELETE_ITEM = 'DELETE_ITEM';
+
+
