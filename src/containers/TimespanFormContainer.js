@@ -6,7 +6,6 @@ import { CSSTransitionGroup } from 'react-transition-group';
 import * as smActions from '../actions/sm-data';
 import * as showFormsActions from '../actions/show-forms';
 import AlertDismissable from '../components/AlertDismissable';
-import { reset, getFormSyncErrors } from 'redux-form';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -16,7 +15,6 @@ class TimespanFormContainer extends Component {
   };
 
   submit = values => {
-    console.log('Submit new timespan values', values);
     // Update the data structure with new heading
     const updatedData = structuralMetadataUtils.insertNewTimespan(
       values,
@@ -31,12 +29,9 @@ class TimespanFormContainer extends Component {
       message: {
         type: 'success',
         header: 'Success',
-        body: `Timespan "${values.timespanInputTitle}" has been added.`
+        body: `Timespan "${values.timespanTitle}" has been added.`
       }
     });
-
-    // Reset the form values
-    this.props.reset('timespan');
 
     // Close the form
     this.props.toggleTimespan();
@@ -59,22 +54,20 @@ class TimespanFormContainer extends Component {
             message={message.body}
           />
         )}
-        {timespan ? <TimespanForm onSubmit={this.submit} mySyncErrors={this.props.syncErrors} /> : null}
+        {timespan ? <TimespanForm onSubmit={this.submit} /> : null}
       </CSSTransitionGroup>
     );
   }
 }
 
 const mapDispatchToProps = dispatch => ({
-  reset: formName => dispatch(reset(formName)),
   buildSMUI: data => dispatch(smActions.buildSMUI(data)),
   toggleTimespan: () => dispatch(showFormsActions.toggleTimespan())
 });
 
 const mapStateToProps = state => ({
   showForms: state.showForms,
-  smData: state.smData,
-  syncErrors: getFormSyncErrors('timespan')(state)
+  smData: state.smData
 });
 
 export default connect(

@@ -4,9 +4,9 @@ export default class StructuralMetadataUtils {
   createSpanObject(obj) {
     return {
       type: 'span',
-      label: obj.timespanInputTitle,
-      begin: obj.timespanInputBeginTime,
-      end: obj.timespanInputEndTime
+      label: obj.timespanTitle,
+      begin: obj.beginTime,
+      end: obj.endTime
     };
   }
 
@@ -197,7 +197,7 @@ export default class StructuralMetadataUtils {
    */
   insertNewTimespan(obj, allItems) {
     let clonedItems = [...allItems];
-    let foundDiv = this.findItemByLabel(obj.timespanSelectChildOf, clonedItems);
+    let foundDiv = this.findItemByLabel(obj.timespanChildOf, clonedItems);
     const spanObj = this.createSpanObject(obj);
     let insertIndex = 0;
 

@@ -15,6 +15,7 @@ class HeadingFormContainer extends Component {
   };
 
   submit = (values) => {
+    // TODO: possibly move this to a Redux action?
     // Update the data structure with new heading
     const updatedData = structuralMetadataUtils.insertNewHeader(
       values,

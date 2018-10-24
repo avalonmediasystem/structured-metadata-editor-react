@@ -6,10 +6,6 @@ import * as actions from '../actions/show-forms';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 class HeadingForm extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   state = {
     headingTitle: '',
     headingChildOf: '',
@@ -26,7 +22,7 @@ class HeadingForm extends Component {
   formIsValid() {
     const titleValid = this.state.headingTitle.length > 0;
     const childOfValid = this.state.headingChildOf.length > 0;
-    console.log('formIsValid', titleValid && childOfValid);
+
     return titleValid && childOfValid;
   }
 
