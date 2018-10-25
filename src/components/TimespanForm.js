@@ -28,7 +28,6 @@ class TimespanForm extends Component {
   }
 
   componentDidMount() {
-    // TODO: Re-compute this after the data structure updates
     this.allSpans = structuralMetadataUtils.getItemsOfType(
       'span',
       this.props.smData
@@ -66,9 +65,9 @@ class TimespanForm extends Component {
   formIsValid() {
     const titleValid = this.state.timespanTitle.length > 0;
     const childOfValid = this.state.timespanChildOf.length > 0;
-    const timesValid = this.validBeginEndTimes();
+    const timesValidResponse = this.validTimespans();
 
-    return titleValid && childOfValid && timesValid;
+    return titleValid && childOfValid && timesValidResponse.valid;
   }
 
   getValidationBeginState() {
@@ -170,34 +169,73 @@ class TimespanForm extends Component {
   };
 
   updateChildOfOptions() {
-    if (this.validBeginEndTimes()) {
+    let timesValidResponse = this.validTimespans();
+
+    if (timesValidResponse.valid) {
       this.buildHeadingsOptions();
     } else {
+      console.log(timesValidResponse.message);
       this.clearHeadingOptions();
     }
   }
 
-  validBeginEndTimes() {
+  /**
+   * Validates that the begin and end time span values are valid separately, and together
+   * in the region which they will create.
+   *
+   * This function also preps handy feedback messages we might want to display to the user
+   */
+  validTimespans() {
     const { beginTime, endTime } = this.state;
+    const { allSpans } = this;
+
+    // Valid formats?
     if (!this.validTimeFormat(beginTime)) {
-      return false;
+      return {
+        valid: false,
+        message: 'Invalid begin time format'
+      };
     }
     if (!this.validTimeFormat(endTime)) {
-      return false;
+      return {
+        valid: false,
+        message: 'Invalid end time format'
+      };
     }
-
-    if (!structuralMetadataUtils.doesTimeOverlap(beginTime, this.allSpans)) {
-      return false;
+    // Any individual overlapping?
+    if (!structuralMetadataUtils.doesTimeOverlap(beginTime, allSpans)) {
+      return {
+        valid: false,
+        message: 'Begin time overlaps an existing timespan region'
+      };
     }
-    if (!structuralMetadataUtils.doesTimeOverlap(endTime, this.allSpans)) {
-      return false;
+    if (!structuralMetadataUtils.doesTimeOverlap(endTime, allSpans)) {
+      return {
+        valid: false,
+        message: 'End time overlaps an existing timespan region'
+      };
     }
+    // Begin comes before end?
     if (
       !structuralMetadataUtils.validateBeforeEndTimeOrder(beginTime, endTime)
     ) {
-      return false;
+      return {
+        valid: false,
+        message: 'Begin time must start before end time'
+      };
     }
-    return true;
+    // Timespan range overlaps an existing timespan?
+    if (
+      structuralMetadataUtils.doesTimespanOverlap(beginTime, endTime, allSpans)
+    ) {
+      return {
+        valid: false,
+        message: 'New timespan region overlaps an existing timespan region'
+      };
+    }
+
+    // Success!
+    return { valid: true };
   }
 
   validTimeFormat(value) {
