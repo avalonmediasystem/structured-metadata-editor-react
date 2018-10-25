@@ -25,10 +25,10 @@ class TimespanForm extends Component {
       timespanTitle: '',
       validHeadings: []
     };
-    this.headingUpdateInProgress = false;
   }
 
   componentDidMount() {
+    // TODO: Re-compute this after the data structure updates
     this.allSpans = structuralMetadataUtils.getItemsOfType(
       'span',
       this.props.smData
@@ -67,7 +67,7 @@ class TimespanForm extends Component {
     const titleValid = this.state.timespanTitle.length > 0;
     const childOfValid = this.state.timespanChildOf.length > 0;
     const timesValid = this.validBeginEndTimes();
-    
+
     return titleValid && childOfValid && timesValid;
   }
 
@@ -79,7 +79,7 @@ class TimespanForm extends Component {
     }
 
     const validFormat = this.validTimeFormat(beginTime);
-    const validBeginTime = structuralMetadataUtils.validateBeginTime(
+    const validBeginTime = structuralMetadataUtils.doesTimeOverlap(
       beginTime,
       this.allSpans
     );
@@ -101,7 +101,7 @@ class TimespanForm extends Component {
     }
 
     const validFormat = this.validTimeFormat(endTime);
-    const validEndTime = structuralMetadataUtils.validateEndTime(
+    const validEndTime = structuralMetadataUtils.doesTimeOverlap(
       endTime,
       this.allSpans
     );
@@ -109,11 +109,21 @@ class TimespanForm extends Component {
       beginTime,
       endTime
     );
+    const doesTimespanOverlap = structuralMetadataUtils.doesTimespanOverlap(
+      beginTime,
+      endTime,
+      this.allSpans
+    );
 
-    if (validFormat && validEndTime && validOrdering) {
+    if (validFormat && validEndTime && validOrdering && !doesTimespanOverlap) {
       return 'success';
     }
-    if (!validFormat || !validEndTime || !validOrdering) {
+    if (
+      !validFormat ||
+      !validEndTime ||
+      !validOrdering ||
+      doesTimespanOverlap
+    ) {
       return 'error';
     }
     return null;
@@ -145,7 +155,7 @@ class TimespanForm extends Component {
       timespanChildOf,
       timespanTitle
     });
-  }
+  };
 
   handleTimeChange = e => {
     this.setState({ [e.target.id]: e.target.value }, this.updateChildOfOptions);
@@ -176,10 +186,10 @@ class TimespanForm extends Component {
       return false;
     }
 
-    if (!structuralMetadataUtils.validateBeginTime(beginTime, this.allSpans)) {
+    if (!structuralMetadataUtils.doesTimeOverlap(beginTime, this.allSpans)) {
       return false;
     }
-    if (!structuralMetadataUtils.validateEndTime(endTime, this.allSpans)) {
+    if (!structuralMetadataUtils.doesTimeOverlap(endTime, this.allSpans)) {
       return false;
     }
     if (
@@ -260,7 +270,11 @@ class TimespanForm extends Component {
         </FormGroup>
 
         <ButtonToolbar>
-          <Button bsStyle="primary" type="submit" disabled={!this.formIsValid()}>
+          <Button
+            bsStyle="primary"
+            type="submit"
+            disabled={!this.formIsValid()}
+          >
             Add
           </Button>
           <Button onClick={this.handleCancelClick}>Cancel</Button>

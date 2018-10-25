@@ -1,6 +1,12 @@
 import _ from 'lodash';
+import moment from 'moment';
 
 export default class StructuralMetadataUtils {
+  /**
+   * Helper function which creates an object with the shape our data structure requires
+   * @param {Object} obj
+   * @return {Object}
+   */
   createSpanObject(obj) {
     return {
       type: 'span',
@@ -14,6 +20,7 @@ export default class StructuralMetadataUtils {
    * Remove a targeted span object from data structure
    * @param {Object} item - span object
    * @param {Array} allItems array of items, usually all current items in the data structure
+   * @return {Array}
    */
   deleteSpan(item, allItems) {
     let clonedItems = [...allItems];
@@ -23,6 +30,41 @@ export default class StructuralMetadataUtils {
     parentDiv.items.splice(indexToDelete, 1);
 
     return clonedItems;
+  }
+
+  /**
+   * Determine whether a time overlaps (or falls between), an existing timespan's range
+   * @param {String} time - form input value
+   * @param {*} allSpans - all timespans in the data structure
+   * @return {Boolean}
+   */
+  doesTimeOverlap(time, allSpans) {
+    const { toMs } = this;
+    let valid = true;
+    time = toMs(time);
+
+    // Loop through all spans
+    for (let i in allSpans) {
+      let spanBegin = toMs(allSpans[i].begin);
+      let spanEnd = toMs(allSpans[i].end);
+
+      // Illegal time (falls between existing start/end times)
+      if (time >= spanBegin && time < spanEnd) {
+        valid = false;
+        break;
+      }
+    }
+    return valid;
+  }
+
+  doesTimespanOverlap(beginTime, endTime, allSpans) {
+    const { toMs } = this;
+    // Filter out only spans where new begin time is before an existing begin time
+    let filteredSpans = allSpans.filter(span => {
+      return toMs(beginTime) < toMs(span.begin);
+    });
+    // Return whether new end time overlaps the next begin time
+    return toMs(endTime) > toMs(filteredSpans[0].begin);
   }
 
   /**
@@ -54,15 +96,16 @@ export default class StructuralMetadataUtils {
    * @returns {Object} - wrapper <span>s object: { before: spanObject, after: spanObject }
    */
   findWrapperSpans(newSpan, allSpans) {
+    const { toMs } = this;
     let wrapperSpans = {
       before: null,
       after: null
     };
     let spansBefore = allSpans.filter(
-      span => this.milliseconds(newSpan.begin) >= this.milliseconds(span.end)
+      span => toMs(newSpan.begin) >= toMs(span.end)
     );
     let spansAfter = allSpans.filter(
-      span => this.milliseconds(newSpan.end) <= this.milliseconds(span.begin)
+      span => toMs(newSpan.end) <= toMs(span.begin)
     );
 
     wrapperSpans.before =
@@ -209,7 +252,8 @@ export default class StructuralMetadataUtils {
       let wrapperSpans = this.findWrapperSpans(spanObj, childSpans);
 
       if (wrapperSpans.before) {
-        insertIndex = _.findIndex(foundDiv.items, { 'label': wrapperSpans.before.label }) + 1;
+        insertIndex =
+          _.findIndex(foundDiv.items, { label: wrapperSpans.before.label }) + 1;
       }
       // Insert new span at appropriate index
       foundDiv.items.splice(insertIndex, 0, spanObj);
@@ -219,63 +263,26 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Helper function which converts '00:00:00' to a float milliseconds result
-   * @param {String} timeStr
-   * @returns {Number} - float milliseconds value
+   * Moment.js helper millisecond converter to make calculations consistent
+   * @param {String} strTime form input value
    */
-  milliseconds(timeStr = '0') {
-    let timeParts = timeStr.split(':');
-    if (timeParts.length === 1) {
-      return 0;
-    }
-    return parseFloat(
-      timeParts[0] * 60 * 60 + timeParts[1] * 60 + timeParts[2]
-    );
+  toMs(strTime) {
+    return moment.duration(strTime).asMilliseconds();
   }
 
-  validateEndTime(endTime, allSpans) {
-    let valid = true;
-
-    // Loop through all spans
-    for (let i in allSpans) {
-      let spanBegin = this.milliseconds(allSpans[i].begin);
-      let spanEnd = this.milliseconds(allSpans[i].end);
-      let newSpanEnd = this.milliseconds(endTime);
-
-      // Illegal begin time (falls between existing start/end times)
-      if (newSpanEnd >= spanBegin && newSpanEnd < spanEnd) {
-        valid = false;
-        break;
-      }
-    }
-    return valid;
-  }
-
+  /**
+   * Does 'before' time start prior to 'end' time?
+   * @param {String} begin form intput value
+   * @param {String} end form input value
+   * @return {Boolean}
+   */
   validateBeforeEndTimeOrder(begin, end) {
     if (!begin || !end) {
       return true;
     }
-    if (this.milliseconds(begin) >= this.milliseconds(end)) {
+    if (this.toMs(begin) >= this.toMs(end)) {
       return false;
     }
     return true;
-  }
-
-  validateBeginTime(beginTime, allSpans) {
-    let valid = true;
-
-    // Loop through all spans
-    for (let i in allSpans) {
-      let spanBegin = this.milliseconds(allSpans[i].begin);
-      let spanEnd = this.milliseconds(allSpans[i].end);
-      let newSpanBegin = this.milliseconds(beginTime);
-
-      // Illegal begin time (falls between existing start/end times)
-      if (newSpanBegin >= spanBegin && newSpanBegin < spanEnd) {
-        valid = false;
-        break;
-      }
-    }
-    return valid;
   }
 }
