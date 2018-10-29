@@ -1,11 +1,23 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
-import { ButtonToolbar, Button, ControlLabel, FormControl, FormGroup } from 'react-bootstrap';
+import {
+  ButtonToolbar,
+  Button,
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from 'react-bootstrap';
 import * as actions from '../actions/show-forms';
+import PropTypes from 'prop-types';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 class HeadingForm extends Component {
+  constructor(props) {
+    super(props);
+    this.unEditedItem = null;
+  }
+
   state = {
     headingTitle: '',
     headingChildOf: '',
@@ -13,17 +25,33 @@ class HeadingForm extends Component {
   };
 
   componentDidMount() {
-    let childOfOptions = this.getOptions();
-    this.setState({
-      childOfOptions
-    });
+    const { showForms } = this.props;
+
+    // Save the unedited version of item so we can find it later
+    if (this.props.showForms.mode === 'EDIT') {
+      this.unEditedItem = structuralMetadataUtils.findItemByLabel(
+        this.props.showForms.label,
+        this.props.smData
+      );
+    }
+
+    // Get select dropdown options
+    let obj = {
+      childOfOptions: this.getOptions()
+    };
+
+    // Edit mode: Load existing form values
+    if (showForms.mode === 'EDIT') {
+      obj = { ...obj, ...this.loadExistingValues() };
+    }
+    this.setState(obj);
   }
 
   formIsValid() {
-    const titleValid = this.state.headingTitle.length > 0;
-    const childOfValid = this.state.headingChildOf.length > 0;
+    const { headingTitle } = this.state;
+    const titleValid = headingTitle && headingTitle.length > 0;
 
-    return titleValid && childOfValid;
+    return titleValid;
   }
 
   getOptions() {
@@ -56,7 +84,7 @@ class HeadingForm extends Component {
 
   handleChildOfChange = e => {
     this.setState({ headingChildOf: e.target.value });
-  }
+  };
 
   handleHeadingChange = e => {
     this.setState({ headingTitle: e.target.value });
@@ -68,14 +96,33 @@ class HeadingForm extends Component {
 
     this.props.onSubmit({
       headingChildOf,
-      headingTitle
+      headingTitle,
+      unEditedItem: this.unEditedItem
     });
+  };
+
+  loadExistingValues() {
+    const { showForms, smData } = this.props;
+    let item = structuralMetadataUtils.findItemByLabel(showForms.label, smData);
+    let parentDiv = structuralMetadataUtils.getParentDiv(item, smData);
+
+    if (parentDiv) {
+      parentDiv = parentDiv.label;
+    }
+
+    return {
+      headingTitle: showForms.label,
+      headingChildOf: parentDiv || ''
+    };
   }
 
   render() {
+    const { formMode } = this.props;
+    const modeLabel = formMode === 'ADD' ? 'Add' : 'Edit';
+
     return (
       <form onSubmit={this.handleSubmit}>
-        <h4>Add New Heading</h4>
+        <h4>{modeLabel} Heading</h4>
         <FormGroup
           controlId="headingTitle"
           validationState={this.getValidationTitleState()}
@@ -91,15 +138,24 @@ class HeadingForm extends Component {
 
         <FormGroup controlId="headingChildOf">
           <ControlLabel>Child Of</ControlLabel>
-          <FormControl componentClass="select" placeholder="select" onChange={this.handleChildOfChange}>
+          <FormControl
+            componentClass="select"
+            placeholder="select"
+            onChange={this.handleChildOfChange}
+            value={this.state.headingChildOf}
+          >
             <option value="">Select...</option>
             {this.state.childOfOptions}
           </FormControl>
         </FormGroup>
 
         <ButtonToolbar>
-          <Button bsStyle="primary" type="submit" disabled={!this.formIsValid()}>
-            Add
+          <Button
+            bsStyle="primary"
+            type="submit"
+            disabled={!this.formIsValid()}
+          >
+            Save
           </Button>
           <Button onClick={this.handleCancelClick}>Cancel</Button>
         </ButtonToolbar>
@@ -108,7 +164,12 @@ class HeadingForm extends Component {
   }
 }
 
+HeadingForm.propTypes = {
+  onSubmit: PropTypes.func
+};
+
 const mapStateToProps = state => ({
+  showForms: state.showForms,
   smData: state.smData
 });
 

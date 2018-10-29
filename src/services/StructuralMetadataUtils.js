@@ -17,12 +17,12 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Remove a targeted span object from data structure
+   * Remove a targeted list item object from data structure
    * @param {Object} item - span object
    * @param {Array} allItems array of items, usually all current items in the data structure
    * @return {Array}
    */
-  deleteSpan(item, allItems) {
+  deleteListItem(item, allItems) {
     let clonedItems = [...allItems];
     let parentDiv = this.getParentDiv(item, clonedItems);
     let indexToDelete = _.findIndex(parentDiv.items, { label: item.label });
@@ -218,7 +218,7 @@ export default class StructuralMetadataUtils {
   insertNewHeader(obj, allItems) {
     let clonedItems = [...allItems];
     const targetLabel = obj.headingChildOf;
-    let foundDiv = this.findItemByLabel(targetLabel, clonedItems);
+    let foundDiv = this.findItemByLabel(targetLabel, clonedItems) || clonedItems[0];
 
     // If children exist, add to list
     if (foundDiv) {

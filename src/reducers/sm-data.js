@@ -16,7 +16,7 @@ const smData = (state = initialState, action) => {
       return action.payload;
 
     case types.DELETE_ITEM:
-      return structrualMetadataUtils.deleteSpan(action.payload, [...state]);
+      return structrualMetadataUtils.deleteListItem(action.payload, [...state]);
     default:
       return state;
   }

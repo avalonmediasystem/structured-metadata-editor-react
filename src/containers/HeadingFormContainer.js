@@ -14,25 +14,39 @@ class HeadingFormContainer extends Component {
     message: null
   };
 
-  submit = (values) => {
-    // TODO: possibly move this to a Redux action?
+  submit = values => {
+    const { mode } = this.props.showForms;
+    console.log('mode', mode);
+    console.log('values', values);
+    // TODO: possibly move "add" or "edit" to an abstracted Redux action?
+
+    let newItem = {
+      headingChildOf: values.headingChildOf,
+      headingTitle: values.headingTitle
+    };
+
+    // Delete the original heading item first, if editing
+    let smData =
+      mode === 'EDIT'
+        ? structuralMetadataUtils.deleteListItem(values.unEditedItem, this.props.smData)
+        : this.props.smData;
+    
     // Update the data structure with new heading
-    const updatedData = structuralMetadataUtils.insertNewHeader(
-      values,
-      this.props.smData
-    );
+    const updatedData = structuralMetadataUtils.insertNewHeader(newItem, smData);
 
     // Update redux store
     this.props.buildSMUI(updatedData);
+
+    let message = `Heading "${values.headingTitle}" has been ${
+      mode === 'EDIT' ? 'updated' : 'added'
+    }.`;
 
     // Show success message
     this.setState({
       message: {
         type: 'success',
         header: 'Success',
-        body: `Heading "${
-          values.headingTitle
-        }" has been added.`
+        body: message
       }
     });
 
@@ -57,7 +71,7 @@ class HeadingFormContainer extends Component {
             message={message.body}
           />
         )}
-        {heading ? <HeadingForm onSubmit={this.submit} key={1} /> : null}
+        {heading ? <HeadingForm onSubmit={this.submit} /> : null}
       </CSSTransitionGroup>
     );
   }

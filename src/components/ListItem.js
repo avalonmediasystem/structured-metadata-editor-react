@@ -2,12 +2,14 @@ import React from 'react';
 import List from './List';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
-import * as actions from '../actions/sm-data';
+import * as smActions from '../actions/sm-data';
+import * as showFormActions from '../actions/show-forms';
+import PropTypes from 'prop-types';
 
 const EditControls = props => {
   return (
     <div className="edit-controls-wrapper">
-      <FontAwesomeIcon icon="pen" />
+      <FontAwesomeIcon icon="pen" onClick={props.handleEditClick} />
       <FontAwesomeIcon icon="trash" onClick={props.handleDelete} />
     </div>
   );
@@ -29,7 +31,12 @@ const ListItem = props => {
   };
 
   const handleEditClick = () => {
-    
+    const { label, type } = item;
+    // Edit Heading
+    if (type === 'div') {
+      props.toggleHeading(true, 'EDIT', label);
+    }
+
   }
 
   return (
@@ -50,8 +57,24 @@ const ListItem = props => {
   );
 };
 
+ListItem.propTypes = {
+  item: PropTypes.shape({
+    begin: PropTypes.string,
+    end: PropTypes.string,
+    items: PropTypes.array,
+    label: PropTypes.string,
+    type: PropTypes.string
+  })
+};
+
+const mapDispatchToProps = {
+  deleteItem: smActions.deleteItem,
+  toggleHeading: showFormActions.toggleHeading,
+  toggleTimespan: showFormActions.toggleTimespan,
+
+}
 const mapStateToProps = state => ({
   smData: state.smData
 });
 
-export default connect(mapStateToProps, actions)(ListItem);
+export default connect(mapStateToProps, mapDispatchToProps)(ListItem);
