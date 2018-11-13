@@ -218,11 +218,12 @@ export default class StructuralMetadataUtils {
   insertNewHeader(obj, allItems) {
     let clonedItems = [...allItems];
     const targetLabel = obj.headingChildOf;
-    let foundDiv = this.findItemByLabel(targetLabel, clonedItems) || clonedItems[0];
+    let foundDiv =
+      this.findItemByLabel(targetLabel, clonedItems) || clonedItems[0];
 
     // If children exist, add to list
     if (foundDiv) {
-      foundDiv.items.push({
+      foundDiv.items.unshift({
         type: 'div',
         label: obj.headingTitle,
         items: []
@@ -260,6 +261,46 @@ export default class StructuralMetadataUtils {
     }
 
     return clonedItems;
+  }
+
+  removeActiveDragSources(allItems) {
+    let removeActive = parent => {
+      if (!parent.items) {
+        if (parent.active) {
+          parent.active = false;
+        }
+        return parent;
+      }
+
+      parent.items = parent.items
+        .map(child => removeActive(child));
+      
+      return parent;
+    }
+    let cleanItems = removeActive(allItems[0]);
+    console.log('clean active items', cleanItems);
+    return [cleanItems];
+  }
+
+  /**
+   * Recursive function to remove all temporary Drop Target objects from the structured metadata items
+   * @param {Array} allItems
+   */
+  removeDropTargets(allItems) {
+    let removeFromTree = (parent, childTypeToRemove) => {
+      if (!parent.items) {
+        return parent;
+      }
+
+      parent.items = parent.items
+        .filter(child => child.type !== childTypeToRemove)
+        .map(child => removeFromTree(child, childTypeToRemove));
+
+      return parent;
+    };
+    let cleanItems = removeFromTree(allItems[0], 'optional');
+    console.log('cleanItems', [cleanItems]);
+    return [cleanItems];
   }
 
   /**

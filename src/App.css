@@ -18,6 +18,12 @@ section {
   list-style: none;
 }
 
+.structure-list li.active .row-wrapper {
+  background: lightgoldenrodyellow;
+  border: 2px dashed #999;
+  opacity: .8
+}
+
 .structure-title.heading {
   font-weight: bold;
 }
@@ -46,10 +52,6 @@ section {
   width: 100%;
   height: 400px;
   overflow: auto;
-}
-
-section.demo-html-structure-tree {
-  
 }
 
 /* Transitions */
