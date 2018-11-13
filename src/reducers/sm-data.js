@@ -4,6 +4,7 @@ import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 const structrualMetadataUtils = new StructuralMetadataUtils();
 const initialState = [];
 let stateClone = null;
+let newState = null;
 
 const smData = (state = initialState, action) => {
   switch (action.type) {
@@ -19,14 +20,11 @@ const smData = (state = initialState, action) => {
       return structrualMetadataUtils.deleteListItem(action.payload, [...state]);
 
     case types.ADD_DROP_TARGETS:
-      let stateClone2 = [...state];
-      stateClone2[0].items.unshift({
-        type: 'optional'
-      });
-      return stateClone2;
+      newState = structrualMetadataUtils.determineDropTargets(action.payload, [...state]);
+      return newState;
 
     case types.REMOVE_DROP_TARGETS:
-      let noDropTargetsState = structrualMetadataUtils.removeDropTargets(state);
+      let noDropTargetsState = structrualMetadataUtils.removeDropTargets([...state]);
       return noDropTargetsState;
 
     case types.SET_ACTIVE_DRAG_SOURCE:
@@ -35,10 +33,8 @@ const smData = (state = initialState, action) => {
         action.label,
         stateClone
       );
-
       // Put an active flag on list item
       target.active = true;
-
       return stateClone;
 
     case types.REMOVE_ACTIVE_DRAG_SOURCES:
@@ -46,6 +42,14 @@ const smData = (state = initialState, action) => {
         state
       );
       return noActiveDragSourcesState;
+
+    case types.HANDLE_LIST_ITEM_DROP:
+      newState = structrualMetadataUtils.handleListItemDrop(
+        action.dragSource,
+        action.dropTarget,
+        state
+      );
+      return newState;
 
     default:
       return state;

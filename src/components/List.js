@@ -10,7 +10,7 @@ const List = props => {
           return null;
         }
         if (item.type === 'optional') {
-          return <PlaceholderItem key={i} />
+          return <PlaceholderItem key={i} item={item} />
         }
         return <ListItem key={item.label} item={item} />;
       })}

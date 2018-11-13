@@ -33,6 +33,22 @@ export default class StructuralMetadataUtils {
   }
 
   /**
+   * Update the data structure to represent all possible dropTargets for the provided dragSource
+   * @param {Object} dragSource
+   * @param {Object} allItems
+   * @returns {Array} - new computed items
+   */
+  determineDropTargets(dragSource, allItems) {
+    //TODO: Build this out
+    const clonedItems = [...allItems];
+    clonedItems[0].items.unshift({
+      type: 'optional',
+      label: 'lasdfasdlkj'
+    });
+    return clonedItems;
+  }
+
+  /**
    * Determine whether a time overlaps (or falls between), an existing timespan's range
    * @param {String} time - form input value
    * @param {*} allSpans - all timespans in the data structure
@@ -210,6 +226,36 @@ export default class StructuralMetadataUtils {
   }
 
   /**
+   * Helper function which handles React Dnd's dropping of a dragSource onto a dropTarget
+   * It needs to re-arrange the data structure to reflect the new positions
+   * @param {Object} dragSource - a minimal object React DnD uses with only the label value
+   * @param {Object} dropTarget
+   * @param {Array} allItems
+   * @returns {Array}
+   */
+  handleListItemDrop(dragSource, dropTarget, allItems) {
+    let clonedItems = [...allItems];
+    let itemToMove = this.findItemByLabel(dragSource.label, clonedItems);
+
+    // Slice out previous position of itemToMove
+    let itemToMoveParent = this.getParentDiv(itemToMove, clonedItems);
+    let itemToMoveItemIndex = itemToMoveParent.items
+      .map(item => item.label)
+      .indexOf(itemToMove.label);
+    itemToMoveParent.items.splice(itemToMoveItemIndex, 1);
+
+    // Place itemToMove right after the placeholder array position
+    let dropTargetParent = this.getParentDiv(dropTarget, clonedItems);
+    let dropTargetItemIndex = dropTargetParent.items
+      .map(item => item.label)
+      .indexOf(dropTarget.label);
+    dropTargetParent.items.splice(dropTargetItemIndex, 0, itemToMove);
+
+    // Get rid of all placeholder elements
+    return this.removeDropTargets(clonedItems);
+  }
+
+  /**
    * Insert a new heading as child of an existing heading
    * @param {Object} obj - new heading object to insert
    * @param {Array} allItems - The entire structured metadata collection
@@ -263,6 +309,11 @@ export default class StructuralMetadataUtils {
     return clonedItems;
   }
 
+  /**
+   * Recursive function to clean out any 'active' drag item property in the data structure
+   * @param {Array} allItems
+   * @returns {Array}
+   */
   removeActiveDragSources(allItems) {
     let removeActive = parent => {
       if (!parent.items) {
@@ -271,12 +322,10 @@ export default class StructuralMetadataUtils {
         }
         return parent;
       }
+      parent.items = parent.items.map(child => removeActive(child));
 
-      parent.items = parent.items
-        .map(child => removeActive(child));
-      
       return parent;
-    }
+    };
     let cleanItems = removeActive(allItems[0]);
     console.log('clean active items', cleanItems);
     return [cleanItems];

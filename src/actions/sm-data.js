@@ -45,3 +45,11 @@ export function removeActiveDragSources() {
     type: types.REMOVE_ACTIVE_DRAG_SOURCES
   };
 }
+
+export function handleListItemDrop(dragSource, dropTarget) {
+  return {
+    type: types.HANDLE_LIST_ITEM_DROP,
+    dragSource,
+    dropTarget
+  };
+}

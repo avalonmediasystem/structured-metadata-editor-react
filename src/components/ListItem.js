@@ -18,7 +18,6 @@ const spanSource = {
 const spanTarget = {
   canDrop(props, monitor) {
     // You can disallow drop based on props or item
-    const item = monitor.getItem();
     return true;
   },
 
@@ -35,26 +34,7 @@ const spanTarget = {
     }
 
     // You will receive hover() even for items for which canDrop() is false
-    const canDrop = monitor.canDrop();
-  },
-
-  drop(props, monitor, component) {
-    if (monitor.didDrop()) {
-      // If you want, you can check whether some nested
-      // target already handled drop
-      return;
-    }
-    console.log('dropped');
-
-    // Obtain the dragged item
-    const item = monitor.getItem();
-
-    // You can do something with it
-
-    // You can also do nothing and return a drop result,
-    // which will be available as monitor.getDropResult()
-    // in the drag source's endDrag() method
-    return { moved: true };
+    //const canDrop = monitor.canDrop();
   }
 };
 
@@ -121,24 +101,23 @@ class ListItem extends Component {
       item,
       removeActiveDragSources,
       removeDropTargets,
-      setActiveDragSource,
-      smData
+      setActiveDragSource
     } = this.props;
 
     // Clear out any current drop targets
-    removeDropTargets(smData);
+    removeDropTargets();
 
     // Handle closing of current drag source drop targets, and exit with a clean UI.
     if (item.active === true) {
       // Clear out any active drag sources
-      removeActiveDragSources(smData);
+      removeActiveDragSources();
       return;
     }
     // Clear out any active drag sources
-    removeActiveDragSources(smData);
+    removeActiveDragSources();
 
     // Calculate possible drop targets
-    addDropTargets();
+    addDropTargets(item);
 
     // Redux way of setting active drag list item
     setActiveDragSource(item.label);
@@ -146,7 +125,6 @@ class ListItem extends Component {
 
   render() {
     const {
-      item,
       item: { begin },
       item: { end },
       item: { items },
