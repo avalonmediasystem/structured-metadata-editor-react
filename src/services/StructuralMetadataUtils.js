@@ -1,7 +1,33 @@
 import _ from 'lodash';
 import moment from 'moment';
+import uuidv1 from 'uuid/v1';
+
+/**
+ * Rules - https://github.com/avalonmediasystem/avalon/issues/3022
+ *
+ * a timespan does not allow overlap.
+ * a timepan can not be out of order.
+ * a timespan can not be demoted from a parent unless it is the last item in the relationship (last child), as it would create an out of order item.
+ * Timespans can only be moved ONE parent- level up or down.
+ * Use an arrow and handle click.
+ * Only first and last time-spans can be moved. Middle Children are stuck.
+ * Headings are ordered by the children they have.
+ * If when creating a timespan, you butt against the start or end of another timespan, you have to change the other timepan first.
+ * Labels can be edited at will.
+ */
 
 export default class StructuralMetadataUtils {
+  /**
+   * Helper function to create a dropZone object for drag and drop
+   * @returns {Object}
+   */
+  createDropZoneObject() {
+    return {
+      type: 'optional',
+      label: uuidv1()
+    };
+  }
+
   /**
    * Helper function which creates an object with the shape our data structure requires
    * @param {Object} obj
@@ -41,10 +67,56 @@ export default class StructuralMetadataUtils {
   determineDropTargets(dragSource, allItems) {
     //TODO: Build this out
     const clonedItems = [...allItems];
-    clonedItems[0].items.unshift({
-      type: 'optional',
-      label: 'lasdfasdlkj'
-    });
+
+    // <span>
+    if (dragSource.type === 'span') {
+      let parentDiv = this.getParentDiv(dragSource, clonedItems);
+      let siblingSpans = parentDiv ? parentDiv.items : [];
+      let spanIndex = siblingSpans
+        .map(span => span.label)
+        .indexOf(dragSource.label);
+      let stuckInMiddle = [0, siblingSpans.length].indexOf(spanIndex) === -1;
+
+      // If span falls in the middle of other spans, it can't be moved
+      if (stuckInMiddle) {
+        return clonedItems;
+      }
+
+      // Handle moving up
+      if (spanIndex === 0) {
+        // Is there a sibling headline one level up?
+        let grandParentDiv = this.getParentDiv(parentDiv, clonedItems);
+        let parentIndex = grandParentDiv.items
+          .map(item => item.label)
+          .indexOf(parentDiv.label);
+
+        // Parent is the first child, so can't move because the rule states a span can only be moved
+        // one level up/down.
+        if (parentIndex === 0) {
+          return clonedItems;
+        }
+
+        let parentsSiblingBefore = grandParentDiv.items[parentIndex - 1];
+
+        // Parent's sibling before is a 'span', so insert right before parent
+        if (parentsSiblingBefore.type === 'span') {
+          // Insert right before parentDiv
+          grandParentDiv.items.splice(
+            parentIndex,
+            0,
+            this.createDropZoneObject()
+          );
+        }
+
+        // Parent's sibling after is a 'div', insert at end of the div's 'items[]'
+        if (parentsSiblingBefore.type === 'div') {
+          if (parentsSiblingBefore.items) {
+            parentsSiblingBefore.items.push(this.createDropZoneObject());
+          }
+        }
+      }
+    }
+
     return clonedItems;
   }
 
@@ -327,7 +399,7 @@ export default class StructuralMetadataUtils {
       return parent;
     };
     let cleanItems = removeActive(allItems[0]);
-    console.log('clean active items', cleanItems);
+
     return [cleanItems];
   }
 
@@ -348,7 +420,7 @@ export default class StructuralMetadataUtils {
       return parent;
     };
     let cleanItems = removeFromTree(allItems[0], 'optional');
-    console.log('cleanItems', [cleanItems]);
+
     return [cleanItems];
   }
 

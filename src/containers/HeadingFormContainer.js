@@ -16,8 +16,6 @@ class HeadingFormContainer extends Component {
 
   submit = values => {
     const { mode } = this.props.showForms;
-    console.log('mode', mode);
-    console.log('values', values);
     // TODO: possibly move "add" or "edit" to an abstracted Redux action?
 
     let newItem = {

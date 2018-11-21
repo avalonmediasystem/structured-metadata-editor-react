@@ -174,7 +174,6 @@ class TimespanForm extends Component {
     if (timesValidResponse.valid) {
       this.buildHeadingsOptions();
     } else {
-      console.log(timesValidResponse.message);
       this.clearHeadingOptions();
     }
   }

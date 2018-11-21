@@ -21,9 +21,10 @@ export function deleteItem(item) {
   };
 }
 
-export function addDropTargets() {
+export function addDropTargets(item) {
   return {
-    type: types.ADD_DROP_TARGETS
+    type: types.ADD_DROP_TARGETS,
+    payload: item
   };
 }
 
