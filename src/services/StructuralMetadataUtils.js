@@ -65,53 +65,109 @@ export default class StructuralMetadataUtils {
    * @returns {Array} - new computed items
    */
   determineDropTargets(dragSource, allItems) {
-    //TODO: Build this out
     const clonedItems = [...allItems];
 
-    // <span>
     if (dragSource.type === 'span') {
+      let wrapperSpans = this.findWrapperSpans(
+        dragSource,
+        this.getItemsOfType('span', clonedItems)
+      );
       let parentDiv = this.getParentDiv(dragSource, clonedItems);
-      let siblingSpans = parentDiv ? parentDiv.items : [];
-      let spanIndex = siblingSpans
-        .map(span => span.label)
+      let siblings = parentDiv ? parentDiv.items : [];
+      let spanIndex = siblings
+        .map(sibling => sibling.label)
         .indexOf(dragSource.label);
-      let stuckInMiddle = [0, siblingSpans.length].indexOf(spanIndex) === -1;
+      let stuckInMiddle =
+        spanIndex !== 0 &&
+        spanIndex !== siblings.length - 1 &&
+        parentDiv.items[spanIndex - 1].type === 'span' &&
+        parentDiv.items[spanIndex + 1].type === 'span';
 
       // If span falls in the middle of other spans, it can't be moved
       if (stuckInMiddle) {
         return clonedItems;
       }
 
-      // Handle moving up
-      if (spanIndex === 0) {
-        // Is there a sibling headline one level up?
-        let grandParentDiv = this.getParentDiv(parentDiv, clonedItems);
-        let parentIndex = grandParentDiv.items
-          .map(item => item.label)
-          .indexOf(parentDiv.label);
+      // Sibling before is a div?
+      if (spanIndex !== 0 && siblings[spanIndex - 1].type === 'div') {
+        let sibling = siblings[spanIndex - 1];
+        if (sibling.items) {
+          sibling.items.push(this.createDropZoneObject());
+        } else {
+          sibling.items = [this.createDropZoneObject()];
+        }
+      }
 
-        // Parent is the first child, so can't move because the rule states a span can only be moved
-        // one level up/down.
-        if (parentIndex === 0) {
+      // Sibling after is a div?
+      if (
+        spanIndex !== siblings.length - 1 &&
+        siblings[spanIndex + 1].type === 'div'
+      ) {
+        let sibling = siblings[spanIndex + 1];
+        if (sibling.items) {
+          sibling.items.unshift(this.createDropZoneObject());
+        } else {
+          sibling.items = [this.createDropZoneObject()];
+        }
+      }
+
+      let grandParentDiv = this.getParentDiv(parentDiv, clonedItems);
+      let parentIndex = grandParentDiv
+        ? grandParentDiv.items.map(item => item.label).indexOf(parentDiv.label)
+        : null;
+
+      // A first child of siblings, or an only child
+      if (spanIndex === 0) {
+        // Can't move up
+        if (parentIndex === null) {
           return clonedItems;
         }
 
-        let parentsSiblingBefore = grandParentDiv.items[parentIndex - 1];
-
-        // Parent's sibling before is a 'span', so insert right before parent
-        if (parentsSiblingBefore.type === 'span') {
-          // Insert right before parentDiv
+        if (grandParentDiv) {
+          // Insert directly before the parent div
           grandParentDiv.items.splice(
             parentIndex,
             0,
             this.createDropZoneObject()
           );
-        }
 
-        // Parent's sibling after is a 'div', insert at end of the div's 'items[]'
-        if (parentsSiblingBefore.type === 'div') {
-          if (parentsSiblingBefore.items) {
-            parentsSiblingBefore.items.push(this.createDropZoneObject());
+          // Insert after the "before" wrapper span (if one exists)
+          if (wrapperSpans.before) {
+            let beforeParent = this.getParentDiv(
+              wrapperSpans.before,
+              clonedItems
+            );
+            let beforeIndex = beforeParent.items
+              .map(item => item.label)
+              .indexOf(wrapperSpans.before.label);
+
+            // Before the insert, check that the dropTarget index doesn't already exist
+            if (
+              beforeParent.items[beforeIndex + 1] &&
+              beforeParent.items[beforeIndex + 1].type !== 'optional'
+            ) {
+              beforeParent.items.splice(
+                beforeIndex + 1,
+                0,
+                this.createDropZoneObject()
+              );
+            }
+          }
+
+          // Insert before the "after" wrapper span (if one exists)
+          if (wrapperSpans.after) {
+            let afterParent = this.getParentDiv(
+              wrapperSpans.after,
+              clonedItems
+            );
+            let afterIndex = afterParent.items
+              .map(item => item.label)
+              .indexOf(wrapperSpans.after.label);
+            afterParent.items.splice(
+              afterIndex,
+              0,
+              this.createDropZoneObject()
+            );
           }
         }
       }
