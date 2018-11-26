@@ -77,11 +77,7 @@ export default class StructuralMetadataUtils {
       let spanIndex = siblings
         .map(sibling => sibling.label)
         .indexOf(dragSource.label);
-      let stuckInMiddle =
-        spanIndex !== 0 &&
-        spanIndex !== siblings.length - 1 &&
-        parentDiv.items[spanIndex - 1].type === 'span' &&
-        parentDiv.items[spanIndex + 1].type === 'span';
+      let stuckInMiddle = this.dndHelper.stuckInMiddle(spanIndex, siblings, parentDiv);
 
       // If span falls in the middle of other spans, it can't be moved
       if (stuckInMiddle) {
@@ -156,25 +152,44 @@ export default class StructuralMetadataUtils {
 
           // Insert before the "after" wrapper span (if one exists)
           if (wrapperSpans.after) {
-            let afterParent = this.getParentDiv(
-              wrapperSpans.after,
-              clonedItems
-            );
-            let afterIndex = afterParent.items
-              .map(item => item.label)
-              .indexOf(wrapperSpans.after.label);
-            afterParent.items.splice(
-              afterIndex,
-              0,
-              this.createDropZoneObject()
-            );
+            this.dndHelper.addSpanAfter(clonedItems, wrapperSpans.after);
           }
+        }
+      }
+
+      // Last child of siblings
+      if (spanIndex === siblings.length - 1 && spanIndex !== 0) {
+        if (wrapperSpans.after) {
+          this.dndHelper.addSpanAfter(clonedItems, wrapperSpans.after);
         }
       }
     }
 
     return clonedItems;
   }
+
+  /**
+   * Helper object for drag and drop data structure manipulations
+   * This mutates the state of the data structure
+   */
+  dndHelper = {
+    addSpanAfter: (clonedItems, wrapperSpanAfter) => {
+      let afterParent = this.getParentDiv(wrapperSpanAfter, clonedItems);
+      let afterIndex = afterParent.items
+        .map(item => item.label)
+        .indexOf(wrapperSpanAfter.label);
+
+      afterParent.items.splice(afterIndex, 0, this.createDropZoneObject());
+    },
+    stuckInMiddle: (spanIndex, siblings, parentDiv) => {
+      return (
+        spanIndex !== 0 &&
+        spanIndex !== siblings.length - 1 &&
+        parentDiv.items[spanIndex - 1].type === 'span' &&
+        parentDiv.items[spanIndex + 1].type === 'span'
+      );
+    }
+  };
 
   /**
    * Determine whether a time overlaps (or falls between), an existing timespan's range
