@@ -18,3 +18,13 @@ export const toggleTimespan = (show, mode='ADD') => ({
   show,
   mode
 });
+
+export const showModal = (label, listItemType) => ({
+  type: types.SHOW_MODAL,
+  label,
+  listItemType
+});
+
+export const closeModal = () => ({
+  type: types.CLOSE_MODAL
+});

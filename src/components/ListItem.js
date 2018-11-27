@@ -89,10 +89,13 @@ class ListItem extends Component {
 
   handleEditClick = () => {
     const { label, type } = this.props.item;
-    // Edit Heading
-    if (type === 'div') {
-      this.props.toggleHeading(true, 'EDIT', label);
-    }
+    
+    console.log('fires showModal');
+    this.props.showModal(label, type);
+    // // Edit Heading
+    // if (type === 'div') {
+    //   this.props.toggleHeading(true, 'EDIT', label);
+    // }
   };
 
   handleShowDropTargetsClick = () => {
@@ -171,7 +174,8 @@ const mapDispatchToProps = {
   addDropTargets: smActions.addDropTargets,
   removeDropTargets: smActions.removeDropTargets,
   removeActiveDragSources: smActions.removeActiveDragSources,
-  setActiveDragSource: smActions.setActiveDragSource
+  setActiveDragSource: smActions.setActiveDragSource,
+  showModal: showFormActions.showModal
 };
 
 const mapStateToProps = state => ({

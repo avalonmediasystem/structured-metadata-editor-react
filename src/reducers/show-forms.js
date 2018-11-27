@@ -2,7 +2,8 @@ import * as types from '../actions/types';
 
 const initialState = {
   heading: false,
-  timespan: false
+  timespan: false,
+  modal: false
 };
 
 const showForms = (state = initialState, action) => {
@@ -17,6 +18,15 @@ const showForms = (state = initialState, action) => {
       return Object.assign({}, state, {
         timespan: action.show,
         mode: action.mode
+      });
+    case types.SHOW_MODAL:
+      console.log('show modal reducer');
+      return Object.assign({}, state, {
+        modal: true
+      });
+    case types.CLOSE_MODAL:
+      return Object.assign({}, state, {
+        modal: false
       });
     default:
       return state;
