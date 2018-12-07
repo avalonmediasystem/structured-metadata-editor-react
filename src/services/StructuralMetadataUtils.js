@@ -1,7 +1,33 @@
 import _ from 'lodash';
 import moment from 'moment';
+import uuidv1 from 'uuid/v1';
+
+/**
+ * Rules - https://github.com/avalonmediasystem/avalon/issues/3022
+ *
+ * a timespan does not allow overlap.
+ * a timepan can not be out of order.
+ * a timespan can not be demoted from a parent unless it is the last item in the relationship (last child), as it would create an out of order item.
+ * Timespans can only be moved ONE parent- level up or down.
+ * Use an arrow and handle click.
+ * Only first and last time-spans can be moved. Middle Children are stuck.
+ * Headings are ordered by the children they have.
+ * If when creating a timespan, you butt against the start or end of another timespan, you have to change the other timepan first.
+ * Labels can be edited at will.
+ */
 
 export default class StructuralMetadataUtils {
+  /**
+   * Helper function to create a dropZone object for drag and drop
+   * @returns {Object}
+   */
+  createDropZoneObject() {
+    return {
+      type: 'optional',
+      label: uuidv1()
+    };
+  }
+
   /**
    * Helper function which creates an object with the shape our data structure requires
    * @param {Object} obj
@@ -17,12 +43,12 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Remove a targeted span object from data structure
+   * Remove a targeted list item object from data structure
    * @param {Object} item - span object
    * @param {Array} allItems array of items, usually all current items in the data structure
    * @return {Array}
    */
-  deleteSpan(item, allItems) {
+  deleteListItem(item, allItems) {
     let clonedItems = [...allItems];
     let parentDiv = this.getParentDiv(item, clonedItems);
     let indexToDelete = _.findIndex(parentDiv.items, { label: item.label });
@@ -31,6 +57,139 @@ export default class StructuralMetadataUtils {
 
     return clonedItems;
   }
+
+  /**
+   * Update the data structure to represent all possible dropTargets for the provided dragSource
+   * @param {Object} dragSource
+   * @param {Object} allItems
+   * @returns {Array} - new computed items
+   */
+  determineDropTargets(dragSource, allItems) {
+    const clonedItems = [...allItems];
+
+    if (dragSource.type === 'span') {
+      let wrapperSpans = this.findWrapperSpans(
+        dragSource,
+        this.getItemsOfType('span', clonedItems)
+      );
+      let parentDiv = this.getParentDiv(dragSource, clonedItems);
+      let siblings = parentDiv ? parentDiv.items : [];
+      let spanIndex = siblings
+        .map(sibling => sibling.label)
+        .indexOf(dragSource.label);
+      let stuckInMiddle = this.dndHelper.stuckInMiddle(spanIndex, siblings, parentDiv);
+
+      // If span falls in the middle of other spans, it can't be moved
+      if (stuckInMiddle) {
+        return clonedItems;
+      }
+
+      // Sibling before is a div?
+      if (spanIndex !== 0 && siblings[spanIndex - 1].type === 'div') {
+        let sibling = siblings[spanIndex - 1];
+        if (sibling.items) {
+          sibling.items.push(this.createDropZoneObject());
+        } else {
+          sibling.items = [this.createDropZoneObject()];
+        }
+      }
+
+      // Sibling after is a div?
+      if (
+        spanIndex !== siblings.length - 1 &&
+        siblings[spanIndex + 1].type === 'div'
+      ) {
+        let sibling = siblings[spanIndex + 1];
+        if (sibling.items) {
+          sibling.items.unshift(this.createDropZoneObject());
+        } else {
+          sibling.items = [this.createDropZoneObject()];
+        }
+      }
+
+      let grandParentDiv = this.getParentDiv(parentDiv, clonedItems);
+      let parentIndex = grandParentDiv
+        ? grandParentDiv.items.map(item => item.label).indexOf(parentDiv.label)
+        : null;
+
+      // A first child of siblings, or an only child
+      if (spanIndex === 0) {
+        // Can't move up
+        if (parentIndex === null) {
+          return clonedItems;
+        }
+
+        if (grandParentDiv) {
+          // Insert directly before the parent div
+          grandParentDiv.items.splice(
+            parentIndex,
+            0,
+            this.createDropZoneObject()
+          );
+
+          // Insert after the "before" wrapper span (if one exists)
+          if (wrapperSpans.before) {
+            let beforeParent = this.getParentDiv(
+              wrapperSpans.before,
+              clonedItems
+            );
+            let beforeIndex = beforeParent.items
+              .map(item => item.label)
+              .indexOf(wrapperSpans.before.label);
+
+            // Before the insert, check that the dropTarget index doesn't already exist
+            if (
+              beforeParent.items[beforeIndex + 1] &&
+              beforeParent.items[beforeIndex + 1].type !== 'optional'
+            ) {
+              beforeParent.items.splice(
+                beforeIndex + 1,
+                0,
+                this.createDropZoneObject()
+              );
+            }
+          }
+
+          // Insert before the "after" wrapper span (if one exists)
+          if (wrapperSpans.after) {
+            this.dndHelper.addSpanAfter(clonedItems, wrapperSpans.after);
+          }
+        }
+      }
+
+      // Last child of siblings
+      if (spanIndex === siblings.length - 1 && spanIndex !== 0) {
+        if (wrapperSpans.after) {
+          this.dndHelper.addSpanAfter(clonedItems, wrapperSpans.after);
+        }
+      }
+    }
+
+    return clonedItems;
+  }
+
+  /**
+   * Helper object for drag and drop data structure manipulations
+   * This mutates the state of the data structure
+   */
+  dndHelper = {
+    addSpanAfter: (clonedItems, wrapperSpanAfter) => {
+      let afterParent = this.getParentDiv(wrapperSpanAfter, clonedItems);
+      let afterIndex = afterParent.items
+        .map(item => item.label)
+        .indexOf(wrapperSpanAfter.label);
+
+      afterParent.items.splice(afterIndex, 0, this.createDropZoneObject());
+    },
+    stuckInMiddle: (spanIndex, siblings, parentDiv) => {
+      return (
+        spanIndex !== 0 &&
+        spanIndex !== siblings.length - 1 &&
+        parentDiv.items[spanIndex - 1].type === 'span' &&
+        parentDiv.items[spanIndex + 1].type === 'span'
+      );
+    }
+  };
 
   /**
    * Determine whether a time overlaps (or falls between), an existing timespan's range
@@ -210,6 +369,36 @@ export default class StructuralMetadataUtils {
   }
 
   /**
+   * Helper function which handles React Dnd's dropping of a dragSource onto a dropTarget
+   * It needs to re-arrange the data structure to reflect the new positions
+   * @param {Object} dragSource - a minimal object React DnD uses with only the label value
+   * @param {Object} dropTarget
+   * @param {Array} allItems
+   * @returns {Array}
+   */
+  handleListItemDrop(dragSource, dropTarget, allItems) {
+    let clonedItems = [...allItems];
+    let itemToMove = this.findItemByLabel(dragSource.label, clonedItems);
+
+    // Slice out previous position of itemToMove
+    let itemToMoveParent = this.getParentDiv(itemToMove, clonedItems);
+    let itemToMoveItemIndex = itemToMoveParent.items
+      .map(item => item.label)
+      .indexOf(itemToMove.label);
+    itemToMoveParent.items.splice(itemToMoveItemIndex, 1);
+
+    // Place itemToMove right after the placeholder array position
+    let dropTargetParent = this.getParentDiv(dropTarget, clonedItems);
+    let dropTargetItemIndex = dropTargetParent.items
+      .map(item => item.label)
+      .indexOf(dropTarget.label);
+    dropTargetParent.items.splice(dropTargetItemIndex, 0, itemToMove);
+
+    // Get rid of all placeholder elements
+    return this.removeDropTargets(clonedItems);
+  }
+
+  /**
    * Insert a new heading as child of an existing heading
    * @param {Object} obj - new heading object to insert
    * @param {Array} allItems - The entire structured metadata collection
@@ -218,11 +407,12 @@ export default class StructuralMetadataUtils {
   insertNewHeader(obj, allItems) {
     let clonedItems = [...allItems];
     const targetLabel = obj.headingChildOf;
-    let foundDiv = this.findItemByLabel(targetLabel, clonedItems);
+    let foundDiv =
+      this.findItemByLabel(targetLabel, clonedItems) || clonedItems[0];
 
     // If children exist, add to list
     if (foundDiv) {
-      foundDiv.items.push({
+      foundDiv.items.unshift({
         type: 'div',
         label: obj.headingTitle,
         items: []
@@ -260,6 +450,49 @@ export default class StructuralMetadataUtils {
     }
 
     return clonedItems;
+  }
+
+  /**
+   * Recursive function to clean out any 'active' drag item property in the data structure
+   * @param {Array} allItems
+   * @returns {Array}
+   */
+  removeActiveDragSources(allItems) {
+    let removeActive = parent => {
+      if (!parent.items) {
+        if (parent.active) {
+          parent.active = false;
+        }
+        return parent;
+      }
+      parent.items = parent.items.map(child => removeActive(child));
+
+      return parent;
+    };
+    let cleanItems = removeActive(allItems[0]);
+
+    return [cleanItems];
+  }
+
+  /**
+   * Recursive function to remove all temporary Drop Target objects from the structured metadata items
+   * @param {Array} allItems
+   */
+  removeDropTargets(allItems) {
+    let removeFromTree = (parent, childTypeToRemove) => {
+      if (!parent.items) {
+        return parent;
+      }
+
+      parent.items = parent.items
+        .filter(child => child.type !== childTypeToRemove)
+        .map(child => removeFromTree(child, childTypeToRemove));
+
+      return parent;
+    };
+    let cleanItems = removeFromTree(allItems[0], 'optional');
+
+    return [cleanItems];
   }
 
   /**

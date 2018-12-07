@@ -1,11 +1,37 @@
 import * as types from './types';
 
-export const toggleHeading = show => ({
+/**
+ * Redux action creator to toggleHeading
+ * @param {Boolean} show show or hide the form
+ * @param {*} mode 'ADD' or 'EDIT'
+ * @param {*} label If 'EDIT', label is the key by which we'll retrieve the item from the data structure
+ */
+export const toggleHeading = (show, mode='ADD', label) => ({
   type: types.TOGGLE_HEADING_FORM,
-  show: show
+  show,
+  mode,
+  label
 });
 
-export const toggleTimespan = show => ({
+export const toggleTimespan = (show, mode='ADD') => ({
   type: types.TOGGLE_TIMESPAN_FORM,
-  show
+  show,
+  mode
+});
+
+/**
+ * Action creator to show a modal
+ * @param {String} mode - 'EDIT' or 'ADD'
+ * @param {String} listItemType - span or div
+ * @param {String} label - list item label
+ */
+export const showModal = (mode = 'ADD', listItemType, label) => ({
+  type: types.SHOW_MODAL,
+  label,
+  listItemType,
+  mode
+});
+
+export const closeModal = () => ({
+  type: types.CLOSE_MODAL
 });

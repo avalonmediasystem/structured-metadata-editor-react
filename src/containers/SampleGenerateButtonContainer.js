@@ -4,8 +4,13 @@ import { connect } from 'react-redux';
 import * as actions from '../actions/sm-data';
 
 class SampleGenerateButtonContainer extends Component {
+  constructor(props) {
+    super(props);
+    this.smData = structuralTree;
+  }
+
   handleBuildItClick = () => {
-    this.props.buildSMUI(structuralTree);
+    this.props.buildSMUI(this.smData);
   }
 
   render() {
@@ -20,4 +25,8 @@ class SampleGenerateButtonContainer extends Component {
   }
 }
 
-export default connect(null, actions)(SampleGenerateButtonContainer);
+const mapDispatchToProps = dispatch => ({
+  buildSMUI: smData => dispatch(actions.buildSMUI(smData))
+})
+
+export default connect(null, mapDispatchToProps)(SampleGenerateButtonContainer);

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import List from '../components/List';
+import ModalContainer from './ModalContainer';
 
 class StructureOutputContainer extends Component {
   render() {
@@ -11,6 +12,7 @@ class StructureOutputContainer extends Component {
         <hr />
         <h2>Output</h2>
         <List items={smData} />
+        <ModalContainer />
       </section>
     );
   }
