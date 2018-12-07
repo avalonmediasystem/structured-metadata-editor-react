@@ -20,9 +20,10 @@ const showForms = (state = initialState, action) => {
         mode: action.mode
       });
     case types.SHOW_MODAL:
-      console.log('show modal reducer');
       return Object.assign({}, state, {
-        modal: true
+        modal: true,
+        mode: action.mode,
+        label: action.label
       });
     case types.CLOSE_MODAL:
       return Object.assign({}, state, {

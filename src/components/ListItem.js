@@ -90,8 +90,7 @@ class ListItem extends Component {
   handleEditClick = () => {
     const { label, type } = this.props.item;
     
-    console.log('fires showModal');
-    this.props.showModal(label, type);
+    this.props.showModal(label, 'EDIT', type);
     // // Edit Heading
     // if (type === 'div') {
     //   this.props.toggleHeading(true, 'EDIT', label);

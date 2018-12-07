@@ -8,7 +8,6 @@ import SampleGenerateButtonContainer from './containers/SampleGenerateButtonCont
 import StructureOutputContainer from './containers/StructureOutputContainer';
 import { DragDropContextProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
-import ModalEdit from './components/ModalEdit';
 
 // Font Awesome Imports
 import { library } from '@fortawesome/fontawesome-svg-core';
