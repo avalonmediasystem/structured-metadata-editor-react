@@ -21,11 +21,11 @@ export const toggleTimespan = (show, mode='ADD') => ({
 
 /**
  * Action creator to show a modal
- * @param {String} label - list item label
  * @param {String} mode - 'EDIT' or 'ADD'
  * @param {String} listItemType - span or div
+ * @param {String} label - list item label
  */
-export const showModal = (label, mode = 'ADD', listItemType) => ({
+export const showModal = (mode = 'ADD', listItemType, label) => ({
   type: types.SHOW_MODAL,
   label,
   listItemType,

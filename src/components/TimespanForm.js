@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
 import {
-  ButtonToolbar,
   Button,
   Col,
   ControlLabel,
   FormControl,
   FormGroup,
+  Modal,
   Row
 } from 'react-bootstrap';
-import * as actions from '../actions/show-forms';
+import * as showFormActions from '../actions/show-forms';
+import * as smActions from '../actions/sm-data';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
-//let allSpans = null;
 
 class TimespanForm extends Component {
   constructor(props) {
@@ -25,9 +25,28 @@ class TimespanForm extends Component {
       timespanTitle: '',
       validHeadings: []
     };
+    this.unEditedItem = null;
   }
 
   componentDidMount() {
+    if (this.props.showForms.mode === 'EDIT') {
+      // Grab the currently edited item from the data structure
+      let smItem = structuralMetadataUtils.findItemByLabel(
+        this.props.showForms.label,
+        this.props.smData
+      );
+
+      // Save the unedited, Form version of the item, so we can use it later
+      this.unEditedFormItem = this.loadExistingValues();
+
+      // Load existing form values
+      this.setState(this.unEditedFormItem);
+
+      // Remove the timespan from data structure to make room for the saved edited version
+      this.props.deleteItem(smItem);
+    }
+
+    // Save a reference to all the spans for future calculations
     this.allSpans = structuralMetadataUtils.getItemsOfType(
       'span',
       this.props.smData
@@ -161,12 +180,36 @@ class TimespanForm extends Component {
   };
 
   handleCancelClick = () => {
-    this.props.toggleTimespan();
+    // Add the edited item back to data structure
+    console.log('unEditedFormItem', this.unEdiunEditedFormItemtedItem);
+    this.props.onSubmit(this.unEditedFormItem);
+
+    this.props.closeModal();
   };
 
   handleChildOfChange = e => {
     this.setState({ timespanChildOf: e.target.value });
   };
+
+  /**
+   * Load existing form values to state, if in 'EDIT' mode
+   */
+  loadExistingValues() {
+    const { showForms, smData } = this.props;
+    let item = structuralMetadataUtils.findItemByLabel(showForms.label, smData);
+    let parentDiv = structuralMetadataUtils.getParentDiv(item, smData);
+
+    if (parentDiv) {
+      parentDiv = parentDiv.label;
+    }
+
+    return {
+      beginTime: item.begin,
+      endTime: item.end,
+      timespanChildOf: parentDiv || '',
+      timespanTitle: item.label
+    };
+  }
 
   updateChildOfOptions() {
     let timesValidResponse = this.validTimespans();
@@ -242,71 +285,82 @@ class TimespanForm extends Component {
   }
 
   render() {
+    const { beginTime, endTime, timespanChildOf, timespanTitle } = this.state;
+
     return (
       <form onSubmit={this.handleSubmit}>
-        <h4>Add New Time Span</h4>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {this.props.showForms.mode === 'ADD' ? 'Add' : 'Edit'} Timespan
+          </Modal.Title>
+        </Modal.Header>
 
-        <FormGroup
-          controlId="timespanTitle"
-          validationState={this.getValidationTitleState()}
-        >
-          <ControlLabel>Title</ControlLabel>
-          <FormControl
-            type="text"
-            value={this.state.timespanTitle}
-            onChange={this.handleInputChange}
-          />
-          <FormControl.Feedback />
-        </FormGroup>
-
-        <Row>
-          <Col sm={6}>
-            <FormGroup
-              controlId="beginTime"
-              validationState={this.getValidationBeginState()}
-            >
-              <ControlLabel>Begin Time</ControlLabel>
-              <FormControl
-                type="text"
-                placeholder="00:00:00"
-                onChange={this.handleTimeChange}
-              />
-              <FormControl.Feedback />
-            </FormGroup>
-          </Col>
-          <Col sm={6}>
-            <FormGroup
-              controlId="endTime"
-              validationState={this.getValidationEndState()}
-            >
-              <ControlLabel>End Time</ControlLabel>
-              <FormControl
-                type="text"
-                placeholder="00:00:00"
-                onChange={this.handleTimeChange}
-              />
-              <FormControl.Feedback />
-            </FormGroup>
-          </Col>
-        </Row>
-
-        <FormGroup controlId="timespanChildOf">
-          <ControlLabel>Child Of</ControlLabel>
-          <FormControl
-            componentClass="select"
-            placeholder="select"
-            onChange={this.handleChildOfChange}
+        <Modal.Body>
+          <FormGroup
+            controlId="timespanTitle"
+            validationState={this.getValidationTitleState()}
           >
-            <option value="">Select...</option>
-            {this.state.validHeadings.map(item => (
-              <option value={item.label} key={item.label}>
-                {item.label}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
+            <ControlLabel>Title</ControlLabel>
+            <FormControl
+              type="text"
+              value={timespanTitle}
+              onChange={this.handleInputChange}
+            />
+            <FormControl.Feedback />
+          </FormGroup>
 
-        <ButtonToolbar>
+          <Row>
+            <Col sm={6}>
+              <FormGroup
+                controlId="beginTime"
+                validationState={this.getValidationBeginState()}
+              >
+                <ControlLabel>Begin Time</ControlLabel>
+                <FormControl
+                  type="text"
+                  value={beginTime}
+                  placeholder="00:00:00"
+                  onChange={this.handleTimeChange}
+                />
+                <FormControl.Feedback />
+              </FormGroup>
+            </Col>
+            <Col sm={6}>
+              <FormGroup
+                controlId="endTime"
+                validationState={this.getValidationEndState()}
+              >
+                <ControlLabel>End Time</ControlLabel>
+                <FormControl
+                  type="text"
+                  value={endTime}
+                  placeholder="00:00:00"
+                  onChange={this.handleTimeChange}
+                />
+                <FormControl.Feedback />
+              </FormGroup>
+            </Col>
+          </Row>
+
+          <FormGroup controlId="timespanChildOf">
+            <ControlLabel>Child Of</ControlLabel>
+            <FormControl
+              componentClass="select"
+              placeholder="select"
+              onChange={this.handleChildOfChange}
+              value={timespanChildOf}
+            >
+              <option value="">Select...</option>
+              {this.state.validHeadings.map(item => (
+                <option value={item.label} key={item.label}>
+                  {item.label}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+        </Modal.Body>
+
+        <Modal.Footer>
           <Button
             bsStyle="primary"
             type="submit"
@@ -315,19 +369,25 @@ class TimespanForm extends Component {
             Add
           </Button>
           <Button onClick={this.handleCancelClick}>Cancel</Button>
-        </ButtonToolbar>
+        </Modal.Footer>
       </form>
     );
   }
 }
 
 const mapStateToProps = state => ({
+  showForms: state.showForms,
   smData: state.smData
+});
+
+const mapDispatchToProps = dispatch => ({
+  closeModal: () => dispatch(showFormActions.closeModal()),
+  deleteItem: item => dispatch(smActions.deleteItem(item))
 });
 
 TimespanForm = connect(
   mapStateToProps,
-  actions
+  mapDispatchToProps
 )(TimespanForm);
 
 export default TimespanForm;

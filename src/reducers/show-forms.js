@@ -23,6 +23,7 @@ const showForms = (state = initialState, action) => {
       return Object.assign({}, state, {
         modal: true,
         mode: action.mode,
+        listItemType: action.listItemType,
         label: action.label
       });
     case types.CLOSE_MODAL:

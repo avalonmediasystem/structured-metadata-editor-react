@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import {
-  ButtonToolbar,
   Button,
   ControlLabel,
   FormControl,
-  FormGroup
+  FormGroup,
+  Modal
 } from 'react-bootstrap';
 import * as actions from '../actions/show-forms';
 import PropTypes from 'prop-types';
@@ -117,39 +117,41 @@ class HeadingForm extends Component {
   }
 
   render() {
-    const { formMode } = this.props;
-    const modeLabel = formMode === 'ADD' ? 'Add' : 'Edit';
-
     return (
       <form onSubmit={this.handleSubmit}>
-        <h4>{modeLabel} Heading</h4>
-        <FormGroup
-          controlId="headingTitle"
-          validationState={this.getValidationTitleState()}
-        >
-          <ControlLabel>Title</ControlLabel>
-          <FormControl
-            type="text"
-            value={this.state.headingTitle}
-            onChange={this.handleHeadingChange}
-          />
-          <FormControl.Feedback />
-        </FormGroup>
+        <Modal.Header closeButton>
+          <Modal.Title>{this.props.showForms.mode === 'ADD' ? 'Add' : 'Edit'} Heading</Modal.Title>
+        </Modal.Header>
 
-        <FormGroup controlId="headingChildOf">
-          <ControlLabel>Child Of</ControlLabel>
-          <FormControl
-            componentClass="select"
-            placeholder="select"
-            onChange={this.handleChildOfChange}
-            value={this.state.headingChildOf}
+        <Modal.Body>
+          <FormGroup
+            controlId="headingTitle"
+            validationState={this.getValidationTitleState()}
           >
-            <option value="">Select...</option>
-            {this.state.childOfOptions}
-          </FormControl>
-        </FormGroup>
+            <ControlLabel>Title</ControlLabel>
+            <FormControl
+              type="text"
+              value={this.state.headingTitle}
+              onChange={this.handleHeadingChange}
+            />
+            <FormControl.Feedback />
+          </FormGroup>
 
-        <ButtonToolbar>
+          <FormGroup controlId="headingChildOf">
+            <ControlLabel>Child Of</ControlLabel>
+            <FormControl
+              componentClass="select"
+              placeholder="select"
+              onChange={this.handleChildOfChange}
+              value={this.state.headingChildOf}
+            >
+              <option value="">Select...</option>
+              {this.state.childOfOptions}
+            </FormControl>
+          </FormGroup>
+        </Modal.Body>
+
+        <Modal.Footer>
           <Button
             bsStyle="primary"
             type="submit"
@@ -157,8 +159,8 @@ class HeadingForm extends Component {
           >
             Save
           </Button>
-          <Button onClick={this.handleCancelClick}>Cancel</Button>
-        </ButtonToolbar>
+          <Button onClick={this.props.closeModal}>Cancel</Button>
+        </Modal.Footer>
       </form>
     );
   }

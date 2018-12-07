@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import './App.css';
 import Waveform from './components/Waveform';
 import ButtonSection from './components/ButtonSection';
-import HeadingFormContainer from './containers/HeadingFormContainer';
-import TimespanFormContainer from './containers/TimespanFormContainer';
 import SampleGenerateButtonContainer from './containers/SampleGenerateButtonContainer';
 import StructureOutputContainer from './containers/StructureOutputContainer';
 import { DragDropContextProvider } from 'react-dnd';
@@ -23,8 +21,6 @@ class App extends Component {
           <Waveform />
           <SampleGenerateButtonContainer />
           <ButtonSection />
-          <HeadingFormContainer />
-          <TimespanFormContainer />
           <StructureOutputContainer />
         </div>
       </DragDropContextProvider>
