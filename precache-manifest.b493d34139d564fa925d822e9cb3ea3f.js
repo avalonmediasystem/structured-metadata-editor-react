@@ -4,19 +4,19 @@ self.__precacheManifest = [
     "url": "/structured-metadata-editor-react/static/js/runtime~main.8ac5a441.js"
   },
   {
-    "revision": "195a8a334c3dc8208b96",
-    "url": "/structured-metadata-editor-react/static/js/main.195a8a33.chunk.js"
+    "revision": "546fec2acebef07f108b",
+    "url": "/structured-metadata-editor-react/static/js/main.546fec2a.chunk.js"
   },
   {
     "revision": "05b8deb5c29346d14a58",
     "url": "/structured-metadata-editor-react/static/js/1.05b8deb5.chunk.js"
   },
   {
-    "revision": "195a8a334c3dc8208b96",
+    "revision": "546fec2acebef07f108b",
     "url": "/structured-metadata-editor-react/static/css/main.f2a1b16d.chunk.css"
   },
   {
-    "revision": "faab96000f1783c5ab1b9b29e3af4bd1",
+    "revision": "684e9bafe063715547ceb361f3175b2a",
     "url": "/structured-metadata-editor-react/index.html"
   }
 ];
