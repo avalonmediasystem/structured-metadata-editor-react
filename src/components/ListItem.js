@@ -89,7 +89,7 @@ class ListItem extends Component {
 
   handleEditClick = () => {
     const { label, type } = this.props.item;
-    
+
     this.props.showModal('EDIT', type, label);
   };
 
@@ -130,8 +130,7 @@ class ListItem extends Component {
       item: { type },
       item: { active },
       connectDragSource,
-      connectDropTarget,
-      isDragging
+      connectDropTarget
     } = this.props;
 
     const subMenu = items && items.length > 0 ? <List items={items} /> : null;

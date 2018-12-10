@@ -42,7 +42,7 @@ function collect(connect, monitor) {
 
 class PlaceholderItem extends Component {
   render() {
-    const { isOver, canDrop, connectDropTarget } = this.props;
+    const { isOver, connectDropTarget } = this.props;
 
     return connectDropTarget(
       <li className="row-wrapper" style={isOver ? styles.liHovered : styles.li}>

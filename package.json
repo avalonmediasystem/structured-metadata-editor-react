@@ -16,7 +16,7 @@
     "react-dnd-html5-backend": "^5.0.1",
     "react-dom": "^16.4.2",
     "react-redux": "^5.0.7",
-    "react-scripts": "1.1.5",
+    "react-scripts": "^2.0.0",
     "react-transition-group": "1.x",
     "redux": "^4.0.0",
     "uuid": "^3.3.2"
@@ -31,5 +31,11 @@
   },
   "devDependencies": {
     "gh-pages": "^1.2.0"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
