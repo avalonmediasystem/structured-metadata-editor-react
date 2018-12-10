@@ -1,6 +1,13 @@
 {
-  "main.css": "static/css/main.d095a2c6.css",
-  "main.css.map": "static/css/main.d095a2c6.css.map",
-  "main.js": "static/js/main.2aa7ac31.js",
-  "main.js.map": "static/js/main.2aa7ac31.js.map"
+  "main.css": "/structured-metadata-editor-react/static/css/main.f2a1b16d.chunk.css",
+  "main.js": "/structured-metadata-editor-react/static/js/main.195a8a33.chunk.js",
+  "main.js.map": "/structured-metadata-editor-react/static/js/main.195a8a33.chunk.js.map",
+  "static/js/1.05b8deb5.chunk.js": "/structured-metadata-editor-react/static/js/1.05b8deb5.chunk.js",
+  "static/js/1.05b8deb5.chunk.js.map": "/structured-metadata-editor-react/static/js/1.05b8deb5.chunk.js.map",
+  "runtime~main.js": "/structured-metadata-editor-react/static/js/runtime~main.8ac5a441.js",
+  "runtime~main.js.map": "/structured-metadata-editor-react/static/js/runtime~main.8ac5a441.js.map",
+  "static/css/main.f2a1b16d.chunk.css.map": "/structured-metadata-editor-react/static/css/main.f2a1b16d.chunk.css.map",
+  "index.html": "/structured-metadata-editor-react/index.html",
+  "precache-manifest.c49e4395a42f12cf4838d25ff56a5526.js": "/structured-metadata-editor-react/precache-manifest.c49e4395a42f12cf4838d25ff56a5526.js",
+  "service-worker.js": "/structured-metadata-editor-react/service-worker.js"
 }
