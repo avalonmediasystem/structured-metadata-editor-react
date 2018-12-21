@@ -2,13 +2,6 @@ section {
   margin-bottom: 20px;
 }
 
-.waveform-holder {
-  display: block;
-  background: magenta;
-  width: 100%;
-  height: 100px;
-}
-
 .add-new-form-section form {
   display: none;
   margin-bottom: 20px;
@@ -71,4 +64,55 @@ section {
 .example-leave.example-leave-active {
   opacity: 0.01;
   transition: opacity 300ms ease-in;
+}
+
+/* Waveform */
+#titles, [id*="waveform-visualiser"] {
+  width: 100%;
+}
+
+[id*="waveform-visualiser"] [class*="-container"] {
+  box-shadow: 3px 3px 20px #919191;
+  margin: 0 0 24px 0;
+  -moz-box-shadow: 3px 3px 20px #919191;
+  -webkit-box-shadow: 3px 3px 20px #919191;
+  line-height: 0;
+}
+
+.overview-container {
+  height: 85px;
+}
+
+#demo-controls {
+  margin: 0 auto 24px auto;
+  width: 1000px;
+}
+
+#demo-controls > * {
+  vertical-align: middle;
+}
+
+#demo-controls button {
+  background: #fff;
+  border: 1px solid #919191;
+  cursor: pointer;
+}
+
+.audio {
+  display: inline-block;
+}
+
+#controls {
+  display: inline-block;
+  float: right;
+  width: auto;
+}
+
+.waveform-control {
+  float: left;
+  margin-right: .5em;
+}
+
+.form-seek {
+  float: left;
 }
