@@ -20,8 +20,8 @@ class Waveform extends Component {
 
 	componentDidMount() {
 		const options = {
-		  container: document.getElementById('waveform-visualiser-container'),
-		  mediaElement: document.querySelector('audio'),
+		  container: this.refs.waveformContainer,
+		  mediaElement: this.refs.mediaPlayer,
 		  dataUri: {
             arraybuffer: soundDAT,
             json: soundJSON
@@ -58,28 +58,24 @@ class Waveform extends Component {
 	}
 
 	render() {
-
 		return (
 			<section className="waveform-section">
-			    <div id="waveform-visualiser-container"></div>
-			    <div id="demo-control">
-			        <audio controls>
-			          <source src={soundMP3} type="audio/mp3" />
-			          <source src={soundOGG} type="audio/ogg" />
-			          Your browser does not support the audio element.
-			        </audio>
-
-			        <div id="controls">
-			          	<ButtonToolbar className="waveform-control">
-		          			<Button onClick={this.zoomIn}>Zoom in</Button>
-			            	<Button onClick={this.zoomOut}>Zoom out</Button>
-			          	</ButtonToolbar>
-			          	<Form className="form-seek" inline>
-				            <FormControl className="form-control" type="text" value={this.state.seekTime} onChange={this.handleChange} placeholder='0' />{' '}
-				            <Button onClick={this.seekTime}>Seek</Button>
-			        	</Form>
-			        </div>
-			    </div>
+		    <div id="waveform-container" ref="waveformContainer"></div>
+	        <audio controls ref="mediaPlayer">
+	          <source src={soundMP3} type="audio/mp3" />
+	          <source src={soundOGG} type="audio/ogg" />
+	          Your browser does not support the audio element.
+	        </audio>
+	        <div className="controls">
+          	<ButtonToolbar className="waveform-controls">
+        			<Button onClick={this.zoomIn}>Zoom in</Button>
+            	<Button onClick={this.zoomOut}>Zoom out</Button>
+          	</ButtonToolbar>
+          	<Form className="audio-controls" inline>
+	            <FormControl className="form-control" type="text" value={this.state.seekTime} onChange={this.handleChange} placeholder='0' />{' '}
+	            <Button onClick={this.seekTime}>Seek</Button>
+        		</Form>
+	        </div>
 			</section>
 		);
 	}

@@ -67,11 +67,7 @@ section {
 }
 
 /* Waveform */
-#titles, [id*="waveform-visualiser"] {
-  width: 100%;
-}
-
-[id*="waveform-visualiser"] [class*="-container"] {
+[class*="-container"] {
   box-shadow: 3px 3px 20px #919191;
   margin: 0 0 24px 0;
   -moz-box-shadow: 3px 3px 20px #919191;
@@ -83,36 +79,17 @@ section {
   height: 85px;
 }
 
-#demo-controls {
-  margin: 0 auto 24px auto;
-  width: 1000px;
-}
-
-#demo-controls > * {
-  vertical-align: middle;
-}
-
-#demo-controls button {
-  background: #fff;
-  border: 1px solid #919191;
-  cursor: pointer;
-}
-
-.audio {
-  display: inline-block;
-}
-
-#controls {
+.controls {
   display: inline-block;
   float: right;
   width: auto;
 }
 
-.waveform-control {
+.waveform-controls {
   float: left;
   margin-right: .5em;
 }
 
-.form-seek {
+.audio-controls {
   float: left;
 }
