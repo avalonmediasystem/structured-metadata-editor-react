@@ -14,7 +14,7 @@ section {
 .structure-list li.active .row-wrapper {
   background: lightgoldenrodyellow;
   border: 2px dashed #999;
-  opacity: .8
+  opacity: 0.8;
 }
 
 .structure-title.heading {
@@ -87,7 +87,7 @@ section {
 
 .waveform-controls {
   float: left;
-  margin-right: .5em;
+  margin-right: 0.5em;
 }
 
 .audio-controls {
