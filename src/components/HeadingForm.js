@@ -10,6 +10,7 @@ import {
 } from 'react-bootstrap';
 import * as actions from '../actions/show-forms';
 import PropTypes from 'prop-types';
+import ReactHtmlParser from 'react-html-parser';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 class HeadingForm extends Component {
@@ -61,7 +62,7 @@ class HeadingForm extends Component {
     );
     let options = allHeaders.map(header => (
       <option value={header.label} key={header.label}>
-        {header.label}
+        {ReactHtmlParser(header.label)}
       </option>
     ));
 
@@ -131,7 +132,7 @@ class HeadingForm extends Component {
             <ControlLabel>Title</ControlLabel>
             <FormControl
               type="text"
-              value={this.state.headingTitle}
+              value={ReactHtmlParser(this.state.headingTitle)}
               onChange={this.handleHeadingChange}
             />
             <FormControl.Feedback />

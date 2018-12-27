@@ -12,6 +12,7 @@ import * as showFormActions from '../actions/show-forms';
 import * as smActions from '../actions/sm-data';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+import ReactHtmlParser from 'react-html-parser';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -303,7 +304,7 @@ class TimespanForm extends Component {
             <ControlLabel>Title</ControlLabel>
             <FormControl
               type="text"
-              value={timespanTitle}
+              value={ReactHtmlParser(timespanTitle)}
               onChange={this.handleInputChange}
             />
             <FormControl.Feedback />
@@ -353,7 +354,7 @@ class TimespanForm extends Component {
               <option value="">Select...</option>
               {this.state.validHeadings.map(item => (
                 <option value={item.label} key={item.label}>
-                  {item.label}
+                  {ReactHtmlParser(item.label)}
                 </option>
               ))}
             </FormControl>

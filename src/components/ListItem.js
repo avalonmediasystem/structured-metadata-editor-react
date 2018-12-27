@@ -7,6 +7,7 @@ import * as showFormActions from '../actions/show-forms';
 import PropTypes from 'prop-types';
 import { ItemTypes } from '../services/Constants';
 import { DragSource, DropTarget } from 'react-dnd';
+import ReactHtmlParser from 'react-html-parser';
 
 const spanSource = {
   beginDrag(props) {
@@ -141,11 +142,11 @@ class ListItem extends Component {
           <div className="row-wrapper">
             {type === 'span' && (
               <span className="structure-title">
-                {label} ({begin} - {end})
+                {ReactHtmlParser(label)} ({begin} - {end})
               </span>
             )}
             {type === 'div' && (
-              <div className="structure-title heading">{label}</div>
+              <div className="structure-title heading">{ReactHtmlParser(label)}</div>
             )}
             <EditControls
               handleDelete={this.handleDelete}
