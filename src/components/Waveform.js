@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Peaks from "peaks.js";
-import { Button, ButtonToolbar, FormControl, Form } from "react-bootstrap";
+import { Button, ButtonToolbar, FormControl, FormGroup, Form } from "react-bootstrap";
 
 import soundMP3 from "../data/TOL_6min_720p_download.mp3";
 import soundOGG from "../data/TOL_6min_720p_download.ogg";
@@ -69,26 +69,32 @@ class Waveform extends Component {
     return (
       <section className="waveform-section">
         <div id="waveform-container" ref={this.waveformContainer} />
-        <audio controls ref={this.mediaPlayer}>
-          <source src={soundMP3} type="audio/mp3" />
-          <source src={soundOGG} type="audio/ogg" />
-          Your browser does not support the audio element.
-        </audio>
-        <div className="controls">
-          <ButtonToolbar className="waveform-controls">
-            <Button onClick={this.zoomIn}>Zoom in</Button>
-            <Button onClick={this.zoomOut}>Zoom out</Button>
-          </ButtonToolbar>
-          <Form className="audio-controls" inline>
-            <FormControl
-              className="form-control"
-              type="text"
-              value={this.state.seekTime}
-              onChange={this.handleChange}
-              placeholder="0"
-            />{" "}
-            <Button onClick={this.seekTime}>Seek</Button>
-          </Form>
+        <div className="row">
+          <div className="col-6 col-md-4">
+            <audio controls ref={this.mediaPlayer}>
+              <source src={soundMP3} type="audio/mp3" />
+              <source src={soundOGG} type="audio/ogg" />
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+          <div className="col-12 col-md-8">
+            <Form inline>
+              <FormGroup>
+                <ButtonToolbar>
+                  <Button onClick={this.zoomIn}>Zoom in</Button>
+                  <Button onClick={this.zoomOut}>Zoom out</Button>
+                </ButtonToolbar>
+              </FormGroup>{' '}
+              <FormControl
+                className="form-control"
+                type="text"
+                value={this.state.seekTime}
+                onChange={this.handleChange}
+                placeholder="0"
+              />{' '}
+              <Button onClick={this.seekTime}>Seek</Button>
+            </Form>
+          </div>
         </div>
       </section>
     );

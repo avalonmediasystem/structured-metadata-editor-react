@@ -67,7 +67,9 @@ section {
 }
 
 /* Waveform */
-[class*="-container"] {
+.waveform-container,
+.zoom-container,
+.overview-container {
   box-shadow: 3px 3px 20px #919191;
   margin: 0 0 24px 0;
   -moz-box-shadow: 3px 3px 20px #919191;
@@ -77,19 +79,4 @@ section {
 
 .overview-container {
   height: 85px;
-}
-
-.controls {
-  display: inline-block;
-  float: right;
-  width: auto;
-}
-
-.waveform-controls {
-  float: left;
-  margin-right: 0.5em;
-}
-
-.audio-controls {
-  float: left;
 }
