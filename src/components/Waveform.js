@@ -7,6 +7,18 @@ import soundOGG from "../data/TOL_6min_720p_download.ogg";
 import soundJSON from "../data/TOL_6min_720p_download.json";
 import soundDAT from "../data/TOL_6min_720p_download.dat";
 
+const peaksOptions = {
+  container: null,
+  mediaElement: null,
+  dataUri: {
+    arraybuffer: soundDAT,
+    json: soundJSON
+  },
+  keyboard: true,
+  pointMarkerColor: "#006eb0",
+  showPlayheadTime: true
+};
+
 class Waveform extends Component {
   constructor(props) {
     super(props);
@@ -14,24 +26,20 @@ class Waveform extends Component {
       peaksInstance: null,
       seekTime: ""
     };
+    // Create refs here
+    this.waveformContainer = React.createRef();
+    this.mediaPlayer = React.createRef();
+
     this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
-    const options = {
-      container: this.refs.waveformContainer,
-      mediaElement: this.refs.mediaPlayer,
-      dataUri: {
-        arraybuffer: soundDAT,
-        json: soundJSON
-      },
-      keyboard: true,
-      pointMarkerColor: "#006eb0",
-      showPlayheadTime: true
-    };
+    // Grab the React `refs` now that the component has mounted
+    peaksOptions.container = this.waveformContainer.current;
+    peaksOptions.mediaElement = this.mediaPlayer.current;
 
     this.setState({
-      peaksInstance: Peaks.init(options)
+      peaksInstance: Peaks.init(peaksOptions)
     });
   }
 
@@ -59,8 +67,8 @@ class Waveform extends Component {
   render() {
     return (
       <section className="waveform-section">
-        <div id="waveform-container" ref="waveformContainer" />
-        <audio controls ref="mediaPlayer">
+        <div id="waveform-container" ref={this.waveformContainer} />
+        <audio controls ref={this.mediaPlayer}>
           <source src={soundMP3} type="audio/mp3" />
           <source src={soundOGG} type="audio/ogg" />
           Your browser does not support the audio element.
