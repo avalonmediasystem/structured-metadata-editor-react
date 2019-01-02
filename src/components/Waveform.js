@@ -23,9 +23,11 @@ class Waveform extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      peaksInstance: null,
       seekTime: ""
     };
+
+    this.peaksInstance = null;
+
     // Create refs here
     this.waveformContainer = React.createRef();
     this.mediaPlayer = React.createRef();
@@ -38,17 +40,16 @@ class Waveform extends Component {
     peaksOptions.container = this.waveformContainer.current;
     peaksOptions.mediaElement = this.mediaPlayer.current;
 
-    this.setState({
-      peaksInstance: Peaks.init(peaksOptions)
-    });
+    // Initialize Peaks
+    this.peaksInstance = Peaks.init(peaksOptions);
   }
 
   zoomIn = () => {
-    this.state.peaksInstance.zoom.zoomIn();
+    this.peaksInstance.zoom.zoomIn();
   };
 
   zoomOut = () => {
-    this.state.peaksInstance.zoom.zoomOut();
+    this.peaksInstance.zoom.zoomOut();
   };
 
   handleChange(event) {
@@ -60,7 +61,7 @@ class Waveform extends Component {
   seekTime = () => {
     const timeInSeconds = parseFloat(this.state.seekTime);
     if (!Number.isNaN(timeInSeconds)) {
-      this.state.peaksInstance.player.seek(timeInSeconds);
+      this.peaksInstance.player.seek(timeInSeconds);
     }
   };
 
