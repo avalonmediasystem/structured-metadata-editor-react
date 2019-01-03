@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Peaks from "peaks.js";
-import { Button, ButtonToolbar, FormControl, FormGroup, Form } from "react-bootstrap";
+import { Button, ButtonToolbar, FormControl, FormGroup, Form, Row, Col } from "react-bootstrap";
 
 import soundMP3 from "../data/TOL_6min_720p_download.mp3";
 import soundOGG from "../data/TOL_6min_720p_download.ogg";
@@ -69,15 +69,15 @@ class Waveform extends Component {
     return (
       <section className="waveform-section">
         <div id="waveform-container" ref={this.waveformContainer} />
-        <div className="row">
-          <div className="col-6 col-md-4">
+        <Row>
+          <Col xs={12} md={6}>
             <audio controls ref={this.mediaPlayer}>
               <source src={soundMP3} type="audio/mp3" />
               <source src={soundOGG} type="audio/ogg" />
               Your browser does not support the audio element.
             </audio>
-          </div>
-          <div className="col-12 col-md-8">
+          </Col>
+          <Col xs={12} md={6} className="text-right">
             <Form inline>
               <FormGroup>
                 <ButtonToolbar>
@@ -94,8 +94,8 @@ class Waveform extends Component {
               />{' '}
               <Button onClick={this.seekTime}>Seek</Button>
             </Form>
-          </div>
-        </div>
+          </Col>
+        </Row>
       </section>
     );
   }
