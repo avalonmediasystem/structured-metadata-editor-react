@@ -2,13 +2,6 @@ section {
   margin-bottom: 20px;
 }
 
-.waveform-holder {
-  display: block;
-  background: magenta;
-  width: 100%;
-  height: 100px;
-}
-
 .add-new-form-section form {
   display: none;
   margin-bottom: 20px;
@@ -21,7 +14,7 @@ section {
 .structure-list li.active .row-wrapper {
   background: lightgoldenrodyellow;
   border: 2px dashed #999;
-  opacity: .8
+  opacity: 0.8;
 }
 
 .structure-title.heading {
@@ -71,4 +64,19 @@ section {
 .example-leave.example-leave-active {
   opacity: 0.01;
   transition: opacity 300ms ease-in;
+}
+
+/* Waveform */
+.waveform-container,
+.zoom-container,
+.overview-container {
+  box-shadow: 3px 3px 20px #919191;
+  margin: 0 0 24px 0;
+  -moz-box-shadow: 3px 3px 20px #919191;
+  -webkit-box-shadow: 3px 3px 20px #919191;
+  line-height: 0;
+}
+
+.overview-container {
+  height: 85px;
 }
