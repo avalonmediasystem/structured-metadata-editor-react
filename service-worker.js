@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/structured-metadata-editor-react/precache-manifest.b493d34139d564fa925d822e9cb3ea3f.js"
+  "/structured-metadata-editor-react/precache-manifest.b8d82c286b0dcb9480bf8fd1ccf6eecc.js"
 );
 
 workbox.clientsClaim();
