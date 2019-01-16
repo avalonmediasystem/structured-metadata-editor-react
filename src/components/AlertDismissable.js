@@ -1,39 +1,75 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Alert } from 'react-bootstrap';
+import * as showFormActions from '../actions/show-forms';
 
 class AlertDismissable extends React.Component {
-  constructor(props, context) {
-    super(props, context);
+	constructor(props) {
+		super(props);
+		this.handleDismiss = this.handleDismiss.bind(this);
+	}
 
-    this.handleDismiss = this.handleDismiss.bind(this);
-    this.handleShow = this.handleShow.bind(this);
+	handleDismiss() {
+		this.props.closeAlert();
+	}
 
-    this.state = {
-      show: true
-    };
-  }
+	createAlert() {
+		const status = this.props.showForms.statusCode;
+		switch (true) {
+			case status === 401:
+				return (
+					<div>
+						<Alert bsStyle="danger" onDismiss={this.handleDismiss}>
+							<h4>Unauthorized to access the masterfile.</h4>
+						</Alert>
+					</div>
+				);
+			case status === 404:
+				return (
+					<div>
+						<Alert bsStyle="danger" onDismiss={this.handleDismiss}>
+							<h4>Requested masterfile not found.</h4>
+						</Alert>
+					</div>
+				);
+			case status >= 200 && status < 300:
+				return (
+					<div>
+						<Alert bsStyle="success" onDismiss={this.handleDismiss}>
+							<h4>Successfully saved masterfile.</h4>
+						</Alert>
+					</div>
+				);
+			default:
+				return (
+					<div>
+						<Alert bsStyle="danger" onDismiss={this.handleDismiss}>
+							<h4>Network error, please try again!</h4>
+						</Alert>
+					</div>
+				);
+		}
+	}
 
-  handleDismiss() {
-    this.setState({ show: false });
-  }
-
-  handleShow() {
-    this.setState({ show: true });
-  }
-
-  render() {
-    if (this.state.show) {
-      return (
-        <Alert bsStyle="success" onDismiss={this.handleDismiss}>
-          <p>
-            {this.props.message}
-          </p>
-        </Alert>
-      );
-    } else {
-      return null;
-    }
-  }
+	render() {
+		return (
+			<div>
+				<br />
+				{this.createAlert()}
+			</div>
+		);
+	}
 }
 
-export default AlertDismissable;
+const mapDispatchToProps = dispatch => ({
+	closeAlert: () => dispatch(showFormActions.closeAlert())
+});
+
+const mapStateToProps = state => ({
+	showForms: state.showForms
+});
+
+export default connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(AlertDismissable);

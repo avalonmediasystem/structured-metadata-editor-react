@@ -36,12 +36,11 @@ export const closeModal = () => ({
 	type: types.CLOSE_MODAL
 });
 
-export const handleSuccess = response => ({
-	type: types.API_SUCCESS,
-	response
+export const handleResponse = code => ({
+	type: types.API_RESPONSE,
+	code
 });
 
-export const handleError = response => ({
-	type: types.API_ERROR,
-	response
+export const closeAlert = () => ({
+	type: types.CLOSE_ALERT
 });

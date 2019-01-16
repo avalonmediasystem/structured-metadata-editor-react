@@ -18,5 +18,5 @@ export const SHOW_MODAL = 'SHOW_MODAL';
 export const CLOSE_MODAL = 'CLOSE_MODAL';
 export const SAVE_MODAL_RECORD = 'SAVE_MODAL_RECORD';
 
-export const API_SUCCESS = 'API_SUCCESS';
-export const API_ERROR = 'API_ERROR';
+export const API_RESPONSE = 'API_RESPONSE';
+export const CLOSE_ALERT = 'CLOSE_ALERT';

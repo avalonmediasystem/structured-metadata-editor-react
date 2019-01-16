@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const BASE_URL = 'https://spruce.dlib.indiana.edu';
 
-// Resource ID on the server
+// Masterfile ID on the server
 export const masterFileID = 'kd17ct01m';
 
 // Default headers for API calls
@@ -27,7 +27,7 @@ export default class APIUtils {
 	/**
 	 * Construct POST request with parameters,
 	 * @param {String} urlEndPoint
-	 * @param {JSON} data
+	 * @param {JSON} data - JSON data posting to the server
 	 * @param {Headers} headers
 	 */
 	postRequest(urlEndPoint, data, headers = defaultHeaders) {
