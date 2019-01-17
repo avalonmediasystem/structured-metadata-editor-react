@@ -10,7 +10,6 @@ import { DragSource, DropTarget } from 'react-dnd';
 
 const spanSource = {
   beginDrag(props) {
-    console.log('props', props);
     return { label: props.item.label };
   }
 };

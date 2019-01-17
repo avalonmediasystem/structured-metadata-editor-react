@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import List from '../components/List';
 import ModalContainer from './ModalContainer';
+import GenerateStructureContainer from './GenerateStructureContainer';
 
 class StructureOutputContainer extends Component {
   render() {
@@ -10,7 +11,9 @@ class StructureOutputContainer extends Component {
     return (
       <section>
         <hr />
-        <h2>Output</h2>
+        <h3>HTML Structure Tree from a masterfile in server</h3>
+        <br />
+        <GenerateStructureContainer />
         <List items={smData} />
         <ModalContainer />
       </section>

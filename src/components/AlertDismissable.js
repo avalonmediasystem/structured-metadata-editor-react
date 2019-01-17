@@ -1,39 +1,75 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Alert } from 'react-bootstrap';
+import * as showFormActions from '../actions/show-forms';
 
 class AlertDismissable extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-
+  constructor(props) {
+    super(props);
     this.handleDismiss = this.handleDismiss.bind(this);
-    this.handleShow = this.handleShow.bind(this);
-
-    this.state = {
-      show: true
-    };
   }
 
   handleDismiss() {
-    this.setState({ show: false });
+    this.props.closeAlert();
   }
 
-  handleShow() {
-    this.setState({ show: true });
+  createAlert() {
+    const status = this.props.showForms.statusCode;
+    switch (true) {
+      case status === 401:
+        return (
+          <div>
+            <Alert bsStyle="danger" onDismiss={this.handleDismiss}>
+              <p>Unauthorized to access the masterfile.</p>
+            </Alert>
+          </div>
+        );
+      case status === 404:
+        return (
+          <div>
+            <Alert bsStyle="danger" onDismiss={this.handleDismiss}>
+              <p>Requested masterfile not found.</p>
+            </Alert>
+          </div>
+        );
+      case status >= 200 && status < 300:
+        return (
+          <div>
+            <Alert bsStyle="success" onDismiss={this.handleDismiss}>
+              <p>Successfully saved masterfile.</p>
+            </Alert>
+          </div>
+        );
+      default:
+        return (
+          <div>
+            <Alert bsStyle="danger" onDismiss={this.handleDismiss}>
+              <p>Network error, please try again!</p>
+            </Alert>
+          </div>
+        );
+    }
   }
 
   render() {
-    if (this.state.show) {
-      return (
-        <Alert bsStyle="success" onDismiss={this.handleDismiss}>
-          <p>
-            {this.props.message}
-          </p>
-        </Alert>
-      );
-    } else {
-      return null;
-    }
+    return (
+      <div>
+        <br />
+        {this.createAlert()}
+      </div>
+    );
   }
 }
 
-export default AlertDismissable;
+const mapDispatchToProps = dispatch => ({
+  closeAlert: () => dispatch(showFormActions.closeAlert())
+});
+
+const mapStateToProps = state => ({
+  showForms: state.showForms
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AlertDismissable);

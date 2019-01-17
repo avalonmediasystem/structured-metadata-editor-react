@@ -1,21 +1,25 @@
-import React, { Component } from "react";
-import Peaks from "peaks.js";
-import { Button, ButtonToolbar, FormControl, FormGroup, Form, Row, Col } from "react-bootstrap";
+import React, { Component } from 'react';
+import Peaks from 'peaks.js';
+import {
+  Button,
+  ButtonToolbar,
+  FormControl,
+  FormGroup,
+  Form,
+  Row,
+  Col
+} from 'react-bootstrap';
 
-import soundMP3 from "../data/TOL_6min_720p_download.mp3";
-import soundOGG from "../data/TOL_6min_720p_download.ogg";
-import soundJSON from "../data/TOL_6min_720p_download.json";
-import soundDAT from "../data/TOL_6min_720p_download.dat";
+import soundMP3 from '../data/TOL_6min_720p_download.mp3';
+import soundOGG from '../data/TOL_6min_720p_download.ogg';
 
 const peaksOptions = {
   container: null,
   mediaElement: null,
-  dataUri: {
-    arraybuffer: soundDAT,
-    json: soundJSON
-  },
+  dataUri: '../data/TOL_6min_720p_download.json',
+  dataUriDefaultFormat: 'json',
   keyboard: true,
-  pointMarkerColor: "#006eb0",
+  pointMarkerColor: '#006eb0',
   showPlayheadTime: true
 };
 
@@ -23,7 +27,7 @@ class Waveform extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      seekTime: ""
+      seekTime: ''
     };
 
     this.peaksInstance = null;

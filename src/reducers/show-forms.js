@@ -3,7 +3,8 @@ import * as types from '../actions/types';
 const initialState = {
   heading: false,
   timespan: false,
-  modal: false
+  modal: false,
+  alert: false
 };
 
 const showForms = (state = initialState, action) => {
@@ -30,6 +31,18 @@ const showForms = (state = initialState, action) => {
       return Object.assign({}, state, {
         modal: false
       });
+
+    case types.API_RESPONSE:
+      return Object.assign({}, state, {
+        statusCode: action.code,
+        alert: true
+      });
+
+    case types.CLOSE_ALERT:
+      return Object.assign({}, state, {
+        alert: false
+      });
+
     default:
       return state;
   }
