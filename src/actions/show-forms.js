@@ -6,17 +6,17 @@ import * as types from './types';
  * @param {*} mode 'ADD' or 'EDIT'
  * @param {*} label If 'EDIT', label is the key by which we'll retrieve the item from the data structure
  */
-export const toggleHeading = (show, mode='ADD', label) => ({
-  type: types.TOGGLE_HEADING_FORM,
-  show,
-  mode,
-  label
+export const toggleHeading = (show, mode = 'ADD', label) => ({
+	type: types.TOGGLE_HEADING_FORM,
+	show,
+	mode,
+	label
 });
 
-export const toggleTimespan = (show, mode='ADD') => ({
-  type: types.TOGGLE_TIMESPAN_FORM,
-  show,
-  mode
+export const toggleTimespan = (show, mode = 'ADD') => ({
+	type: types.TOGGLE_TIMESPAN_FORM,
+	show,
+	mode
 });
 
 /**
@@ -26,12 +26,21 @@ export const toggleTimespan = (show, mode='ADD') => ({
  * @param {String} label - list item label
  */
 export const showModal = (mode = 'ADD', listItemType, label) => ({
-  type: types.SHOW_MODAL,
-  label,
-  listItemType,
-  mode
+	type: types.SHOW_MODAL,
+	label,
+	listItemType,
+	mode
 });
 
 export const closeModal = () => ({
-  type: types.CLOSE_MODAL
+	type: types.CLOSE_MODAL
+});
+
+export const handleResponse = code => ({
+	type: types.API_RESPONSE,
+	code
+});
+
+export const closeAlert = () => ({
+	type: types.CLOSE_ALERT
 });
