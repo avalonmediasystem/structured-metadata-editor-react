@@ -20,7 +20,7 @@ class AlertDismissable extends React.Component {
         return (
           <div>
             <Alert bsStyle="danger" onDismiss={this.handleDismiss}>
-              <h4>Unauthorized to access the masterfile.</h4>
+              <p>Unauthorized to access the masterfile.</p>
             </Alert>
           </div>
         );
@@ -28,7 +28,7 @@ class AlertDismissable extends React.Component {
         return (
           <div>
             <Alert bsStyle="danger" onDismiss={this.handleDismiss}>
-              <h4>Requested masterfile not found.</h4>
+              <p>Requested masterfile not found.</p>
             </Alert>
           </div>
         );
@@ -36,7 +36,7 @@ class AlertDismissable extends React.Component {
         return (
           <div>
             <Alert bsStyle="success" onDismiss={this.handleDismiss}>
-              <h4>Successfully saved masterfile.</h4>
+              <p>Successfully saved masterfile.</p>
             </Alert>
           </div>
         );
@@ -44,7 +44,7 @@ class AlertDismissable extends React.Component {
         return (
           <div>
             <Alert bsStyle="danger" onDismiss={this.handleDismiss}>
-              <h4>Network error, please try again!</h4>
+              <p>Network error, please try again!</p>
             </Alert>
           </div>
         );
