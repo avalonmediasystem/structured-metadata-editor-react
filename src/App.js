@@ -12,18 +12,18 @@ import { faDotCircle, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 library.add(faDotCircle, faPen, faTrash);
 
 class App extends Component {
-	render() {
-		return (
-			<DragDropContextProvider backend={HTML5Backend}>
-				<div className="container">
-					<h1>Test Structural Metadata Editor</h1>
-					<Waveform />
-					<ButtonSection />
-					<StructureOutputContainer />
-				</div>
-			</DragDropContextProvider>
-		);
-	}
+  render() {
+    return (
+      <DragDropContextProvider backend={HTML5Backend}>
+        <div className="container">
+          <h1>Test Structural Metadata Editor</h1>
+          <Waveform />
+          <ButtonSection />
+          <StructureOutputContainer />
+        </div>
+      </DragDropContextProvider>
+    );
+  }
 }
 
 export default App;

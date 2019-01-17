@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import AlertDismissable from '../components/AlertDismissable';
 
 class AlertContainer extends Component {
-	render() {
-		return <div>{this.props.showForms.alert && <AlertDismissable />}</div>;
-	}
+  render() {
+    return <div>{this.props.showForms.alert && <AlertDismissable />}</div>;
+  }
 }
 const mapStateToProps = state => ({
-	showForms: state.showForms
+  showForms: state.showForms
 });
 
 export default connect(mapStateToProps)(AlertContainer);
