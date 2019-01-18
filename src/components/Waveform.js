@@ -40,6 +40,7 @@ class Waveform extends Component {
     this.waveformContainer = React.createRef();
     this.mediaPlayer = React.createRef();
 
+    this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -75,6 +76,11 @@ class Waveform extends Component {
     this.peaksInstance.zoom.zoomOut();
   };
 
+  handleSubmit(event) {
+    this.seekTime();
+    event.preventDefault();
+  }
+
   handleChange(event) {
     this.setState({
       seekTime: event.target.value
@@ -100,13 +106,7 @@ class Waveform extends Component {
             </audio>
           </Col>
           <Col xs={12} md={6} className="text-right">
-            <Form
-              inline
-              onSubmit={e => {
-                this.seekTime(this);
-                e.preventDefault();
-              }}
-            >
+            <Form inline onSubmit={this.handleSubmit}>
               <FormGroup>
                 <ButtonToolbar>
                   <Button
