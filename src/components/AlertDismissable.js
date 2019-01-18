@@ -36,7 +36,7 @@ class AlertDismissable extends React.Component {
         return (
           <div>
             <Alert bsStyle="success" onDismiss={this.handleDismiss}>
-              <p>Successfully saved masterfile.</p>
+              <p>Successfully saved to masterfile.</p>
             </Alert>
           </div>
         );

@@ -26,7 +26,7 @@ class GenerateStructureContainer extends Component {
         } else if (error.request !== undefined) {
           this.props.handleResponse(error.request.status);
         } else {
-          this.props.handleResponse(0);
+          this.props.handleResponse(-1);
         }
       });
   }
