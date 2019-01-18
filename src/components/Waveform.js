@@ -9,14 +9,18 @@ import {
   Row,
   Col
 } from 'react-bootstrap';
+import APIUtils from '../api/Utils';
+import * as actions from '../actions/show-forms';
+import { connect } from 'react-redux';
 
 import soundMP3 from '../data/TOL_6min_720p_download.mp3';
-import soundOGG from '../data/TOL_6min_720p_download.ogg';
+
+const apiUtils = new APIUtils();
 
 const peaksOptions = {
   container: null,
   mediaElement: null,
-  dataUri: '../data/TOL_6min_720p_download.json',
+  dataUri: null,
   dataUriDefaultFormat: 'json',
   keyboard: true,
   pointMarkerColor: '#006eb0',
@@ -36,16 +40,32 @@ class Waveform extends Component {
     this.waveformContainer = React.createRef();
     this.mediaPlayer = React.createRef();
 
+    this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     // Grab the React `refs` now that the component has mounted
     peaksOptions.container = this.waveformContainer.current;
     peaksOptions.mediaElement = this.mediaPlayer.current;
 
-    // Initialize Peaks
-    this.peaksInstance = Peaks.init(peaksOptions);
+    await apiUtils
+      .getRequest('waveform.json')
+      .then(response => {
+        // Set the masterfile URL as the URI for the waveform data file
+        peaksOptions.dataUri = response.request.responseURL;
+        // Initialize Peaks
+        this.peaksInstance = Peaks.init(peaksOptions);
+      })
+      .catch(error => {
+        if (error.response !== undefined) {
+          this.props.handleResponse(error.response.status);
+        } else if (error.request !== undefined) {
+          this.props.handleResponse(error.request.status);
+        } else {
+          this.props.handleResponse(-1);
+        }
+      });
   }
 
   zoomIn = () => {
@@ -55,6 +75,11 @@ class Waveform extends Component {
   zoomOut = () => {
     this.peaksInstance.zoom.zoomOut();
   };
+
+  handleSubmit(event) {
+    this.seekTime();
+    event.preventDefault();
+  }
 
   handleChange(event) {
     this.setState({
@@ -77,16 +102,21 @@ class Waveform extends Component {
           <Col xs={12} md={6}>
             <audio controls ref={this.mediaPlayer}>
               <source src={soundMP3} type="audio/mp3" />
-              <source src={soundOGG} type="audio/ogg" />
               Your browser does not support the audio element.
             </audio>
           </Col>
           <Col xs={12} md={6} className="text-right">
-            <Form inline>
+            <Form inline onSubmit={this.handleSubmit}>
               <FormGroup>
                 <ButtonToolbar>
-                  <Button onClick={this.zoomIn}>Zoom in</Button>
-                  <Button onClick={this.zoomOut}>Zoom out</Button>
+                  <Button
+                    className="glyphicon glyphicon-zoom-in"
+                    onClick={this.zoomIn}
+                  />
+                  <Button
+                    className="glyphicon glyphicon-zoom-out"
+                    onClick={this.zoomOut}
+                  />
                 </ButtonToolbar>
               </FormGroup>{' '}
               <FormControl
@@ -105,4 +135,7 @@ class Waveform extends Component {
   }
 }
 
-export default Waveform;
+export default connect(
+  null,
+  actions
+)(Waveform);
