@@ -229,8 +229,6 @@ export default class StructuralMetadataUtils {
     // Return whether new end time overlaps the next begin time, if there are timespans after the current timespan
     if (filteredSpans.length !== 0) {
       return toMs(endTime) > toMs(filteredSpans[0].begin);
-    } else {
-      return false;
     }
   }
 
