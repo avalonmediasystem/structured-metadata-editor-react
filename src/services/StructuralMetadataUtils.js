@@ -77,7 +77,11 @@ export default class StructuralMetadataUtils {
       let spanIndex = siblings
         .map(sibling => sibling.label)
         .indexOf(dragSource.label);
-      let stuckInMiddle = this.dndHelper.stuckInMiddle(spanIndex, siblings, parentDiv);
+      let stuckInMiddle = this.dndHelper.stuckInMiddle(
+        spanIndex,
+        siblings,
+        parentDiv
+      );
 
       // If span falls in the middle of other spans, it can't be moved
       if (stuckInMiddle) {
@@ -222,8 +226,12 @@ export default class StructuralMetadataUtils {
     let filteredSpans = allSpans.filter(span => {
       return toMs(beginTime) < toMs(span.begin);
     });
-    // Return whether new end time overlaps the next begin time
-    return toMs(endTime) > toMs(filteredSpans[0].begin);
+    // Return whether new end time overlaps the next begin time, if there are timespans after the current timespan
+    if (filteredSpans.length !== 0) {
+      return toMs(endTime) > toMs(filteredSpans[0].begin);
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -365,7 +373,11 @@ export default class StructuralMetadataUtils {
       findSpanItem(wrapperSpans.after, allItems);
     }
 
-    return validHeadings;
+    // Filter out the duplicated Section labels
+    let uniqueValidHeadings = validHeadings.filter(
+      (heading, i) => validHeadings.indexOf(heading) === i
+    );
+    return uniqueValidHeadings;
   }
 
   /**

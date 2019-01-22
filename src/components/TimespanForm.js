@@ -181,8 +181,9 @@ class TimespanForm extends Component {
 
   handleCancelClick = () => {
     // Add the edited item back to data structure
-    console.log('unEditedFormItem', this.unEdiunEditedFormItemtedItem);
-    this.props.onSubmit(this.unEditedFormItem);
+    if (this.unEditedFormItem !== undefined) {
+      this.props.onSubmit(this.unEditedFormItem);
+    }
 
     this.props.closeModal();
   };
