@@ -230,6 +230,7 @@ export default class StructuralMetadataUtils {
     if (filteredSpans.length !== 0) {
       return toMs(endTime) > toMs(filteredSpans[0].begin);
     }
+    return false;
   }
 
   /**
