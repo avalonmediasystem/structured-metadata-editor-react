@@ -18,22 +18,6 @@ const spanTarget = {
   canDrop(props, monitor) {
     // You can disallow drop based on props or item
     return true;
-  },
-
-  hover(props, monitor, component) {
-    // This is fired very often and lets you perform side effects
-    // in response to the hover. You can't handle enter and leave
-    // here—if you need them, put monitor.isOver() into collect() so you
-    // can just use componentDidUpdate() to handle enter/leave.
-
-    const draggedLabel = monitor.getItem().label;
-
-    if (draggedLabel !== props.item.label) {
-    } else {
-    }
-
-    // You will receive hover() even for items for which canDrop() is false
-    //const canDrop = monitor.canDrop();
   }
 };
 
