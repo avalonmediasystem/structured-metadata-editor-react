@@ -27,14 +27,6 @@ class HeadingForm extends Component {
   componentDidMount() {
     const { showForms } = this.props;
 
-    // Save the unedited version of item so we can find it later
-    if (this.props.showForms.mode === 'EDIT') {
-      this.unEditedItem = structuralMetadataUtils.findItemByLabel(
-        this.props.showForms.label,
-        this.props.smData
-      );
-    }
-
     // Get select dropdown options
     let obj = {
       childOfOptions: this.getOptions()
@@ -60,7 +52,7 @@ class HeadingForm extends Component {
       this.props.smData
     );
     let options = allHeaders.map(header => (
-      <option value={header.label} key={header.label}>
+      <option value={header.id} key={header.id}>
         {header.label}
       </option>
     ));
@@ -91,28 +83,27 @@ class HeadingForm extends Component {
   };
 
   handleSubmit = e => {
-    e.preventDefault();
+    const { showForms } = this.props;
     const { headingChildOf, headingTitle } = this.state;
+    let submitItem = { headingChildOf, headingTitle };
 
-    this.props.onSubmit({
-      headingChildOf,
-      headingTitle,
-      unEditedItem: this.unEditedItem
-    });
+    e.preventDefault();
+
+    if (showForms.mode === 'EDIT') {
+      submitItem.id = showForms.id
+    }
+
+    this.props.onSubmit(submitItem);
   };
 
   loadExistingValues() {
     const { showForms, smData } = this.props;
-    let item = structuralMetadataUtils.findItemByLabel(showForms.label, smData);
+    let item = structuralMetadataUtils.findItem(showForms.id, smData);
     let parentDiv = structuralMetadataUtils.getParentDiv(item, smData);
 
-    if (parentDiv) {
-      parentDiv = parentDiv.label;
-    }
-
     return {
-      headingTitle: showForms.label,
-      headingChildOf: parentDiv || ''
+      headingTitle: item.label,
+      headingChildOf: parentDiv ? parentDiv.id : ''
     };
   }
 
@@ -144,6 +135,7 @@ class HeadingForm extends Component {
               placeholder="select"
               onChange={this.handleChildOfChange}
               value={this.state.headingChildOf}
+              disabled={this.props.showForms.mode === 'EDIT'}
             >
               <option value="">Select...</option>
               {this.state.childOfOptions}

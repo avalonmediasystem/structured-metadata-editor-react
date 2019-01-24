@@ -61,7 +61,7 @@ class ListItem extends Component {
       begin: PropTypes.string,
       end: PropTypes.string,
       items: PropTypes.array,
-      label: PropTypes.string,
+      id: PropTypes.string,
       type: PropTypes.string
     })
   };
@@ -71,9 +71,9 @@ class ListItem extends Component {
   };
 
   handleEditClick = () => {
-    const { label, type } = this.props.item;
+    const { id, type } = this.props.item;
 
-    this.props.showModal('EDIT', type, label);
+    this.props.showModal('EDIT', type, id);
   };
 
   handleShowDropTargetsClick = () => {

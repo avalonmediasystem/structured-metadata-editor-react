@@ -51,7 +51,7 @@ export default class StructuralMetadataUtils {
   deleteListItem(item, allItems) {
     let clonedItems = [...allItems];
     let parentDiv = this.getParentDiv(item, clonedItems);
-    let indexToDelete = _.findIndex(parentDiv.items, { label: item.label });
+    let indexToDelete = _.findIndex(parentDiv.items, { id: item.id });
 
     parentDiv.items.splice(indexToDelete, 1);
 
@@ -235,6 +235,29 @@ export default class StructuralMetadataUtils {
   }
 
   /**
+   * Find an item by it's id
+   * @param {String} id - string value to match against
+   * @param {Array} items - Array of nested structured metadata objects containing headings and time spans
+   * @return {Object} - Object found, or null if none
+   */
+  findItem(id, items) {
+    let foundItem = null;
+    let findItem = items => {
+      for (let item of items) {
+        if (item.id === id) {
+          foundItem = item;
+        }
+        if (item.items) {
+          findItem(item.items);
+        }
+      }
+    };
+    findItem(items);
+
+    return foundItem;
+  }
+
+  /**
    * @param {String} label - string value to match against
    * @param {Array} items - Array of nested structured metadata objects containing headings and time spans
    * @return {Object} - Object found, or null if none
@@ -341,7 +364,7 @@ export default class StructuralMetadataUtils {
       for (let item of items) {
         if (item.items) {
           let childItem = item.items.filter(
-            currentChild => child.label === currentChild.label
+            currentChild => child.id === currentChild.id
           );
           // Found it
           if (childItem.length > 0) {
@@ -489,7 +512,7 @@ export default class StructuralMetadataUtils {
    */
   handleListItemDrop(dragSource, dropTarget, allItems) {
     let clonedItems = [...allItems];
-    let itemToMove = this.findItemByLabel(dragSource.label, clonedItems);
+    let itemToMove = this.findItem(dragSource.id, clonedItems);
 
     // Slice out previous position of itemToMove
     let itemToMoveParent = this.getParentDiv(itemToMove, clonedItems);
@@ -517,13 +540,13 @@ export default class StructuralMetadataUtils {
    */
   insertNewHeader(obj, allItems) {
     let clonedItems = [...allItems];
-    const targetLabel = obj.headingChildOf;
     let foundDiv =
-      this.findItemByLabel(targetLabel, clonedItems) || clonedItems[0];
+      this.findItem(obj.headingChildOf, clonedItems) || clonedItems[0];
 
     // If children exist, add to list
     if (foundDiv) {
       foundDiv.items.unshift({
+        id: uuidv1(),
         type: 'div',
         label: obj.headingTitle,
         items: []
@@ -541,7 +564,7 @@ export default class StructuralMetadataUtils {
    */
   insertNewTimespan(obj, allItems) {
     let clonedItems = [...allItems];
-    let foundDiv = this.findItemByLabel(obj.timespanChildOf, clonedItems);
+    let foundDiv = this.findItem(obj.timespanChildOf, clonedItems);
     const spanObj = this.createSpanObject(obj);
     let insertIndex = 0;
 
@@ -612,6 +635,21 @@ export default class StructuralMetadataUtils {
    */
   toMs(strTime) {
     return moment.duration(strTime).asMilliseconds();
+  }
+
+  /**
+   * Update an existing heading object
+   * @param {Object} heading - updated form object
+   * @param {Array} allItems - the data structure
+   */
+  updateHeading(heading, allItems) {
+    const clonedItems = [...allItems];
+    let item = this.findItem(heading.id, clonedItems);
+    item.label = heading.headingTitle;
+
+    // TODO: Figure out how to handle "Child Of" when this becomes inline.
+
+    return clonedItems;
   }
 
   /**
