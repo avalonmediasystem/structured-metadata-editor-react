@@ -24,7 +24,7 @@ export default class StructuralMetadataUtils {
   createDropZoneObject() {
     return {
       type: 'optional',
-      label: uuidv1()
+      id: uuidv1()
     };
   }
 
@@ -35,6 +35,7 @@ export default class StructuralMetadataUtils {
    */
   createSpanObject(obj) {
     return {
+      id: uuidv1(),
       type: 'span',
       label: obj.timespanTitle,
       begin: obj.beginTime,
@@ -75,9 +76,8 @@ export default class StructuralMetadataUtils {
       let parentDiv = this.getParentDiv(dragSource, allItems);
       let siblings = parentDiv ? parentDiv.items : [];
       let spanIndex = siblings
-        .map(sibling => sibling.label)
-        .indexOf(dragSource.label);
-
+        .map(sibling => sibling.id)
+        .indexOf(dragSource.id);
       let stuckInMiddle = this.dndHelper.stuckInMiddle(
         spanIndex,
         siblings,
@@ -114,7 +114,7 @@ export default class StructuralMetadataUtils {
 
       let grandParentDiv = this.getParentDiv(parentDiv, allItems);
       let parentIndex = grandParentDiv
-        ? grandParentDiv.items.map(item => item.label).indexOf(parentDiv.label)
+        ? grandParentDiv.items.map(item => item.id).indexOf(parentDiv.id)
         : null;
       // A first child of siblings, or an only child
       if (spanIndex === 0) {
@@ -159,8 +159,8 @@ export default class StructuralMetadataUtils {
     addSpanBefore: (allItems, wrapperSpanBefore) => {
       let beforeParent = this.getParentDiv(wrapperSpanBefore, allItems);
       let beforeIndex = beforeParent.items
-        .map(item => item.label)
-        .indexOf(wrapperSpanBefore.label);
+        .map(item => item.id)
+        .indexOf(wrapperSpanBefore.id);
       // Before the insert, check that the dropTarget index doesn't already exist
       if (
         beforeParent.items[beforeIndex + 1] &&
@@ -176,8 +176,9 @@ export default class StructuralMetadataUtils {
     addSpanAfter: (allItems, wrapperSpanAfter) => {
       let afterParent = this.getParentDiv(wrapperSpanAfter, allItems);
       let afterIndex = afterParent.items
-        .map(item => item.label)
-        .indexOf(wrapperSpanAfter.label);
+        .map(item => item.id)
+        .indexOf(wrapperSpanAfter.id);
+
       afterParent.items.splice(afterIndex, 0, this.createDropZoneObject());
     },
     stuckInMiddle: (spanIndex, siblings, parentDiv) => {
@@ -397,7 +398,7 @@ export default class StructuralMetadataUtils {
         if (item.items) {
           // Check for a target span match
           let targetSpanMatch = item.items.filter(
-            childItem => childItem.label === targetSpan.label
+            childItem => childItem.id === targetSpan.id
           );
           // Match found
           if (targetSpanMatch.length > 0) {
@@ -505,7 +506,7 @@ export default class StructuralMetadataUtils {
   /**
    * Helper function which handles React Dnd's dropping of a dragSource onto a dropTarget
    * It needs to re-arrange the data structure to reflect the new positions
-   * @param {Object} dragSource - a minimal object React DnD uses with only the label value
+   * @param {Object} dragSource - a minimal object React DnD uses with only the id value
    * @param {Object} dropTarget
    * @param {Array} allItems
    * @returns {Array}
@@ -517,15 +518,15 @@ export default class StructuralMetadataUtils {
     // Slice out previous position of itemToMove
     let itemToMoveParent = this.getParentDiv(itemToMove, clonedItems);
     let itemToMoveItemIndex = itemToMoveParent.items
-      .map(item => item.label)
-      .indexOf(itemToMove.label);
+      .map(item => item.id)
+      .indexOf(itemToMove.id);
     itemToMoveParent.items.splice(itemToMoveItemIndex, 1);
 
     // Place itemToMove right after the placeholder array position
     let dropTargetParent = this.getParentDiv(dropTarget, clonedItems);
     let dropTargetItemIndex = dropTargetParent.items
-      .map(item => item.label)
-      .indexOf(dropTarget.label);
+      .map(item => item.id)
+      .indexOf(dropTarget.id);
     dropTargetParent.items.splice(dropTargetItemIndex, 0, itemToMove);
 
     // Get rid of all placeholder elements
@@ -577,7 +578,7 @@ export default class StructuralMetadataUtils {
 
       if (wrapperSpans.before) {
         insertIndex =
-          _.findIndex(foundDiv.items, { label: wrapperSpans.before.label }) + 1;
+          _.findIndex(foundDiv.items, { id: wrapperSpans.before.id }) + 1;
       }
       // Insert new span at appropriate index
       foundDiv.items.splice(insertIndex, 0, spanObj);

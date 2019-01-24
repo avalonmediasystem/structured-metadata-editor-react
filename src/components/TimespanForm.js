@@ -29,18 +29,20 @@ class TimespanForm extends Component {
   }
 
   componentDidMount() {
-    if (this.props.showForms.mode === 'EDIT') {
+    const { showForms, smData } = this.props;
+
+    if (showForms.mode === 'EDIT') {
       // Grab the currently edited item from the data structure
-      let smItem = structuralMetadataUtils.findItemByLabel(
-        this.props.showForms.label,
-        this.props.smData
+      let smItem = structuralMetadataUtils.findItem(
+        showForms.id,
+        smData
       );
 
       // Save the unedited, Form version of the item, so we can use it later
       this.unEditedFormItem = this.loadExistingValues();
 
       // Load existing form values
-      this.setState(this.unEditedFormItem);
+      this.setState(this.loadExistingValues());
 
       // Remove the timespan from data structure to make room for the saved edited version
       this.props.deleteItem(smItem);
@@ -49,7 +51,7 @@ class TimespanForm extends Component {
     // Save a reference to all the spans for future calculations
     this.allSpans = structuralMetadataUtils.getItemsOfType(
       'span',
-      this.props.smData
+      smData
     );
   }
 
@@ -197,17 +199,15 @@ class TimespanForm extends Component {
    */
   loadExistingValues() {
     const { showForms, smData } = this.props;
-    let item = structuralMetadataUtils.findItemByLabel(showForms.label, smData);
+		console.log('​TimespanForm -> loadExistingValues -> showForms', showForms)
+    
+    let item = structuralMetadataUtils.findItem(showForms.id, smData);
     let parentDiv = structuralMetadataUtils.getParentDiv(item, smData);
-
-    if (parentDiv) {
-      parentDiv = parentDiv.label;
-    }
 
     return {
       beginTime: item.begin,
       endTime: item.end,
-      timespanChildOf: parentDiv || '',
+      timespanChildOf: parentDiv ? parentDiv.id : '',
       timespanTitle: item.label
     };
   }
@@ -287,12 +287,13 @@ class TimespanForm extends Component {
 
   render() {
     const { beginTime, endTime, timespanChildOf, timespanTitle } = this.state;
+    const { showForms } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
         <Modal.Header closeButton>
           <Modal.Title>
-            {this.props.showForms.mode === 'ADD' ? 'Add' : 'Edit'} Timespan
+            {showForms.mode === 'ADD' ? 'Add' : 'Edit'} Timespan
           </Modal.Title>
         </Modal.Header>
 
@@ -350,10 +351,11 @@ class TimespanForm extends Component {
               placeholder="select"
               onChange={this.handleChildOfChange}
               value={timespanChildOf}
+              disabled={showForms.mode === 'EDIT'}
             >
               <option value="">Select...</option>
               {this.state.validHeadings.map(item => (
-                <option value={item.label} key={item.label}>
+                <option value={item.id} key={item.id}>
                   {item.label}
                 </option>
               ))}
@@ -367,7 +369,7 @@ class TimespanForm extends Component {
             type="submit"
             disabled={!this.formIsValid()}
           >
-            Add
+            {showForms.mode === 'EDIT' ? 'Update' : 'Add'}
           </Button>
           <Button onClick={this.handleCancelClick}>Cancel</Button>
         </Modal.Footer>
