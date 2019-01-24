@@ -199,8 +199,6 @@ class TimespanForm extends Component {
    */
   loadExistingValues() {
     const { showForms, smData } = this.props;
-		console.log('​TimespanForm -> loadExistingValues -> showForms', showForms)
-    
     let item = structuralMetadataUtils.findItem(showForms.id, smData);
     let parentDiv = structuralMetadataUtils.getParentDiv(item, smData);
 

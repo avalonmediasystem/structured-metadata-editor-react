@@ -29,8 +29,8 @@ const smData = (state = initialState, action) => {
 
     case types.SET_ACTIVE_DRAG_SOURCE:
       stateClone = [...state];
-      let target = structrualMetadataUtils.findItemByLabel(
-        action.label,
+      let target = structrualMetadataUtils.findItem(
+        action.id,
         stateClone
       );
       // Put an active flag on list item

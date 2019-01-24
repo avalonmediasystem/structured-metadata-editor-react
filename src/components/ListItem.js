@@ -10,7 +10,7 @@ import { DragSource, DropTarget } from 'react-dnd';
 
 const spanSource = {
   beginDrag(props) {
-    return { label: props.item.label };
+    return { id: props.item.id };
   }
 };
 
@@ -101,7 +101,7 @@ class ListItem extends Component {
     addDropTargets(item);
 
     // Redux way of setting active drag list item
-    setActiveDragSource(item.label);
+    setActiveDragSource(item.id);
   };
 
   render() {
