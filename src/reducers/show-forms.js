@@ -13,7 +13,7 @@ const showForms = (state = initialState, action) => {
       return Object.assign({}, state, {
         heading: action.show,
         mode: action.mode,
-        label: action.label
+        id: action.id
       });
     case types.TOGGLE_TIMESPAN_FORM:
       return Object.assign({}, state, {
@@ -25,7 +25,7 @@ const showForms = (state = initialState, action) => {
         modal: true,
         mode: action.mode,
         listItemType: action.listItemType,
-        label: action.label
+        id: action.id
       });
     case types.CLOSE_MODAL:
       return Object.assign({}, state, {

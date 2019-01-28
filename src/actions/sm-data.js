@@ -34,10 +34,10 @@ export function removeDropTargets() {
   };
 }
 
-export function setActiveDragSource(label) {
+export function setActiveDragSource(id) {
   return {
     type: types.SET_ACTIVE_DRAG_SOURCE,
-    label
+    id
   };
 }
 

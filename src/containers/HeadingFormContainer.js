@@ -13,30 +13,30 @@ class HeadingFormContainer extends Component {
   };
 
   submit = values => {
-    const { mode } = this.props.showForms;
-
-    let newItem = {
+    const { showForms, smData } = this.props;
+    let submittedItem = {
       headingChildOf: values.headingChildOf,
       headingTitle: values.headingTitle
     };
+    let updatedSmData = null;
 
-    // Delete the original heading item first, if editing
-    let smData =
-      mode === 'EDIT'
-        ? structuralMetadataUtils.deleteListItem(
-            values.unEditedItem,
-            this.props.smData
-          )
-        : this.props.smData;
-
-    // Update the data structure with new heading
-    const updatedData = structuralMetadataUtils.insertNewHeader(
-      newItem,
-      smData
-    );
+    // Edit an existing heading
+    if (showForms.mode === 'EDIT') {
+      // Add edited item id to the submitted object
+      submittedItem.id = showForms.id;
+      updatedSmData = structuralMetadataUtils.updateHeading(submittedItem, smData);
+    }
+    // Add a new heading
+    else {
+      // Update the data structure with new heading
+      updatedSmData = structuralMetadataUtils.insertNewHeader(
+        submittedItem,
+        smData
+      );
+    }
 
     // Update redux store
-    this.props.buildSMUI(updatedData);
+    this.props.buildSMUI(updatedSmData);
 
     // Close the form
     this.props.closeModal();
