@@ -77,6 +77,7 @@ export default class StructuralMetadataUtils {
       let spanIndex = siblings
         .map(sibling => sibling.label)
         .indexOf(dragSource.label);
+
       let stuckInMiddle = this.dndHelper.stuckInMiddle(
         spanIndex,
         siblings,
@@ -115,7 +116,6 @@ export default class StructuralMetadataUtils {
       let parentIndex = grandParentDiv
         ? grandParentDiv.items.map(item => item.label).indexOf(parentDiv.label)
         : null;
-
       // A first child of siblings, or an only child
       if (spanIndex === 0) {
         // Can't move up
@@ -133,39 +133,18 @@ export default class StructuralMetadataUtils {
 
           // Insert after the "before" wrapper span (if one exists)
           if (wrapperSpans.before) {
-            let beforeParent = this.getParentDiv(
-              wrapperSpans.before,
-              clonedItems
-            );
-            let beforeIndex = beforeParent.items
-              .map(item => item.label)
-              .indexOf(wrapperSpans.before.label);
-
-            // Before the insert, check that the dropTarget index doesn't already exist
-            if (
-              beforeParent.items[beforeIndex + 1] &&
-              beforeParent.items[beforeIndex + 1].type !== 'optional'
-            ) {
-              beforeParent.items.splice(
-                beforeIndex + 1,
-                0,
-                this.createDropZoneObject()
-              );
-            }
-          }
-
-          // Insert before the "after" wrapper span (if one exists)
-          if (wrapperSpans.after) {
-            this.dndHelper.addSpanAfter(clonedItems, wrapperSpans.after);
+            this.dndHelper.addSpanBefore(clonedItems, wrapperSpans.before);
           }
         }
       }
 
-      // Last child of siblings
-      if (spanIndex === siblings.length - 1 && spanIndex !== 0) {
-        if (wrapperSpans.after) {
-          this.dndHelper.addSpanAfter(clonedItems, wrapperSpans.after);
-        }
+      // Insert relative to the span after the active span
+      if (wrapperSpans.after) {
+        this.dndHelper.addSpanAfter(clonedItems, wrapperSpans.after);
+      }
+      // Insert when there is no wrapper span after active span, but empty headers
+      if (!wrapperSpans.after) {
+        this.dndHelper.addSpanToEmptyHeader(parentDiv, clonedItems);
       }
     }
 
@@ -177,12 +156,28 @@ export default class StructuralMetadataUtils {
    * This mutates the state of the data structure
    */
   dndHelper = {
+    addSpanBefore: (clonedItems, wrapperSpanBefore) => {
+      let beforeParent = this.getParentDiv(wrapperSpanBefore, clonedItems);
+      let beforeIndex = beforeParent.items
+        .map(item => item.label)
+        .indexOf(wrapperSpanBefore.label);
+      // Before the insert, check that the dropTarget index doesn't already exist
+      if (
+        beforeParent.items[beforeIndex + 1] &&
+        beforeParent.items[beforeIndex + 1].type !== 'optional'
+      ) {
+        beforeParent.items.splice(
+          beforeIndex + 1,
+          0,
+          this.createDropZoneObject()
+        );
+      }
+    },
     addSpanAfter: (clonedItems, wrapperSpanAfter) => {
       let afterParent = this.getParentDiv(wrapperSpanAfter, clonedItems);
       let afterIndex = afterParent.items
         .map(item => item.label)
         .indexOf(wrapperSpanAfter.label);
-
       afterParent.items.splice(afterIndex, 0, this.createDropZoneObject());
     },
     stuckInMiddle: (spanIndex, siblings, parentDiv) => {
@@ -192,6 +187,12 @@ export default class StructuralMetadataUtils {
         parentDiv.items[spanIndex - 1].type === 'span' &&
         parentDiv.items[spanIndex + 1].type === 'span'
       );
+    },
+    addSpanToEmptyHeader: (parentDiv, clonedItems) => {
+      let wrapperParents = this.findWrapperHeaders(parentDiv, clonedItems);
+      if (wrapperParents.after) {
+        wrapperParents.after.items.splice(0, 0, this.createDropZoneObject());
+      }
     }
   };
 
@@ -282,6 +283,32 @@ export default class StructuralMetadataUtils {
   }
 
   /**
+   * Find the <div>s wrapping the current active timespan (either in editing or in drag-n-drop)
+   * @param {Object} parentDiv - parent header of the active timespan
+   * @param {Array} allItems - all the items in the structured metadata
+   */
+  findWrapperHeaders(parentDiv, allItems) {
+    const wrapperHeadings = {
+      before: null,
+      after: null
+    };
+    let grandParentDiv = this.getParentDiv(parentDiv, allItems);
+    let parentIndex = grandParentDiv
+      ? grandParentDiv.items.map(item => item.label).indexOf(parentDiv.label)
+      : null;
+
+    wrapperHeadings.before =
+      grandParentDiv.items[parentIndex - 1] !== undefined
+        ? grandParentDiv.items[parentIndex - 1]
+        : null;
+    wrapperHeadings.after =
+      grandParentDiv.items[parentIndex + 1] !== undefined
+        ? grandParentDiv.items[parentIndex + 1]
+        : null;
+    return wrapperHeadings;
+  }
+
+  /**
    * Get all items in data structure of type 'div' or 'span'
    * @param {Array} json
    * @returns {Array} - all stripped down objects of type in the entire structured metadata collection
@@ -339,6 +366,7 @@ export default class StructuralMetadataUtils {
    */
   getValidHeadings(newSpan, wrapperSpans, allItems) {
     let validHeadings = [];
+    let sortedHeadings = [];
 
     let findSpanItem = (targetSpan, items) => {
       for (let item of items) {
@@ -361,7 +389,7 @@ export default class StructuralMetadataUtils {
 
     // There are currently no spans, ALL headings are valid
     if (!wrapperSpans.before && !wrapperSpans.after) {
-      // Get all headings and return them
+      // Get all headings in the metada structure
       validHeadings = this.getItemsOfType('div', allItems);
     }
 
@@ -371,12 +399,82 @@ export default class StructuralMetadataUtils {
     if (wrapperSpans.after) {
       findSpanItem(wrapperSpans.after, allItems);
     }
+    // Get valid headings when either of wrapping timespan is null
+    if (!wrapperSpans.before || !wrapperSpans.after) {
+      let validDivHeading = this.getValidHeadingForEmptySpans(
+        wrapperSpans,
+        allItems
+      );
+      validHeadings = validHeadings.concat(validDivHeading);
+    }
 
-    // Filter out the duplicated Section labels
+    // Filter the duplicated heading labels
     let uniqueValidHeadings = validHeadings.filter(
       (heading, i) => validHeadings.indexOf(heading) === i
     );
-    return uniqueValidHeadings;
+
+    // Sort valid headings to comply with the order in the metadata structure
+    allHeadings.forEach(key => {
+      let found = false;
+      uniqueValidHeadings = uniqueValidHeadings.filter(heading => {
+        if (!found && heading.label === key.label) {
+          sortedHeadings.push(heading);
+          found = true;
+          return false;
+        } else {
+          return true;
+        }
+      });
+    });
+
+    return sortedHeadings;
+  }
+
+  /**
+   * Find valid headings when either wrapping timespan before or after is null
+   * @param {Object} wrapperSpans - spans wrapping the current active timespan
+   * @param {Array} allItems - all the items in structured metadata
+   */
+  getValidHeadingForEmptySpans(wrapperSpans, allItems) {
+    let adjacentDiv = null;
+
+    let getWrapperDiv = (currentParent, position) => {
+      let wrapperParents = this.findWrapperHeaders(currentParent, allItems);
+      switch (position) {
+        case 'before':
+          return !wrapperParents.before ? currentParent : wrapperParents.before;
+        case 'after':
+          return !wrapperParents.after ? currentParent : wrapperParents.after;
+        default:
+          return currentParent;
+      }
+    };
+
+    let nestedHeadings = [];
+    let getNestedDivs = currentHeader => {
+      let items = currentHeader.items;
+      if (items) {
+        for (let item of items) {
+          if (item.type === 'div') {
+            nestedHeadings.push(item);
+          }
+          getNestedDivs(item);
+        }
+      }
+    };
+
+    if (!wrapperSpans.after && wrapperSpans.before) {
+      let currentParent = this.getParentDiv(wrapperSpans.before, allItems);
+      adjacentDiv = getWrapperDiv(currentParent, 'after');
+      getNestedDivs(adjacentDiv);
+    }
+    if (!wrapperSpans.before && wrapperSpans.after) {
+      let currentParent = this.getParentDiv(wrapperSpans.after, allItems);
+      adjacentDiv = getWrapperDiv(currentParent, 'before');
+      getNestedDivs(adjacentDiv);
+    }
+    nestedHeadings.push(adjacentDiv);
+    return nestedHeadings;
   }
 
   /**
