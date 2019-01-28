@@ -434,15 +434,10 @@ export default class StructuralMetadataUtils {
       validHeadings = validHeadings.concat(validDivHeading);
     }
 
-    // Filter the duplicated heading labels
-    let uniqueValidHeadings = validHeadings.filter(
-      (heading, i) => validHeadings.indexOf(heading) === i
-    );
-
     // Sort valid headings to comply with the order in the metadata structure
     allHeadings.forEach(key => {
       let found = false;
-      uniqueValidHeadings = uniqueValidHeadings.filter(heading => {
+      validHeadings = validHeadings.filter(heading => {
         if (!found && heading.label === key.label) {
           sortedHeadings.push(heading);
           found = true;
