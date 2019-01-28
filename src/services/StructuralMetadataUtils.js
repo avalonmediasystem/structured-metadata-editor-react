@@ -70,9 +70,9 @@ export default class StructuralMetadataUtils {
     if (dragSource.type === 'span') {
       let wrapperSpans = this.findWrapperSpans(
         dragSource,
-        this.getItemsOfType('span', clonedItems)
+        this.getItemsOfType('span', allItems)
       );
-      let parentDiv = this.getParentDiv(dragSource, clonedItems);
+      let parentDiv = this.getParentDiv(dragSource, allItems);
       let siblings = parentDiv ? parentDiv.items : [];
       let spanIndex = siblings
         .map(sibling => sibling.label)
@@ -112,7 +112,7 @@ export default class StructuralMetadataUtils {
         }
       }
 
-      let grandParentDiv = this.getParentDiv(parentDiv, clonedItems);
+      let grandParentDiv = this.getParentDiv(parentDiv, allItems);
       let parentIndex = grandParentDiv
         ? grandParentDiv.items.map(item => item.label).indexOf(parentDiv.label)
         : null;
@@ -133,18 +133,18 @@ export default class StructuralMetadataUtils {
 
           // Insert after the "before" wrapper span (if one exists)
           if (wrapperSpans.before) {
-            this.dndHelper.addSpanBefore(clonedItems, wrapperSpans.before);
+            this.dndHelper.addSpanBefore(allItems, wrapperSpans.before);
           }
         }
       }
 
       // Insert relative to the span after the active span
       if (wrapperSpans.after) {
-        this.dndHelper.addSpanAfter(clonedItems, wrapperSpans.after);
+        this.dndHelper.addSpanAfter(allItems, wrapperSpans.after);
       }
       // Insert when there is no wrapper span after active span, but empty headers
       if (!wrapperSpans.after) {
-        this.dndHelper.addSpanToEmptyHeader(parentDiv, clonedItems);
+        this.dndHelper.addSpanToEmptyHeader(parentDiv, allItems);
       }
     }
 
@@ -156,8 +156,8 @@ export default class StructuralMetadataUtils {
    * This mutates the state of the data structure
    */
   dndHelper = {
-    addSpanBefore: (clonedItems, wrapperSpanBefore) => {
-      let beforeParent = this.getParentDiv(wrapperSpanBefore, clonedItems);
+    addSpanBefore: (allItems, wrapperSpanBefore) => {
+      let beforeParent = this.getParentDiv(wrapperSpanBefore, allItems);
       let beforeIndex = beforeParent.items
         .map(item => item.label)
         .indexOf(wrapperSpanBefore.label);
@@ -173,8 +173,8 @@ export default class StructuralMetadataUtils {
         );
       }
     },
-    addSpanAfter: (clonedItems, wrapperSpanAfter) => {
-      let afterParent = this.getParentDiv(wrapperSpanAfter, clonedItems);
+    addSpanAfter: (allItems, wrapperSpanAfter) => {
+      let afterParent = this.getParentDiv(wrapperSpanAfter, allItems);
       let afterIndex = afterParent.items
         .map(item => item.label)
         .indexOf(wrapperSpanAfter.label);
@@ -188,8 +188,8 @@ export default class StructuralMetadataUtils {
         parentDiv.items[spanIndex + 1].type === 'span'
       );
     },
-    addSpanToEmptyHeader: (parentDiv, clonedItems) => {
-      let wrapperParents = this.findWrapperHeaders(parentDiv, clonedItems);
+    addSpanToEmptyHeader: (parentDiv, allItems) => {
+      let wrapperParents = this.findWrapperHeaders(parentDiv, allItems);
       if (wrapperParents.after) {
         wrapperParents.after.items.splice(0, 0, this.createDropZoneObject());
       }
@@ -387,10 +387,12 @@ export default class StructuralMetadataUtils {
       }
     };
 
+    // Get all headings in the metada structure
+    let allHeadings = this.getItemsOfType('div', allItems);
+
     // There are currently no spans, ALL headings are valid
     if (!wrapperSpans.before && !wrapperSpans.after) {
-      // Get all headings in the metada structure
-      validHeadings = this.getItemsOfType('div', allItems);
+      validHeadings = allHeadings;
     }
 
     if (wrapperSpans.before) {
