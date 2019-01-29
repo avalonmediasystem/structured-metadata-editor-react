@@ -7,6 +7,8 @@ import * as showFormActions from '../actions/show-forms';
 import PropTypes from 'prop-types';
 import { ItemTypes } from '../services/Constants';
 import { DragSource, DropTarget } from 'react-dnd';
+import ListItemEditForm from './ListItemEditForm';
+import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const spanSource = {
   beginDrag(props) {
@@ -39,17 +41,31 @@ function collectDrop(connect, monitor) {
   };
 }
 
+const tooltip = tip => <Tooltip id="tooltip">{tip}</Tooltip>;
+
 const EditControls = props => {
   return (
     <div className="edit-controls-wrapper">
       {props.itemType === 'span' && (
-        <FontAwesomeIcon
-          icon="dot-circle"
-          onClick={props.handleShowDropTargetsClick}
-        />
+        <OverlayTrigger placement="left" overlay={tooltip('Show drop targets')}>
+          <Button bsStyle="link">
+            <FontAwesomeIcon
+              icon="dot-circle"
+              onClick={props.handleShowDropTargetsClick}
+            />
+          </Button>
+        </OverlayTrigger>
       )}
-      <FontAwesomeIcon icon="pen" onClick={props.handleEditClick} />
-      <FontAwesomeIcon icon="trash" onClick={props.handleDelete} />
+      <OverlayTrigger placement="top" overlay={tooltip('Edit')}>
+        <Button bsStyle="link">
+          <FontAwesomeIcon icon="pen" onClick={props.handleEditClick} />
+        </Button>
+      </OverlayTrigger>
+      <OverlayTrigger placement="right" overlay={tooltip('Delete')}>
+        <Button bsStyle="link">
+          <FontAwesomeIcon icon="trash" onClick={props.handleDelete} />
+        </Button>
+      </OverlayTrigger>
     </div>
   );
 };
@@ -66,14 +82,25 @@ class ListItem extends Component {
     })
   };
 
+  state = {
+    editing: false
+  };
+
   handleDelete = () => {
     this.props.deleteItem(this.props.item);
   };
 
   handleEditClick = () => {
+    /* eslint-disable */
     const { id, type } = this.props.item;
+    /* eslint-enable */
 
-    this.props.showModal('EDIT', type, id);
+    //this.props.showModal('EDIT', type, id);
+    this.setState({ editing: true });
+  };
+
+  handleEditFormCancel = () => {
+    this.setState({ editing: false });
   };
 
   handleShowDropTargetsClick = () => {
@@ -121,22 +148,32 @@ class ListItem extends Component {
     return connectDragSource(
       connectDropTarget(
         <li className={active ? 'active' : ''}>
-          <div className="row-wrapper">
-            {type === 'span' && (
-              <span className="structure-title">
-                {label} ({begin} - {end})
-              </span>
-            )}
-            {type === 'div' && (
-              <div className="structure-title heading">{label}</div>
-            )}
-            <EditControls
-              handleDelete={this.handleDelete}
-              handleEditClick={this.handleEditClick}
-              itemType={type}
-              handleShowDropTargetsClick={this.handleShowDropTargetsClick}
+          {this.state.editing && (
+            <ListItemEditForm
+              item={this.props.item}
+              handleEditFormCancel={this.handleEditFormCancel}
             />
-          </div>
+          )}
+
+          {!this.state.editing && (
+            <div className="row-wrapper">
+              {type === 'span' && (
+                <span className="structure-title">
+                  {label} ({begin} - {end})
+                </span>
+              )}
+              {type === 'div' && (
+                <div className="structure-title heading">{label}</div>
+              )}
+              <EditControls
+                handleDelete={this.handleDelete}
+                handleEditClick={this.handleEditClick}
+                itemType={type}
+                handleShowDropTargetsClick={this.handleShowDropTargetsClick}
+              />
+            </div>
+          )}
+
           {subMenu}
         </li>
       )

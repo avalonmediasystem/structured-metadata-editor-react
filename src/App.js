@@ -8,8 +8,8 @@ import HTML5Backend from 'react-dnd-html5-backend';
 
 // Font Awesome Imports
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faDotCircle, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
-library.add(faDotCircle, faPen, faTrash);
+import { faDotCircle, faMinusCircle, faPen, faSave, faTrash } from '@fortawesome/free-solid-svg-icons';
+library.add(faDotCircle, faMinusCircle, faPen, faSave, faTrash);
 
 class App extends Component {
   render() {

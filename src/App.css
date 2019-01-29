@@ -24,13 +24,13 @@ section {
 .row-wrapper {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background: #efefef;
   border: 1px solid #ccc;
   padding: 5px 10px;
   margin-bottom: 10px;
 }
 
-.edit-controls-wrapper svg,
 .edit-controls-wrapper a {
   margin: 0 5px;
   cursor: pointer;
