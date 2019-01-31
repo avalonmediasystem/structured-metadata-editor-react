@@ -183,8 +183,6 @@ class ListItem extends Component {
 
 const mapDispatchToProps = {
   deleteItem: smActions.deleteItem,
-  toggleHeading: showFormActions.toggleHeading,
-  toggleTimespan: showFormActions.toggleTimespan,
   addDropTargets: smActions.addDropTargets,
   removeDropTargets: smActions.removeDropTargets,
   removeActiveDragSources: smActions.removeActiveDragSources,
