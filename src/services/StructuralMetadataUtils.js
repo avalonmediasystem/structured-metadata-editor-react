@@ -259,28 +259,6 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * @param {String} label - string value to match against
-   * @param {Array} items - Array of nested structured metadata objects containing headings and time spans
-   * @return {Object} - Object found, or null if none
-   */
-  findItemByLabel(label, items) {
-    let foundItem = null;
-    let findItem = items => {
-      for (let item of items) {
-        if (item.label === label) {
-          foundItem = item;
-        }
-        if (item.items) {
-          findItem(item.items);
-        }
-      }
-    };
-    findItem(items);
-
-    return foundItem;
-  }
-
-  /**
    * Find the <span>s which come before and after new span
    * @param {Object} newSpan - new span object
    * @param {Array} allSpans - all type <span> objects in current structured metadata
