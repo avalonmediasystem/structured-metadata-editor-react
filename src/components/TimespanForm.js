@@ -33,10 +33,7 @@ class TimespanForm extends Component {
 
     if (showForms.mode === 'EDIT') {
       // Grab the currently edited item from the data structure
-      let smItem = structuralMetadataUtils.findItem(
-        showForms.id,
-        smData
-      );
+      let smItem = structuralMetadataUtils.findItem(showForms.id, smData);
 
       // Save the unedited, Form version of the item, so we can use it later
       this.unEditedFormItem = this.loadExistingValues();
@@ -49,10 +46,7 @@ class TimespanForm extends Component {
     }
 
     // Save a reference to all the spans for future calculations
-    this.allSpans = structuralMetadataUtils.getItemsOfType(
-      'span',
-      smData
-    );
+    this.allSpans = structuralMetadataUtils.getItemsOfType('span', smData);
   }
 
   buildHeadingsOptions = () => {
@@ -68,7 +62,6 @@ class TimespanForm extends Component {
 
     // Get all valid div headings
     let validHeadings = structuralMetadataUtils.getValidHeadings(
-      newSpan,
       wrapperSpans,
       this.props.smData
     );
