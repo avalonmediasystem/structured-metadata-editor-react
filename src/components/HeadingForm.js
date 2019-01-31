@@ -90,7 +90,7 @@ class HeadingForm extends Component {
     e.preventDefault();
 
     if (showForms.mode === 'EDIT') {
-      submitItem.id = showForms.id
+      submitItem.id = showForms.id;
     }
 
     this.props.onSubmit(submitItem);
@@ -111,7 +111,9 @@ class HeadingForm extends Component {
     return (
       <form onSubmit={this.handleSubmit}>
         <Modal.Header closeButton>
-          <Modal.Title>{this.props.showForms.mode === 'ADD' ? 'Add' : 'Edit'} Heading</Modal.Title>
+          <Modal.Title>
+            {this.props.showForms.mode === 'ADD' ? 'Add' : 'Edit'} Heading
+          </Modal.Title>
         </Modal.Header>
 
         <Modal.Body>

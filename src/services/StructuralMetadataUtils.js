@@ -383,12 +383,11 @@ export default class StructuralMetadataUtils {
   /**
    * Overall logic is to find existing before and after spans for the new object (time flow), and then
    * their parent 'divs' would be valid headings.
-   * @param {Object} newSpan - Object which has (at the least) { begin: '00:10:20.33', end: '00:15:88' } properties
    * @param {Object} wrapperSpans Object representing before and after spans of newSpan (if they exist)
    * @param {Array} allItems - All structural metadata items in tree
    * @return {Array} - of valid <div> objects in structural metadata tree
    */
-  getValidHeadings(newSpan, wrapperSpans, allItems) {
+  getValidHeadings(wrapperSpans, allItems) {
     let validHeadings = [];
     let sortedHeadings = [];
 
@@ -402,8 +401,9 @@ export default class StructuralMetadataUtils {
           );
           // Match found
           if (targetSpanMatch.length > 0) {
+            let { items, ...cloneWOItems } = item;
             // Add parent div to valid array
-            validHeadings.push(item);
+            validHeadings.push(cloneWOItems);
           }
           // Try deeper in list
           findSpanItem(targetSpan, item.items);
@@ -426,7 +426,10 @@ export default class StructuralMetadataUtils {
       findSpanItem(wrapperSpans.after, allItems);
     }
     // Get valid headings when either of wrapping timespan is null
-    if (!wrapperSpans.before || !wrapperSpans.after) {
+    if (
+      (!wrapperSpans.before && wrapperSpans.after) ||
+      (wrapperSpans.before && !wrapperSpans.after)
+    ) {
       let validDivHeading = this.getValidHeadingForEmptySpans(
         wrapperSpans,
         allItems
@@ -472,29 +475,32 @@ export default class StructuralMetadataUtils {
     };
 
     let nestedHeadings = [];
-    let getNestedDivs = currentHeader => {
-      let items = currentHeader.items;
-      if (items) {
-        for (let item of items) {
-          if (item.type === 'div') {
-            nestedHeadings.push(item);
+    let getNestedDivs = (currentHeader, currentParent) => {
+      if (currentHeader !== currentParent) {
+        let items = currentHeader.items;
+        if (items) {
+          for (let item of items) {
+            if (item.type === 'div') {
+              let { items, ...cloneWOItems } = item;
+              nestedHeadings.push(cloneWOItems);
+            }
+            getNestedDivs(item, currentParent);
           }
-          getNestedDivs(item);
         }
       }
     };
-
     if (!wrapperSpans.after && wrapperSpans.before) {
       let currentParent = this.getParentDiv(wrapperSpans.before, allItems);
       adjacentDiv = getWrapperDiv(currentParent, 'after');
-      getNestedDivs(adjacentDiv);
+      getNestedDivs(adjacentDiv, currentParent);
     }
     if (!wrapperSpans.before && wrapperSpans.after) {
       let currentParent = this.getParentDiv(wrapperSpans.after, allItems);
       adjacentDiv = getWrapperDiv(currentParent, 'before');
-      getNestedDivs(adjacentDiv);
+      getNestedDivs(adjacentDiv, currentParent);
     }
-    nestedHeadings.push(adjacentDiv);
+    let { items, ...woItems } = adjacentDiv;
+    nestedHeadings.push(woItems);
     return nestedHeadings;
   }
 
