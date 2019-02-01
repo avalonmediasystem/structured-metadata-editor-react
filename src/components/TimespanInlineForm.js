@@ -41,9 +41,11 @@ class TimespanInlineForm extends Component {
 
   componentDidMount() {
     // Save the unedited, Form version of the item, so we can use it later
-    this.unEditedFormItem = getExistingFormValues(this.props.item.id, this.props.smData);
-		console.log('TCL: TimespanInlineForm -> componentDidMount -> this.unEditedFormItem', this.unEditedFormItem)
-    
+    this.unEditedFormItem = getExistingFormValues(
+      this.props.item.id,
+      this.props.smData
+    );
+
     // Load existing form values
     this.setState(this.unEditedFormItem);
   }
@@ -53,25 +55,21 @@ class TimespanInlineForm extends Component {
   };
 
   handleInputChange = e => {
-
-  }
+    this.setState({ [e.target.id]: e.target.value });
+  };
 
   handleSaveClick = () => {
     this.props.saveFn(this.props.smData);
-  }
+  };
 
   render() {
-    const {
-      beginTime,
-      endTime,
-      timespanTitle
-    } = this.state;
+    const { beginTime, endTime, timespanTitle } = this.state;
 
     return (
       <Form inline>
         <div className="row-wrapper">
           <div>
-            <FormGroup controlId="formInlineTitle">
+            <FormGroup controlId="timespanTitle">
               <ControlLabel>Title</ControlLabel>
               <FormControl
                 type="text"
@@ -83,19 +81,19 @@ class TimespanInlineForm extends Component {
             <FormGroup controlId="beginTime">
               <ControlLabel>Begin Time</ControlLabel>
               <FormControl
-                name="beginTime"
                 type="text"
                 style={styles.formControl}
                 value={beginTime}
+                onChange={this.handleInputChange}
               />
             </FormGroup>
             <FormGroup controlId="endTime">
               <ControlLabel>End Time</ControlLabel>
               <FormControl
-                name="endTime"
                 type="text"
                 style={styles.formControl}
                 value={endTime}
+                onChange={this.handleInputChange}
               />
             </FormGroup>
           </div>

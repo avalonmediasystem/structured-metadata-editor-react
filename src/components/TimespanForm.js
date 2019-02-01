@@ -12,6 +12,13 @@ import * as showFormActions from '../actions/show-forms';
 import * as smActions from '../actions/sm-data';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+import {
+  getValidationBeginState,
+  getValidationEndState,
+  getValidationTitleState,
+  isTitleValid,
+  validTimespans
+} from '../services/form-helper';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -77,81 +84,11 @@ class TimespanForm extends Component {
   };
 
   formIsValid() {
-    const titleValid = this.state.timespanTitle.length > 0;
+    const titleValid = isTitleValid(this.state.timespanTitle);
     const childOfValid = this.state.timespanChildOf.length > 0;
-    const timesValidResponse = this.validTimespans();
+    const timesValidResponse = this.localValidTimespans();
 
     return titleValid && childOfValid && timesValidResponse.valid;
-  }
-
-  getValidationBeginState() {
-    const { beginTime } = this.state;
-
-    if (!beginTime || beginTime.indexOf(':') === -1) {
-      return null;
-    }
-
-    const validFormat = this.validTimeFormat(beginTime);
-    const validBeginTime = structuralMetadataUtils.doesTimeOverlap(
-      beginTime,
-      this.allSpans
-    );
-
-    if (validFormat && validBeginTime) {
-      return 'success';
-    }
-    if (!validFormat || !validBeginTime) {
-      return 'error';
-    }
-    return null;
-  }
-
-  getValidationEndState() {
-    const { beginTime, endTime } = this.state;
-
-    if (!endTime || endTime.indexOf(':') === -1) {
-      return null;
-    }
-
-    const validFormat = this.validTimeFormat(endTime);
-    const validEndTime = structuralMetadataUtils.doesTimeOverlap(
-      endTime,
-      this.allSpans
-    );
-    const validOrdering = structuralMetadataUtils.validateBeforeEndTimeOrder(
-      beginTime,
-      endTime
-    );
-    const doesTimespanOverlap = structuralMetadataUtils.doesTimespanOverlap(
-      beginTime,
-      endTime,
-      this.allSpans
-    );
-
-    if (validFormat && validEndTime && validOrdering && !doesTimespanOverlap) {
-      return 'success';
-    }
-    if (
-      !validFormat ||
-      !validEndTime ||
-      !validOrdering ||
-      doesTimespanOverlap
-    ) {
-      return 'error';
-    }
-    return null;
-  }
-
-  getValidationTitleState() {
-    const { timespanTitle } = this.state;
-
-    if (timespanTitle.length > 2) {
-      return 'success';
-    }
-    if (timespanTitle.length > 0) {
-      return 'error';
-    }
-    return null;
   }
 
   handleInputChange = e => {
@@ -187,24 +124,8 @@ class TimespanForm extends Component {
     this.setState({ timespanChildOf: e.target.value });
   };
 
-  /**
-   * Load existing form values to state, if in 'EDIT' mode
-   */
-  loadExistingValues() {
-    const { showForms, smData } = this.props;
-    let item = structuralMetadataUtils.findItem(showForms.id, smData);
-    let parentDiv = structuralMetadataUtils.getParentDiv(item, smData);
-
-    return {
-      beginTime: item.begin,
-      endTime: item.end,
-      timespanChildOf: parentDiv ? parentDiv.id : '',
-      timespanTitle: item.label
-    };
-  }
-
   updateChildOfOptions() {
-    let timesValidResponse = this.validTimespans();
+    let timesValidResponse = this.localValidTimespans();
 
     if (timesValidResponse.valid) {
       this.buildHeadingsOptions();
@@ -214,66 +135,13 @@ class TimespanForm extends Component {
   }
 
   /**
-   * Validates that the begin and end time span values are valid separately, and together
-   * in the region which they will create.
-   *
-   * This function also preps handy feedback messages we might want to display to the user
+   * A local wrapper for the reusable function 'validTimespans'
    */
-  validTimespans() {
+  localValidTimespans() {
     const { beginTime, endTime } = this.state;
     const { allSpans } = this;
 
-    // Valid formats?
-    if (!this.validTimeFormat(beginTime)) {
-      return {
-        valid: false,
-        message: 'Invalid begin time format'
-      };
-    }
-    if (!this.validTimeFormat(endTime)) {
-      return {
-        valid: false,
-        message: 'Invalid end time format'
-      };
-    }
-    // Any individual overlapping?
-    if (!structuralMetadataUtils.doesTimeOverlap(beginTime, allSpans)) {
-      return {
-        valid: false,
-        message: 'Begin time overlaps an existing timespan region'
-      };
-    }
-    if (!structuralMetadataUtils.doesTimeOverlap(endTime, allSpans)) {
-      return {
-        valid: false,
-        message: 'End time overlaps an existing timespan region'
-      };
-    }
-    // Begin comes before end?
-    if (
-      !structuralMetadataUtils.validateBeforeEndTimeOrder(beginTime, endTime)
-    ) {
-      return {
-        valid: false,
-        message: 'Begin time must start before end time'
-      };
-    }
-    // Timespan range overlaps an existing timespan?
-    if (
-      structuralMetadataUtils.doesTimespanOverlap(beginTime, endTime, allSpans)
-    ) {
-      return {
-        valid: false,
-        message: 'New timespan region overlaps an existing timespan region'
-      };
-    }
-
-    // Success!
-    return { valid: true };
-  }
-
-  validTimeFormat(value) {
-    return value && value.split(':').length === 3;
+    return validTimespans(beginTime, endTime, allSpans, this.props.smData);
   }
 
   render() {
@@ -291,7 +159,7 @@ class TimespanForm extends Component {
         <Modal.Body>
           <FormGroup
             controlId="timespanTitle"
-            validationState={this.getValidationTitleState()}
+            validationState={getValidationTitleState(timespanTitle)}
           >
             <ControlLabel>Title</ControlLabel>
             <FormControl
@@ -306,7 +174,10 @@ class TimespanForm extends Component {
             <Col sm={6}>
               <FormGroup
                 controlId="beginTime"
-                validationState={this.getValidationBeginState()}
+                validationState={getValidationBeginState(
+                  beginTime,
+                  this.allSpans
+                )}
               >
                 <ControlLabel>Begin Time</ControlLabel>
                 <FormControl
@@ -321,7 +192,11 @@ class TimespanForm extends Component {
             <Col sm={6}>
               <FormGroup
                 controlId="endTime"
-                validationState={this.getValidationEndState()}
+                validationState={getValidationEndState(
+                  beginTime,
+                  endTime,
+                  this.allSpans
+                )}
               >
                 <ControlLabel>End Time</ControlLabel>
                 <FormControl

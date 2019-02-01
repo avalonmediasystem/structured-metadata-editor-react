@@ -242,9 +242,6 @@ export default class StructuralMetadataUtils {
    * @return {Object} - Object found, or null if none
    */
   findItem(id, items) {
-		console.log('TCL: StructuralMetadataUtils -> findItem -> id', id)
-		console.log('TCL: StructuralMetadataUtils -> findItem -> items', items)
-    
     let foundItem = null;
     let fn = items => {
       for (let item of items) {
@@ -671,5 +668,9 @@ export default class StructuralMetadataUtils {
       return false;
     }
     return true;
+  }
+
+  validTimeFormat(value) {
+    return value && value.split(':').length === 3;
   }
 }
