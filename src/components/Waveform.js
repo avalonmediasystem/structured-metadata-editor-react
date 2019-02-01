@@ -13,7 +13,7 @@ import APIUtils from '../api/Utils';
 import * as actions from '../actions/show-forms';
 import { connect } from 'react-redux';
 
-import soundMP3 from '../data/TOL_6min_720p_download.mp3';
+import soundMP3 from '../data/utah_phillips_one.mp3';
 
 const apiUtils = new APIUtils();
 
