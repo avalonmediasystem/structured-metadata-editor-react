@@ -1,25 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Button,
-  ControlLabel,
-  Form,
-  FormControl,
-  FormGroup,
-  OverlayTrigger,
-  Tooltip
-} from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-const styles = {
-  formControl: {
-    margin: '0 5px'
-  }
-};
-
-const tooltip = tip => <Tooltip id="tooltip">{tip}</Tooltip>;
+import { connect } from 'react-redux';
+import TimespanInlineForm from './TimespanInlineForm';
+import { buildSMUI } from '../actions/sm-data';
 
 class ListItemEditForm extends Component {
+  constructor(props) {
+    super(props);
+    this.type = this.props.item.type;
+    this.id = this.props.item.id;
+  }
+
   static propTypes = {
     handleEditFormCancel: PropTypes.func,
     item: PropTypes.object.isRequired
@@ -29,46 +20,24 @@ class ListItemEditForm extends Component {
     this.props.handleEditFormCancel();
   };
 
+  handleSaveClick = smData => {
+    // Save the data to store
+    console.log('fires save action');
+    this.props.buildSMUI(smData);
+  }
+
   render() {
-    return (
-      <Form inline>
-        <div className="row-wrapper">
-          <div>
-            <FormGroup controlId="formInlineTitle">
-              <ControlLabel>Title</ControlLabel>
-              <FormControl type="text" style={styles.formControl} />
-            </FormGroup>
-            <FormGroup controlId="formInlineBegin">
-              <ControlLabel>Begin Time</ControlLabel>
-              <FormControl type="text" style={styles.formControl} />
-            </FormGroup>
-            <FormGroup controlId="formInlineEnd">
-              <ControlLabel>End Time</ControlLabel>
-              <FormControl type="text" style={styles.formControl} />
-            </FormGroup>
-          </div>
-          <div className="edit-controls-wrapper">
-            <OverlayTrigger placement="left" overlay={tooltip('Save')}>
-              <Button bsStyle="link">
-                <FontAwesomeIcon icon="save" />
-              </Button>
-            </OverlayTrigger>
-            <OverlayTrigger placement="right" overlay={tooltip('Cancel')}>
-              <Button bsStyle="link" onClick={this.handleCancelClick}>
-                <FontAwesomeIcon icon="minus-circle" />
-              </Button>
-            </OverlayTrigger>
-          </div>
-          {/* 
-            <ButtonToolbar>
-            <Button bsStyle="primary" bsSize="small">Save</Button>
-            <Button bsSize="small" onClick={this.handleCancelClick}>Cancel</Button>
-          </ButtonToolbar>
-          */}
-        </div>
-      </Form>
-    );
+    const { item } = this.props;
+
+    if (item.type === 'span') {
+      return <TimespanInlineForm item={item} cancelFn={this.handleCancelClick} saveFn={this.handleSaveClick} />
+    }
+    return null;
   }
 }
 
-export default ListItemEditForm;
+const mapDispathToProps = dispatch => ({
+  buildSMUI: json => dispatch(buildSMUI(json))
+});
+
+export default connect(null, mapDispathToProps)(ListItemEditForm);

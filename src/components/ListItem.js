@@ -133,6 +133,7 @@ class ListItem extends Component {
 
   render() {
     const {
+      item,
       item: { begin },
       item: { end },
       item: { items },
@@ -150,7 +151,7 @@ class ListItem extends Component {
         <li className={active ? 'active' : ''}>
           {this.state.editing && (
             <ListItemEditForm
-              item={this.props.item}
+              item={item}
               handleEditFormCancel={this.handleEditFormCancel}
             />
           )}

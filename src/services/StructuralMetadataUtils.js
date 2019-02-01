@@ -242,18 +242,21 @@ export default class StructuralMetadataUtils {
    * @return {Object} - Object found, or null if none
    */
   findItem(id, items) {
+		console.log('TCL: StructuralMetadataUtils -> findItem -> id', id)
+		console.log('TCL: StructuralMetadataUtils -> findItem -> items', items)
+    
     let foundItem = null;
-    let findItem = items => {
+    let fn = items => {
       for (let item of items) {
         if (item.id === id) {
           foundItem = item;
         }
-        if (item.items) {
-          findItem(item.items);
+        if (item.items && item.items.length > 0) {
+          fn(item.items);
         }
       }
     };
-    findItem(items);
+    fn(items);
 
     return foundItem;
   }
