@@ -49,7 +49,7 @@ class TimespanForm extends Component {
       this.setState(this.loadExistingValues());
 
       // Remove the timespan from data structure to make room for the saved edited version
-      this.props.deleteItem(smItem);
+      this.props.deleteItem(smItem.id);
     }
 
     // Save a reference to all the spans for future calculations
@@ -251,7 +251,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   closeModal: () => dispatch(showFormActions.closeModal()),
-  deleteItem: item => dispatch(smActions.deleteItem(item))
+  deleteItem: id => dispatch(smActions.deleteItem(id))
 });
 
 TimespanForm = connect(

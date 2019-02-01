@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { findIndex } from 'lodash';
 import moment from 'moment';
 import uuidv1 from 'uuid/v1';
 
@@ -45,14 +45,15 @@ export default class StructuralMetadataUtils {
 
   /**
    * Remove a targeted list item object from data structure
-   * @param {Object} item - span object
+   * @param {String} id - list item id
    * @param {Array} allItems array of items, usually all current items in the data structure
    * @return {Array}
    */
-  deleteListItem(item, allItems) {
+  deleteListItem(id, allItems) {
     let clonedItems = [...allItems];
+    let item = this.findItem(id, allItems);
     let parentDiv = this.getParentDiv(item, clonedItems);
-    let indexToDelete = _.findIndex(parentDiv.items, { id: item.id });
+    let indexToDelete = findIndex(parentDiv.items, { id: item.id });
 
     parentDiv.items.splice(indexToDelete, 1);
 
@@ -579,7 +580,7 @@ export default class StructuralMetadataUtils {
 
       if (wrapperSpans.before) {
         insertIndex =
-          _.findIndex(foundDiv.items, { id: wrapperSpans.before.id }) + 1;
+          findIndex(foundDiv.items, { id: wrapperSpans.before.id }) + 1;
       }
       // Insert new span at appropriate index
       foundDiv.items.splice(insertIndex, 0, spanObj);

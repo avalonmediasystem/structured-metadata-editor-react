@@ -20,17 +20,24 @@ class ListItemEditForm extends Component {
     this.props.handleEditFormCancel();
   };
 
-  handleSaveClick = smData => {
+  handleSaveClick = (id, payload) => {
     // Save the data to store
     console.log('fires save action');
-    this.props.buildSMUI(smData);
-  }
+    console.log('TCL: ListItemEditForm -> handleSaveClick -> payload', payload);
+    console.log('TCL: ListItemEditForm -> handleSaveClick -> id', id);
+  };
 
   render() {
     const { item } = this.props;
 
     if (item.type === 'span') {
-      return <TimespanInlineForm item={item} cancelFn={this.handleCancelClick} saveFn={this.handleSaveClick} />
+      return (
+        <TimespanInlineForm
+          item={item}
+          cancelFn={this.handleCancelClick}
+          saveFn={this.handleSaveClick}
+        />
+      );
     }
     return null;
   }
@@ -40,4 +47,7 @@ const mapDispathToProps = dispatch => ({
   buildSMUI: json => dispatch(buildSMUI(json))
 });
 
-export default connect(null, mapDispathToProps)(ListItemEditForm);
+export default connect(
+  null,
+  mapDispathToProps
+)(ListItemEditForm);

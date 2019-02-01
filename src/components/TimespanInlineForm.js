@@ -10,8 +10,19 @@ import {
   Tooltip
 } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { getExistingFormValues } from '../services/form-helper';
+import {
+  getExistingFormValues,
+  getValidationBeginState,
+  getValidationEndState,
+  getValidationTitleState,
+  isTitleValid,
+  validTimespans
+} from '../services/form-helper';
 import { connect } from 'react-redux';
+import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+import { cloneDeep } from 'lodash';
+
+const structuralMetadataUtils = new StructuralMetadataUtils();
 
 const tooltip = tip => <Tooltip id="tooltip">{tip}</Tooltip>;
 
@@ -24,7 +35,10 @@ const styles = {
 class TimespanInlineForm extends Component {
   constructor(props) {
     super(props);
-    this.unEditedFormItem = undefined;
+
+    // To implement validation logic on begin and end times, we need to remove the current item
+    // from the stored data
+    this.tempSmData = undefined;
   }
 
   static propTypes = {
@@ -40,14 +54,33 @@ class TimespanInlineForm extends Component {
   };
 
   componentDidMount() {
-    // Save the unedited, Form version of the item, so we can use it later
-    this.unEditedFormItem = getExistingFormValues(
-      this.props.item.id,
-      this.props.smData
-    );
+    const { smData } = this.props;
+
+    // Get a fresh copy of store data
+    this.tempSmData = cloneDeep(smData);
 
     // Load existing form values
-    this.setState(this.unEditedFormItem);
+    this.setState(getExistingFormValues(this.props.item.id, this.tempSmData));
+
+    // Remove current list item from the data we're doing validation against in this form
+    this.tempSmData = structuralMetadataUtils.deleteListItem(
+      this.props.item.id,
+      this.tempSmData
+    );
+
+    // Save a reference to all the spans for future calculations
+    this.allSpans = structuralMetadataUtils.getItemsOfType(
+      'span',
+      this.tempSmData
+    );
+  }
+
+  formIsValid() {
+    const { beginTime, endTime } = this.state;
+    const titleValid = isTitleValid(this.state.timespanTitle);
+    const timesValidResponse = validTimespans(beginTime, endTime, this.allSpans, this.tempSmData);
+
+    return titleValid && timesValidResponse.valid;
   }
 
   handleCancelClick = () => {
@@ -59,7 +92,12 @@ class TimespanInlineForm extends Component {
   };
 
   handleSaveClick = () => {
-    this.props.saveFn(this.props.smData);
+    const { beginTime, endTime, timespanTitle } = this.state;
+    this.props.saveFn(this.props.item.id, {
+      beginTime,
+      endTime,
+      timespanTitle
+    });
   };
 
   render() {
@@ -69,7 +107,10 @@ class TimespanInlineForm extends Component {
       <Form inline>
         <div className="row-wrapper">
           <div>
-            <FormGroup controlId="timespanTitle">
+            <FormGroup
+              controlId="timespanTitle"
+              validationState={getValidationTitleState(timespanTitle)}
+            >
               <ControlLabel>Title</ControlLabel>
               <FormControl
                 type="text"
@@ -78,7 +119,13 @@ class TimespanInlineForm extends Component {
                 onChange={this.handleInputChange}
               />
             </FormGroup>
-            <FormGroup controlId="beginTime">
+            <FormGroup
+              controlId="beginTime"
+              validationState={getValidationBeginState(
+                beginTime,
+                this.allSpans
+              )}
+            >
               <ControlLabel>Begin Time</ControlLabel>
               <FormControl
                 type="text"
@@ -87,7 +134,14 @@ class TimespanInlineForm extends Component {
                 onChange={this.handleInputChange}
               />
             </FormGroup>
-            <FormGroup controlId="endTime">
+            <FormGroup
+              controlId="endTime"
+              validationState={getValidationEndState(
+                beginTime,
+                endTime,
+                this.allSpans
+              )}
+            >
               <ControlLabel>End Time</ControlLabel>
               <FormControl
                 type="text"
@@ -99,7 +153,7 @@ class TimespanInlineForm extends Component {
           </div>
           <div className="edit-controls-wrapper">
             <OverlayTrigger placement="left" overlay={tooltip('Save')}>
-              <Button bsStyle="link">
+              <Button bsStyle="link" disabled={!this.formIsValid()}>
                 <FontAwesomeIcon icon="save" onClick={this.handleSaveClick} />
               </Button>
             </OverlayTrigger>
