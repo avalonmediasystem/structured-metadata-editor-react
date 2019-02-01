@@ -1,11 +1,16 @@
 import StructuralMetadataUtils from './StructuralMetadataUtils';
 import {
-  testData,
+  testMetadataStructure,
   testEmptyHeaderBefore,
   testEmptyHeaderAfter
 } from '../test/TestStructure';
 
 const smu = new StructuralMetadataUtils();
+var testData = [];
+
+beforeEach(() => {
+  testData = [...testMetadataStructure];
+});
 
 describe('StructuralMetadataUtils class', () => {
   test('creates a helper drop zone object for drag and drop', () => {
@@ -31,7 +36,10 @@ describe('StructuralMetadataUtils class', () => {
   });
 
   describe('tests new time overlaps existing time ranges', () => {
-    const allSpans = smu.getItemsOfType('span', testData);
+    var allSpans = [];
+    beforeEach(() => {
+      allSpans = smu.getItemsOfType('span', testData);
+    });
     test('time == 00:00:00.00 (before the first timespan)', () => {
       const time = '00:00:00.00';
       expect(smu.doesTimeOverlap(time, allSpans)).toBeTruthy();
@@ -55,7 +63,10 @@ describe('StructuralMetadataUtils class', () => {
   });
 
   describe('tests new timespan overlaps existing timespans', () => {
-    const allSpans = smu.getItemsOfType('span', testData);
+    var allSpans = [];
+    beforeEach(() => {
+      allSpans = smu.getItemsOfType('span', testData);
+    });
     test('timespan overlapping an existing timespan', () => {
       const value = smu.doesTimespanOverlap(
         '00:00:00.00',
@@ -86,7 +97,10 @@ describe('StructuralMetadataUtils class', () => {
   });
 
   describe('finds wrapping timespans of a new timespan, ', () => {
-    const allSpans = smu.getItemsOfType('span', testData);
+    var allSpans = [];
+    beforeEach(() => {
+      allSpans = smu.getItemsOfType('span', testData);
+    });
     test('before first timespan', () => {
       const obj = {
         begin: '00:00:00.00',
@@ -517,37 +531,42 @@ describe('StructuralMetadataUtils class', () => {
     test('begin time < end time', () => {
       const begin = '00:00:10.30';
       const end = '00:10:00.30';
-      const vlaue = smu.validateBeforeEndTimeOrder(begin, end);
-      expect(vlaue).toBeTruthy();
+      const value = smu.validateBeforeEndTimeOrder(begin, end);
+      expect(value).toBeTruthy();
     });
     test('begin time === end time', () => {
       const begin = '00:00:10.30';
       const end = '00:00:10.30';
-      const vlaue = smu.validateBeforeEndTimeOrder(begin, end);
-      expect(vlaue).toBeFalsy();
+      const value = smu.validateBeforeEndTimeOrder(begin, end);
+      expect(value).toBeFalsy();
     });
     test('begin time > end time', () => {
       const begin = '00:10:00.30';
       const end = '00:00:10.30';
-      const vlaue = smu.validateBeforeEndTimeOrder(begin, end);
-      expect(vlaue).toBeFalsy();
+      const value = smu.validateBeforeEndTimeOrder(begin, end);
+      expect(value).toBeFalsy();
     });
   });
 
   describe('tests deleting list item', () => {
-    test('deletes a timespan from metadata structure', () => {
-      const clonedTestData = [...testData];
+    test('deletes a timespan', () => {
       const obj = {
         type: 'div',
         label: 'Sub-Segment 1.1',
         id: '123a-456b-789c-2d',
         items: []
       };
-      const value = smu.deleteListItem(obj, clonedTestData);
+      const value = smu.deleteListItem(obj, testData);
       expect(value).not.toContain(obj);
+      expect(value[0].items[0].items[0]).toEqual({
+        type: 'span',
+        label: 'Segment 1.1',
+        id: '123a-456b-789c-3d',
+        begin: '00:00:03.32',
+        end: '00:00:10.32'
+      });
     });
-    test('deletes a header with children from metadata structure', () => {
-      const clonedTestData = [...testData];
+    test('deletes a header with children', () => {
       const obj = {
         type: 'div',
         label: 'First segment',
@@ -575,19 +594,31 @@ describe('StructuralMetadataUtils class', () => {
           }
         ]
       };
-      const value = smu.deleteListItem(obj, clonedTestData);
+      const value = smu.deleteListItem(obj, testData);
       expect(value).not.toContain(obj);
+      expect(value[0].items[0].items[0].items[0]).toEqual({
+        type: 'div',
+        label: 'Sub-Segment 2.1.1',
+        id: '123a-456b-789c-7d',
+        items: []
+      });
     });
-    test('deletes a childless header from metadata structure', () => {
-      const clonedTestData = [...testData];
+    test('deletes a childless header', () => {
       const obj = {
         type: 'div',
-        label: 'Sub-Segment 2.1.2',
+        label: 'Sub-Segment 2.1.1',
         id: '123a-456b-789c-7d',
         items: []
       };
-      const value = smu.deleteListItem(obj, clonedTestData);
+      const value = smu.deleteListItem(obj, testData);
       expect(value).not.toContain(obj);
+      // expect(value[0].items[1].items[0].items[0]).toEqual({
+      //   type: 'span',
+      //   label: 'Segment 2.1',
+      //   id: '123a-456b-789c-8d',
+      //   begin: '00:09:03.24',
+      //   end: '00:15:00.00'
+      // });
     });
   });
 });

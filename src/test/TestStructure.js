@@ -1,4 +1,4 @@
-export const testData = [
+export const testMetadataStructure = [
   {
     type: 'div',
     label: 'Title',
