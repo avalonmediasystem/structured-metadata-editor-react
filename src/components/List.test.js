@@ -8,6 +8,7 @@ describe('List component', () => {
     const items = [...testMetadataStructure];
     const wrapper = shallow(<List items={items} />);
     expect(wrapper.find('.structure-list')).toBeDefined();
+    expect(wrapper.find('ListItemEditForm')).toBeDefined();
   });
   test('renders without crashing when metadata is empty', () => {
     const items = [];
