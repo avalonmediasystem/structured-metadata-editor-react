@@ -7,15 +7,13 @@ import {
   isTitleValid
 } from '../services/form-helper';
 import { connect } from 'react-redux';
-import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { cloneDeep } from 'lodash';
 import ListItemInlineEditControls from './ListItemInlineEditControls';
 
-const structuralMetadataUtils = new StructuralMetadataUtils();
-
 const styles = {
   formControl: {
-    margin: '0 5px'
+    margin: '0 5px',
+    width: '300px'
   }
 };
 
@@ -46,12 +44,6 @@ class HeadingInlineForm extends Component {
 
     // Load existing form values
     this.setState(getExistingFormValues(this.props.item.id, this.tempSmData));
-
-    // Remove current list item from the data we're doing validation against in this form
-    this.tempSmData = structuralMetadataUtils.deleteListItem(
-      this.props.item.id,
-      this.tempSmData
-    );
   }
 
   formIsValid() {
