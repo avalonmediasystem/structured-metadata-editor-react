@@ -1,15 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Button,
-  ControlLabel,
-  Form,
-  FormControl,
-  FormGroup,
-  OverlayTrigger,
-  Tooltip
-} from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ControlLabel, Form, FormControl, FormGroup } from 'react-bootstrap';
 import {
   getExistingFormValues,
   getValidationBeginState,
@@ -21,10 +12,9 @@ import {
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { cloneDeep } from 'lodash';
+import ListItemInlineEditControls from './ListItemInlineEditControls';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
-
-const tooltip = tip => <Tooltip id="tooltip">{tip}</Tooltip>;
 
 const styles = {
   formControl: {
@@ -78,7 +68,12 @@ class TimespanInlineForm extends Component {
   formIsValid() {
     const { beginTime, endTime } = this.state;
     const titleValid = isTitleValid(this.state.timespanTitle);
-    const timesValidResponse = validTimespans(beginTime, endTime, this.allSpans, this.tempSmData);
+    const timesValidResponse = validTimespans(
+      beginTime,
+      endTime,
+      this.allSpans,
+      this.tempSmData
+    );
 
     return titleValid && timesValidResponse.valid;
   }
@@ -151,18 +146,11 @@ class TimespanInlineForm extends Component {
               />
             </FormGroup>
           </div>
-          <div className="edit-controls-wrapper">
-            <OverlayTrigger placement="left" overlay={tooltip('Save')}>
-              <Button bsStyle="link" disabled={!this.formIsValid()}>
-                <FontAwesomeIcon icon="save" onClick={this.handleSaveClick} />
-              </Button>
-            </OverlayTrigger>
-            <OverlayTrigger placement="right" overlay={tooltip('Cancel')}>
-              <Button bsStyle="link" onClick={this.handleCancelClick}>
-                <FontAwesomeIcon icon="minus-circle" />
-              </Button>
-            </OverlayTrigger>
-          </div>
+          <ListItemInlineEditControls
+            formIsValid={this.formIsValid()}
+            handleSaveClick={this.handleSaveClick}
+            handleCancelClick={this.handleCancelClick}
+          />
         </div>
       </Form>
     );

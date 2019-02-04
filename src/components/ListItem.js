@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import List from './List';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import * as smActions from '../actions/sm-data';
 import * as showFormActions from '../actions/show-forms';
@@ -8,7 +7,7 @@ import PropTypes from 'prop-types';
 import { ItemTypes } from '../services/Constants';
 import { DragSource, DropTarget } from 'react-dnd';
 import ListItemEditForm from './ListItemEditForm';
-import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import ListItemControls from './ListItemControls';
 
 const spanSource = {
   beginDrag(props) {
@@ -40,35 +39,6 @@ function collectDrop(connect, monitor) {
     itemType: monitor.getItemType()
   };
 }
-
-const tooltip = tip => <Tooltip id="tooltip">{tip}</Tooltip>;
-
-const EditControls = props => {
-  return (
-    <div className="edit-controls-wrapper">
-      {props.itemType === 'span' && (
-        <OverlayTrigger placement="left" overlay={tooltip('Show drop targets')}>
-          <Button bsStyle="link">
-            <FontAwesomeIcon
-              icon="dot-circle"
-              onClick={props.handleShowDropTargetsClick}
-            />
-          </Button>
-        </OverlayTrigger>
-      )}
-      <OverlayTrigger placement="top" overlay={tooltip('Edit')}>
-        <Button bsStyle="link">
-          <FontAwesomeIcon icon="pen" onClick={props.handleEditClick} />
-        </Button>
-      </OverlayTrigger>
-      <OverlayTrigger placement="right" overlay={tooltip('Delete')}>
-        <Button bsStyle="link">
-          <FontAwesomeIcon icon="trash" onClick={props.handleDelete} />
-        </Button>
-      </OverlayTrigger>
-    </div>
-  );
-};
 
 class ListItem extends Component {
   static propTypes = {
@@ -166,7 +136,7 @@ class ListItem extends Component {
               {type === 'div' && (
                 <div className="structure-title heading">{label}</div>
               )}
-              <EditControls
+              <ListItemControls
                 handleDelete={this.handleDelete}
                 handleEditClick={this.handleEditClick}
                 itemType={type}

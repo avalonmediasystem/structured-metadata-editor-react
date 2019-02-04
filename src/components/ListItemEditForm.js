@@ -3,6 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import TimespanInlineForm from './TimespanInlineForm';
 import { buildSMUI } from '../actions/sm-data';
+import { cloneDeep } from 'lodash';
+import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+
+const structuralMetadataUtils = new StructuralMetadataUtils();
 
 class ListItemEditForm extends Component {
   constructor(props) {
@@ -21,10 +25,22 @@ class ListItemEditForm extends Component {
   };
 
   handleSaveClick = (id, payload) => {
-    // Save the data to store
-    console.log('fires save action');
-    console.log('TCL: ListItemEditForm -> handleSaveClick -> payload', payload);
-    console.log('TCL: ListItemEditForm -> handleSaveClick -> id', id);
+    // Clone smData
+    let clonedItems = cloneDeep(this.props.smData);
+
+    // Get the item
+    let item = structuralMetadataUtils.findItem(id, clonedItems);
+
+    // Update items values
+    item.label = payload.timespanTitle;
+    item.begin = payload.beginTime;
+    item.end = payload.endTime;
+
+    // Send updated smData back to redux
+    this.props.buildSMUI(clonedItems);
+
+    // Turn off editing
+    this.props.handleEditFormCancel();
   };
 
   render() {
@@ -43,11 +59,15 @@ class ListItemEditForm extends Component {
   }
 }
 
+const mapStateToProps = state => ({
+  smData: state.smData
+});
+
 const mapDispathToProps = dispatch => ({
   buildSMUI: json => dispatch(buildSMUI(json))
 });
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispathToProps
 )(ListItemEditForm);
