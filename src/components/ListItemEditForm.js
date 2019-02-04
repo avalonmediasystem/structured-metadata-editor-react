@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import TimespanInlineForm from './TimespanInlineForm';
+import HeadingInlineForm from './HeadingInlineForm';
 import { buildSMUI } from '../actions/sm-data';
 import { cloneDeep } from 'lodash';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
@@ -20,6 +21,18 @@ class ListItemEditForm extends Component {
     item: PropTypes.object.isRequired
   };
 
+  addUpdatedValues(item, payload) {
+    if (item.type === 'div') {
+      item.label = payload.headingTitle;
+    } else if (item.type === 'span') {
+      item.label = payload.timespanTitle;
+      item.begin = payload.beginTime;
+      item.end = payload.endTime;
+    }
+
+    return item;
+  }
+
   handleCancelClick = e => {
     this.props.handleEditFormCancel();
   };
@@ -28,18 +41,18 @@ class ListItemEditForm extends Component {
     // Clone smData
     let clonedItems = cloneDeep(this.props.smData);
 
-    // Get the item
+    // Get the original item
+    /* eslint-disable */
     let item = structuralMetadataUtils.findItem(id, clonedItems);
+    /* eslint-enable */
 
-    // Update items values
-    item.label = payload.timespanTitle;
-    item.begin = payload.beginTime;
-    item.end = payload.endTime;
+    // Update item values
+    item = this.addUpdatedValues(item, payload);
 
     // Send updated smData back to redux
     this.props.buildSMUI(clonedItems);
 
-    // Turn off editing
+    // Turn off editing state
     this.props.handleEditFormCancel();
   };
 
@@ -55,7 +68,16 @@ class ListItemEditForm extends Component {
         />
       );
     }
-    return null;
+
+    if (item.type === 'div') {
+      return (
+        <HeadingInlineForm
+          item={item}
+          cancelFn={this.handleCancelClick}
+          saveFn={this.handleSaveClick}
+        />
+      );
+    }
   }
 }
 

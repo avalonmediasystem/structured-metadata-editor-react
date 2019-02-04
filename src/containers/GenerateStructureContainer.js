@@ -4,7 +4,6 @@ import * as actions from '../actions/sm-data';
 import APIUtils from '../api/Utils';
 import * as showFormActions from '../actions/show-forms';
 import uuidv1 from 'uuid/v1';
-import { mockResponse } from '../data/mock-response';
 
 const apiUtils = new APIUtils();
 
@@ -20,16 +19,13 @@ class GenerateStructureContainer extends Component {
       // Update the redux store
       this.props.buildSMUI(smData);
     } catch (error) {
-			let smData = this.addIds([mockResponse]);
-      this.props.buildSMUI(smData);
-      
-      // if (error.response !== undefined) {
-      //   this.props.handleResponse(error.response.status);
-      // } else if (error.request !== undefined) {
-      //   this.props.handleResponse(error.request.status);
-      // } else {
-      //   this.props.handleResponse(-1);
-      // }
+      if (error.response !== undefined) {
+        this.props.handleResponse(error.response.status);
+      } else if (error.request !== undefined) {
+        this.props.handleResponse(error.request.status);
+      } else {
+        this.props.handleResponse(-1);
+      }
     }
   }
 
