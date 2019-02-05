@@ -81,7 +81,7 @@ export function getValidationTitleState(title) {
   if (title.length > 2) {
     return 'success';
   }
-  if (title.length >= 0) {
+  if (title.length > 0) {
     return 'error';
   }
   return null;
