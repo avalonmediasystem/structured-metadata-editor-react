@@ -20,7 +20,7 @@ export default class WaveformDataUtils {
           initSegments.push({
             startTime: structMetadataUtils.toMs(begin) / 1000,
             endTime: structMetadataUtils.toMs(end) / 1000,
-            editable: true,
+            editable: false,
             labelText: label,
             id: id,
             color: colors[count]
