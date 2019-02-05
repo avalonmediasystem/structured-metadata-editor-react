@@ -1,74 +1,95 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Button,
-  ControlLabel,
-  Form,
-  FormControl,
-  FormGroup,
-  OverlayTrigger,
-  Tooltip
-} from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { connect } from 'react-redux';
+import TimespanInlineForm from './TimespanInlineForm';
+import HeadingInlineForm from './HeadingInlineForm';
+import { buildSMUI } from '../actions/sm-data';
+import { cloneDeep } from 'lodash';
+import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 
-const styles = {
-  formControl: {
-    margin: '0 5px'
-  }
-};
-
-const tooltip = tip => <Tooltip id="tooltip">{tip}</Tooltip>;
+const structuralMetadataUtils = new StructuralMetadataUtils();
 
 class ListItemEditForm extends Component {
+  constructor(props) {
+    super(props);
+    this.type = this.props.item.type;
+    this.id = this.props.item.id;
+  }
+
   static propTypes = {
     handleEditFormCancel: PropTypes.func,
     item: PropTypes.object.isRequired
   };
 
+  addUpdatedValues(item, payload) {
+    if (item.type === 'div') {
+      item.label = payload.headingTitle;
+    } else if (item.type === 'span') {
+      item.label = payload.timespanTitle;
+      item.begin = payload.beginTime;
+      item.end = payload.endTime;
+    }
+
+    return item;
+  }
+
   handleCancelClick = e => {
     this.props.handleEditFormCancel();
   };
 
+  handleSaveClick = (id, payload) => {
+    // Clone smData
+    let clonedItems = cloneDeep(this.props.smData);
+
+    // Get the original item
+    /* eslint-disable */
+    let item = structuralMetadataUtils.findItem(id, clonedItems);
+    /* eslint-enable */
+
+    // Update item values
+    item = this.addUpdatedValues(item, payload);
+
+    // Send updated smData back to redux
+    this.props.buildSMUI(clonedItems);
+
+    // Turn off editing state
+    this.props.handleEditFormCancel();
+  };
+
   render() {
-    return (
-      <Form inline>
-        <div className="row-wrapper">
-          <div>
-            <FormGroup controlId="formInlineTitle">
-              <ControlLabel>Title</ControlLabel>
-              <FormControl type="text" style={styles.formControl} />
-            </FormGroup>
-            <FormGroup controlId="formInlineBegin">
-              <ControlLabel>Begin Time</ControlLabel>
-              <FormControl type="text" style={styles.formControl} />
-            </FormGroup>
-            <FormGroup controlId="formInlineEnd">
-              <ControlLabel>End Time</ControlLabel>
-              <FormControl type="text" style={styles.formControl} />
-            </FormGroup>
-          </div>
-          <div className="edit-controls-wrapper">
-            <OverlayTrigger placement="left" overlay={tooltip('Save')}>
-              <Button bsStyle="link">
-                <FontAwesomeIcon icon="save" />
-              </Button>
-            </OverlayTrigger>
-            <OverlayTrigger placement="right" overlay={tooltip('Cancel')}>
-              <Button bsStyle="link" onClick={this.handleCancelClick}>
-                <FontAwesomeIcon icon="minus-circle" />
-              </Button>
-            </OverlayTrigger>
-          </div>
-          {/* 
-            <ButtonToolbar>
-            <Button bsStyle="primary" bsSize="small">Save</Button>
-            <Button bsSize="small" onClick={this.handleCancelClick}>Cancel</Button>
-          </ButtonToolbar>
-          */}
-        </div>
-      </Form>
-    );
+    const { item } = this.props;
+
+    if (item.type === 'span') {
+      return (
+        <TimespanInlineForm
+          item={item}
+          cancelFn={this.handleCancelClick}
+          saveFn={this.handleSaveClick}
+        />
+      );
+    }
+
+    if (item.type === 'div') {
+      return (
+        <HeadingInlineForm
+          item={item}
+          cancelFn={this.handleCancelClick}
+          saveFn={this.handleSaveClick}
+        />
+      );
+    }
   }
 }
 
-export default ListItemEditForm;
+const mapStateToProps = state => ({
+  smData: state.smData
+});
+
+const mapDispathToProps = dispatch => ({
+  buildSMUI: json => dispatch(buildSMUI(json))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispathToProps
+)(ListItemEditForm);

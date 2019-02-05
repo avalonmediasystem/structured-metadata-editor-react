@@ -14,10 +14,10 @@ export function buildSMUI(json) {
   };
 }
 
-export function deleteItem(item) {
+export function deleteItem(id) {
   return {
     type: types.DELETE_ITEM,
-    payload: item
+    id
   };
 }
 

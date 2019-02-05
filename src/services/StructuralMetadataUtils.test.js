@@ -556,7 +556,7 @@ describe('StructuralMetadataUtils class', () => {
         id: '123a-456b-789c-2d',
         items: []
       };
-      const value = smu.deleteListItem(obj, testData);
+      const value = smu.deleteListItem(obj.id, testData);
       expect(value).not.toContain(obj);
       expect(value[0].items[0].items[0]).toEqual({
         type: 'span',
@@ -594,7 +594,7 @@ describe('StructuralMetadataUtils class', () => {
           }
         ]
       };
-      const value = smu.deleteListItem(obj, testData);
+      const value = smu.deleteListItem(obj.id, testData);
       expect(value).not.toContain(obj);
       expect(value[0].items[0].items[0].items[0]).toEqual({
         type: 'div',
@@ -610,7 +610,7 @@ describe('StructuralMetadataUtils class', () => {
         id: '123a-456b-789c-7d',
         items: []
       };
-      const value = smu.deleteListItem(obj, testData);
+      const value = smu.deleteListItem(obj.id, testData);
       expect(value).not.toContain(obj);
       // expect(value[0].items[1].items[0].items[0]).toEqual({
       //   type: 'span',

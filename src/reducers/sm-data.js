@@ -17,7 +17,7 @@ const smData = (state = initialState, action) => {
       return action.payload;
 
     case types.DELETE_ITEM:
-      return structrualMetadataUtils.deleteListItem(action.payload, [...state]);
+      return structrualMetadataUtils.deleteListItem(action.id, [...state]);
 
     case types.ADD_DROP_TARGETS:
       newState = structrualMetadataUtils.determineDropTargets(action.payload, [...state]);
