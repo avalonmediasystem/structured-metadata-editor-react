@@ -20,3 +20,5 @@ export const SAVE_MODAL_RECORD = 'SAVE_MODAL_RECORD';
 
 export const API_RESPONSE = 'API_RESPONSE';
 export const CLOSE_ALERT = 'CLOSE_ALERT';
+
+export const INIT_PEAKS = 'INIT_PEAKS';
