@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-export const BASE_URL = 'https://spruce.dlib.indiana.edu';
+// Config flag to change the source of data retrieval endpoint
+const useLocalData = true;
+
+export const BASE_URL = useLocalData
+  ? 'http://localhost:3123/data/mock-response-'
+  : 'https://spruce.dlib.indiana.edu';
 
 // Masterfile ID on the server
 export const masterFileID = 'j3860704z';
@@ -16,12 +21,12 @@ export default class APIUtils {
    * @param {Headers} headers
    */
   getRequest(urlEndPoint, headers = defaultHeaders) {
-    return axios.get(
-      `${BASE_URL}/master_files/${masterFileID}/${urlEndPoint}`,
-      {
-        headers: headers
-      }
-    );
+    const url = useLocalData
+      ? `${BASE_URL}${urlEndPoint}`
+      : `${BASE_URL}/master_files/${masterFileID}/${urlEndPoint}`;
+    return axios.get(url, {
+      headers: headers
+    });
   }
 
   /**
