@@ -1,46 +1,74 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import * as actions from '../actions/show-forms';
-import { ButtonToolbar, Button } from 'react-bootstrap';
-import APIUtils from '../api/Utils';
+import { Button, Col, Collapse, Row } from 'react-bootstrap';
 import AlertContainer from '../containers/AlertContainer';
+import HeadingFormContainer from '../containers/HeadingFormContainer';
+import TimespanFormContainer from '../containers/TimespanFormContainer';
 
-const apiUtils = new APIUtils();
+const styles = {
+  section: {
+    margin: '4rem 0'
+  },
+  well: {
+    marginTop: '1rem'
+  }
+};
 
 class ButtonSection extends Component {
+  state = {
+    headingOpen: false,
+    timespanOpen: false
+  };
+
+  handleCancelHeadingClick = () => {
+    this.setState({ headingOpen: false });
+  };
+
+  handleCancelTimespanClick = () => {
+    this.setState({ timespanOpen: false });
+  };
+
   handleHeadingClick = () => {
-    this.props.showModal('ADD', 'div');
+    this.setState({
+      headingOpen: true,
+      timespanOpen: false
+    });
   };
 
   handleTimeSpanClick = () => {
-    this.props.showModal('ADD', 'span');
-  };
-
-  handleSaveItClick = () => {
-    let postData = { json: this.props.smData[0] };
-    apiUtils
-      .postRequest('structure.json', postData)
-      .then(response => {
-        this.props.handleResponse(response.status, response.statusText);
-      })
-      .catch(error => {
-        if (error.response !== undefined) {
-          this.props.handleResponse(error.response.status);
-        } else {
-          this.props.handleResponse(error.request.status);
-        }
-      });
+    this.setState({ headingOpen: false, timespanOpen: true });
   };
 
   render() {
     return (
-      <section className="button-section">
-        <hr />
-        <ButtonToolbar>
-          <Button onClick={this.handleHeadingClick}>Add a Heading</Button>
-          <Button onClick={this.handleTimeSpanClick}>Add a Timespan</Button>
-          <Button onClick={this.handleSaveItClick}>Save Structure</Button>
-        </ButtonToolbar>
+      <section style={styles.section}>
+        <Row>
+          <Col xs={6}>
+            <Button block onClick={this.handleHeadingClick}>
+              Add a Heading
+            </Button>
+          </Col>
+          <Col xs={6}>
+            <Button block onClick={this.handleTimeSpanClick}>
+              Add a Timespan
+            </Button>
+          </Col>
+        </Row>
+
+        <Collapse in={this.state.headingOpen}>
+          <div className="well" style={styles.well}>
+            <HeadingFormContainer
+              cancelClick={this.handleCancelHeadingClick}
+            />
+          </div>
+        </Collapse>
+        <Collapse in={this.state.timespanOpen}>
+          <div className="well" style={styles.well}>
+            <TimespanFormContainer
+              cancelClick={this.handleCancelTimespanClick}
+            />
+          </div>
+        </Collapse>
         <AlertContainer />
       </section>
     );
@@ -48,11 +76,7 @@ class ButtonSection extends Component {
 }
 
 const mapStateToProps = state => ({
-  showForms: state.showForms,
   smData: state.smData
 });
 
-export default connect(
-  mapStateToProps,
-  actions
-)(ButtonSection);
+export default connect(mapStateToProps)(ButtonSection);
