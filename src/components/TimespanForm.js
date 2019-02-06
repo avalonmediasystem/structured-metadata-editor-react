@@ -54,8 +54,6 @@ class TimespanForm extends Component {
       newSpan,
       this.allSpans
     );
-    console.log('TCL: TimespanForm -> buildHeadingsOptions -> spans', this.allSpans)
-    console.log('TCL: TimespanForm -> buildHeadingsOptions -> wrapperSpans', wrapperSpans)
 
     // Get all valid div headings
     let validHeadings = structuralMetadataUtils.getValidHeadings(

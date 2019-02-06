@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import List from './List';
 import { connect } from 'react-redux';
 import * as smActions from '../actions/sm-data';
-import * as showFormActions from '../actions/show-forms';
 import PropTypes from 'prop-types';
 import { ItemTypes } from '../services/Constants';
 import { DragSource, DropTarget } from 'react-dnd';
@@ -65,7 +64,6 @@ class ListItem extends Component {
     const { id, type } = this.props.item;
     /* eslint-enable */
 
-    //this.props.showModal('EDIT', type, id);
     this.setState({ editing: true });
   };
 
@@ -157,8 +155,7 @@ const mapDispatchToProps = {
   addDropTargets: smActions.addDropTargets,
   removeDropTargets: smActions.removeDropTargets,
   removeActiveDragSources: smActions.removeActiveDragSources,
-  setActiveDragSource: smActions.setActiveDragSource,
-  showModal: showFormActions.showModal
+  setActiveDragSource: smActions.setActiveDragSource
 };
 
 const mapStateToProps = state => ({
