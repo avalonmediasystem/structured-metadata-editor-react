@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Peaks from 'peaks.js';
 import {
   Button,
   ButtonToolbar,
@@ -9,23 +8,8 @@ import {
   Row,
   Col
 } from 'react-bootstrap';
-import APIUtils from '../api/Utils';
-import * as actions from '../actions/show-forms';
-import { connect } from 'react-redux';
-
 import soundMP3 from '../data/utah_phillips_one.mp3';
-
-const apiUtils = new APIUtils();
-
-const peaksOptions = {
-  container: null,
-  mediaElement: null,
-  dataUri: null,
-  dataUriDefaultFormat: 'json',
-  keyboard: true,
-  pointMarkerColor: '#006eb0',
-  showPlayheadTime: true
-};
+import { connect } from 'react-redux';
 
 class Waveform extends Component {
   constructor(props) {
@@ -34,9 +18,7 @@ class Waveform extends Component {
       seekTime: ''
     };
 
-    this.peaksInstance = null;
-
-    // Create refs here
+    // Create `refs`
     this.waveformContainer = React.createRef();
     this.mediaPlayer = React.createRef();
 
@@ -44,36 +26,18 @@ class Waveform extends Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
-  async componentDidMount() {
-    // Grab the React `refs` now that the component has mounted
-    peaksOptions.container = this.waveformContainer.current;
-    peaksOptions.mediaElement = this.mediaPlayer.current;
-
-    await apiUtils
-      .getRequest('waveform.json')
-      .then(response => {
-        // Set the masterfile URL as the URI for the waveform data file
-        peaksOptions.dataUri = response.request.responseURL;
-        // Initialize Peaks
-        this.peaksInstance = Peaks.init(peaksOptions);
-      })
-      .catch(error => {
-        if (error.response !== undefined) {
-          this.props.handleResponse(error.response.status);
-        } else if (error.request !== undefined) {
-          this.props.handleResponse(error.request.status);
-        } else {
-          this.props.handleResponse(-1);
-        }
-      });
+  componentDidMount() {
+    // Grab the React `refs` now the component is mounted
+    this.props.waveformRef(this.waveformContainer.current);
+    this.props.mediaPlayerRef(this.mediaPlayer.current);
   }
 
   zoomIn = () => {
-    this.peaksInstance.zoom.zoomIn();
+    this.props.peaksInstance.zoom.zoomIn();
   };
 
   zoomOut = () => {
-    this.peaksInstance.zoom.zoomOut();
+    this.props.peaksInstance.zoom.zoomOut();
   };
 
   handleSubmit(event) {
@@ -90,13 +54,13 @@ class Waveform extends Component {
   seekTime = () => {
     const timeInSeconds = parseFloat(this.state.seekTime);
     if (!Number.isNaN(timeInSeconds)) {
-      this.peaksInstance.player.seek(timeInSeconds);
+      this.props.peaksInstance.player.seek(timeInSeconds);
     }
   };
 
   render() {
     return (
-      <section className="waveform-section">
+      <div>
         <div id="waveform-container" ref={this.waveformContainer} />
         <Row>
           <Col xs={12} md={6}>
@@ -130,12 +94,13 @@ class Waveform extends Component {
             </Form>
           </Col>
         </Row>
-      </section>
+      </div>
     );
   }
 }
 
-export default connect(
-  null,
-  actions
-)(Waveform);
+const mapStateToProps = state => ({
+  peaksInstance: state.peaksInstance
+});
+
+export default connect(mapStateToProps)(Waveform);

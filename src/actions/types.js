@@ -14,3 +14,5 @@ export const HANDLE_LIST_ITEM_DROP = 'HANDLE_LIST_ITEM_DROP';
 
 export const API_RESPONSE = 'API_RESPONSE';
 export const CLOSE_ALERT = 'CLOSE_ALERT';
+
+export const INIT_PEAKS = 'INIT_PEAKS';
