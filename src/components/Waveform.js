@@ -103,7 +103,4 @@ const mapStateToProps = state => ({
   peaksInstance: state.peaksInstance
 });
 
-export default connect(
-  mapStateToProps,
-  null
-)(Waveform);
+export default connect(mapStateToProps)(Waveform);
