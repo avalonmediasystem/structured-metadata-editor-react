@@ -24,6 +24,8 @@
     "react-scripts": "^2.0.0",
     "react-transition-group": "2.5.3",
     "redux": "^4.0.0",
+    "redux-mock-store": "^1.5.3",
+    "redux-thunk": "^2.3.0",
     "uuid": "^3.3.2",
     "waveform-data": "^2.1.2"
   },

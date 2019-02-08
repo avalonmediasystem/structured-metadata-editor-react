@@ -1,10 +1,9 @@
 import * as types from './types';
 
-export function initPeaks(smData, peaks, options) {
+export function initPeaks(smData, options) {
   return {
     type: types.INIT_PEAKS,
     smData,
-    peaks,
     options
   };
 }

@@ -36,11 +36,7 @@ class WaveformContainer extends Component {
         // Set the masterfile URL as the URI for the waveform data file
         peaksOptions.dataUri = response.request.responseURL;
         // Initialize Peaks
-        this.props.initPeaks(
-          this.props.smData,
-          this.peaksInstance,
-          peaksOptions
-        );
+        this.props.initPeaks(this.props.smData, peaksOptions);
       })
       .catch(error => {
         if (error.response !== undefined) {

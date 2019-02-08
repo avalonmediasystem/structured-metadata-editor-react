@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Config flag to change the source of data retrieval endpoint
-const useLocalData = true;
+export const useLocalData = true;
 
 export const BASE_URL = useLocalData
   ? 'http://localhost:3123/data/mock-response-'
@@ -36,12 +36,11 @@ export default class APIUtils {
    * @param {Headers} headers
    */
   postRequest(urlEndPoint, data, headers = defaultHeaders) {
-    return axios.post(
-      `${BASE_URL}/master_files/${masterFileID}/${urlEndPoint}`,
-      data,
-      {
-        headers: headers
-      }
-    );
+    const url = useLocalData
+      ? `${BASE_URL}${urlEndPoint}`
+      : `${BASE_URL}/master_files/${masterFileID}/${urlEndPoint}`;
+    return axios.post(url, data, {
+      headers: headers
+    });
   }
 }
