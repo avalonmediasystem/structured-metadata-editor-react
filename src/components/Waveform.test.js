@@ -33,6 +33,7 @@ describe('WaveformDataUtils class', () => {
         <Waveform ref={waveformContainer} ref={mediaPlayer} />
       </Provider>
     );
+    expect(wrapper).toMatchSnapshot();
     expect(wrapper.find('#waveform-container')).toBeDefined();
     expect(wrapper.find('audio')).toBeDefined();
   });
