@@ -7,6 +7,7 @@ import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { testMetadataStructure } from '../test/TestStructure';
 
+// Mock third party library peaks.js
 jest.mock('peaks.js');
 import mockPeaks from 'peaks.js';
 
@@ -14,7 +15,6 @@ const waveformUtils = new WaveformDataUtils();
 const mockStore = configureMockStore([thunk]);
 
 describe('WaveformDataUtils class', () => {
-  let waveformRef, audioRef;
   beforeEach(() => {
     const store = mockStore({});
     const waveformContainer = React.createRef();
@@ -29,11 +29,10 @@ describe('WaveformDataUtils class', () => {
         />
       </Provider>
     );
-    waveformRef = wrapper.find('#waveform-container').instance();
-    audioRef = wrapper.find('audio').instance();
-  });
-
-  test('initializes peaks with empty metadata structure', () => {
+    // Get the current containers for React refs
+    const waveformRef = wrapper.find('#waveform-container').instance();
+    const audioRef = wrapper.find('audio').instance();
+    // Mock the Peaks.init() call for the test
     mockPeaks.init.mockImplementationOnce(opts => {
       return {
         options: {
@@ -45,27 +44,22 @@ describe('WaveformDataUtils class', () => {
         }
       };
     });
+  });
+
+  test('initializes peaks with empty metadata structure', () => {
     const value = waveformUtils.initPeaks([], {});
+
     expect(value).toBeDefined();
     expect(value.options.container).not.toBeNull();
+
     expect(value.options.dataUri).toBe(
       'http://localhost:3123/data/mock-response-waveform.json'
     );
     expect(value.options.segments).toEqual([]);
     expect(mockPeaks.init).toHaveBeenCalledTimes(1);
   });
+
   test('initializes peaks with metadata structure', () => {
-    mockPeaks.init.mockImplementationOnce(opts => {
-      return {
-        options: {
-          ...opts,
-          container: waveformRef,
-          mediaElement: audioRef,
-          dataUri: 'http://localhost:3123/data/mock-response-waveform.json',
-          dataUriDefaultFormat: 'json'
-        }
-      };
-    });
     const expected = [
       {
         startTime: 3.32,
@@ -92,20 +86,16 @@ describe('WaveformDataUtils class', () => {
         color: '#80A590'
       }
     ];
+
     const value = waveformUtils.initPeaks(testMetadataStructure, {});
+
     expect(value).toBeDefined();
+
     expect(value.options.dataUri).toBe(
       'http://localhost:3123/data/mock-response-waveform.json'
     );
     expect(value.options.segments).toEqual(expected);
     expect(value.options.segments).toHaveLength(3);
-    expect(value.options.segments).toContainEqual({
-      startTime: 11.23,
-      endTime: 480,
-      editable: false,
-      labelText: 'Segment 1.2',
-      id: '123a-456b-789c-4d',
-      color: '#2A5459'
-    });
+    expect(mockPeaks.init).toHaveBeenCalledTimes(2);
   });
 });
