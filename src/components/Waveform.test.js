@@ -53,6 +53,7 @@ describe('WaveformDataUtils class', () => {
       expect(wrapper.find('audio').instance().src).toBe(
         'http://localhost/utah_phillips_one.mp3'
       );
+      expect(wrapper.find('audio').instance().controls).toBeTruthy();
     });
 
     test('renders props correctly', () => {
