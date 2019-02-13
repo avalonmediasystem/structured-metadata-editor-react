@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Config flag to change the source of data retrieval endpoint
-export const useLocalData = false;
+const useLocalData = false;
 
 export const BASE_URL = useLocalData
   ? 'http://localhost:3123/data/mock-response-'
