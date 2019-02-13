@@ -7,11 +7,7 @@ const initialState = {};
 const peaksInstance = (state = initialState, action) => {
   switch (action.type) {
     case types.INIT_PEAKS:
-      return waveformUtils.initPeaks(
-        action.smData,
-        action.peaks,
-        action.options
-      );
+      return waveformUtils.initPeaks(action.smData, action.options);
 
     default:
       return state;

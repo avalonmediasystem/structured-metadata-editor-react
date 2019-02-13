@@ -7,7 +7,7 @@ const structMetadataUtils = new StructuralMetadataUtils();
 const colors = ['#80A590', '#2A5459'];
 
 export default class WaveformDataUtils {
-  initPeaks(smData, peaksInstance, options) {
+  initPeaks(smData, options) {
     let initSegments = [];
     let count = 0;
 
@@ -37,7 +37,7 @@ export default class WaveformDataUtils {
     createSegment(smData);
 
     // Initialize peaks instance
-    peaksInstance = Peaks.init({
+    let peaksInstance = Peaks.init({
       ...options,
       segments: initSegments
     });

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import APIUtils from '../api/Utils';
 import { connect } from 'react-redux';
 import * as peaksActions from '../actions/peaks-instance';
-import * as actions from '../actions/show-forms';
 import Waveform from '../components/Waveform';
 
 const apiUtils = new APIUtils();
@@ -36,11 +35,7 @@ class WaveformContainer extends Component {
         // Set the masterfile URL as the URI for the waveform data file
         peaksOptions.dataUri = response.request.responseURL;
         // Initialize Peaks
-        this.props.initPeaks(
-          this.props.smData,
-          this.peaksInstance,
-          peaksOptions
-        );
+        this.props.initPeaks(this.props.smData, peaksOptions);
       })
       .catch(error => {
         if (error.response !== undefined) {
@@ -70,9 +65,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  ...actions,
-  initPeaks: (smData, peaks, options) =>
-    dispatch(peaksActions.initPeaks(smData, peaks, options))
+  initPeaks: (smData, options) =>
+    dispatch(peaksActions.initPeaks(smData, options))
 });
 
 export default connect(

@@ -64,8 +64,12 @@ class Waveform extends Component {
         <div id="waveform-container" ref={this.waveformContainer} />
         <Row>
           <Col xs={12} md={6}>
-            <audio controls ref={this.mediaPlayer}>
-              <source src={soundMP3} type="audio/mp3" />
+            <audio
+              controls
+              ref={this.mediaPlayer}
+              src={soundMP3}
+              type="audio/mp3"
+            >
               Your browser does not support the audio element.
             </audio>
           </Col>
@@ -99,8 +103,11 @@ class Waveform extends Component {
   }
 }
 
+// To use in tests as a disconnected component (to access state)
+export { Waveform as PureWaveform };
+
 const mapStateToProps = state => ({
   peaksInstance: state.peaksInstance
 });
-
+// To use in the app
 export default connect(mapStateToProps)(Waveform);
