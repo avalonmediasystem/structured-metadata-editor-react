@@ -8,18 +8,17 @@ export function initPeaks(smData, options) {
   };
 }
 
-export function insertNewSegment(smData) {
+export function insertNewSegment(span) {
   return {
     type: types.INSERT_SEGMENT,
-    payload: smData
+    payload: span
   };
 }
 
-export function deleteSegment(id, smData) {
+export function deleteSegment(id) {
   return {
     type: types.DELETE_SEGMENT,
-    id,
-    smData
+    payload: id
   };
 }
 

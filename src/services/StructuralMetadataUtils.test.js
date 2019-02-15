@@ -4,12 +4,13 @@ import {
   testEmptyHeaderBefore,
   testEmptyHeaderAfter
 } from '../test/TestStructure';
+import { cloneDeep } from 'lodash';
 
 const smu = new StructuralMetadataUtils();
 var testData = [];
 
 beforeEach(() => {
-  testData = [...testMetadataStructure];
+  testData = cloneDeep(testMetadataStructure);
 });
 
 describe('StructuralMetadataUtils class', () => {
@@ -33,6 +34,80 @@ describe('StructuralMetadataUtils class', () => {
     expect(value).toHaveProperty('begin', '00:00:01');
     expect(value).toHaveProperty('end', '00:00:02');
     expect(value).toHaveProperty('label', 'Tester');
+  });
+
+  describe('tests deleting list item', () => {
+    test('deletes a timespan', () => {
+      const obj = {
+        type: 'div',
+        label: 'Sub-Segment 1.1',
+        id: '123a-456b-789c-2d',
+        items: []
+      };
+      const value = smu.deleteListItem(obj.id, testData);
+      expect(value).not.toContain(obj);
+      expect(value[0].items[0].items[0]).toEqual({
+        type: 'span',
+        label: 'Segment 1.1',
+        id: '123a-456b-789c-3d',
+        begin: '00:00:03.32',
+        end: '00:00:10.32'
+      });
+    });
+    test('deletes a header with children', () => {
+      const obj = {
+        type: 'div',
+        label: 'First segment',
+        id: '123a-456b-789c-1d',
+        items: [
+          {
+            type: 'div',
+            label: 'Sub-Segment 1.1',
+            id: '123a-456b-789c-2d',
+            items: []
+          },
+          {
+            type: 'span',
+            label: 'Segment 1.1',
+            id: '123a-456b-789c-3d',
+            begin: '00:00:03.32',
+            end: '00:00:10.32'
+          },
+          {
+            type: 'span',
+            label: 'Segment 1.2',
+            id: '123a-456b-789c-4d',
+            begin: '00:00:11.23',
+            end: '00:08:00.00'
+          }
+        ]
+      };
+      const value = smu.deleteListItem(obj.id, testData);
+      expect(value).not.toContain(obj);
+      expect(value[0].items[0].items[0].items[0]).toEqual({
+        type: 'div',
+        label: 'Sub-Segment 2.1.1',
+        id: '123a-456b-789c-7d',
+        items: []
+      });
+    });
+    test('deletes a childless header', () => {
+      const obj = {
+        type: 'div',
+        label: 'Sub-Segment 2.1.1',
+        id: '123a-456b-789c-7d',
+        items: []
+      };
+      const value = smu.deleteListItem(obj.id, testData);
+      expect(value).not.toContain(obj);
+      expect(value[0].items[1].items[0].items[0]).toEqual({
+        type: 'span',
+        label: 'Segment 2.1',
+        id: '123a-456b-789c-8d',
+        begin: '00:09:03.24',
+        end: '00:15:00.00'
+      });
+    });
   });
 
   describe('tests new time overlaps existing time ranges', () => {
@@ -545,80 +620,6 @@ describe('StructuralMetadataUtils class', () => {
       const end = '00:00:10.30';
       const value = smu.validateBeforeEndTimeOrder(begin, end);
       expect(value).toBeFalsy();
-    });
-  });
-
-  describe('tests deleting list item', () => {
-    test('deletes a timespan', () => {
-      const obj = {
-        type: 'div',
-        label: 'Sub-Segment 1.1',
-        id: '123a-456b-789c-2d',
-        items: []
-      };
-      const value = smu.deleteListItem(obj.id, testData);
-      expect(value).not.toContain(obj);
-      expect(value[0].items[0].items[0]).toEqual({
-        type: 'span',
-        label: 'Segment 1.1',
-        id: '123a-456b-789c-3d',
-        begin: '00:00:03.32',
-        end: '00:00:10.32'
-      });
-    });
-    test('deletes a header with children', () => {
-      const obj = {
-        type: 'div',
-        label: 'First segment',
-        id: '123a-456b-789c-1d',
-        items: [
-          {
-            type: 'div',
-            label: 'Sub-Segment 1.1',
-            id: '123a-456b-789c-2d',
-            items: []
-          },
-          {
-            type: 'span',
-            label: 'Segment 1.1',
-            id: '123a-456b-789c-3d',
-            begin: '00:00:03.32',
-            end: '00:00:10.32'
-          },
-          {
-            type: 'span',
-            label: 'Segment 1.2',
-            id: '123a-456b-789c-4d',
-            begin: '00:00:11.23',
-            end: '00:08:00.00'
-          }
-        ]
-      };
-      const value = smu.deleteListItem(obj.id, testData);
-      expect(value).not.toContain(obj);
-      expect(value[0].items[0].items[0].items[0]).toEqual({
-        type: 'div',
-        label: 'Sub-Segment 2.1.1',
-        id: '123a-456b-789c-7d',
-        items: []
-      });
-    });
-    test('deletes a childless header', () => {
-      const obj = {
-        type: 'div',
-        label: 'Sub-Segment 2.1.1',
-        id: '123a-456b-789c-7d',
-        items: []
-      };
-      const value = smu.deleteListItem(obj.id, testData);
-      expect(value).not.toContain(obj);
-      // expect(value[0].items[1].items[0].items[0]).toEqual({
-      //   type: 'span',
-      //   label: 'Segment 2.1',
-      //   id: '123a-456b-789c-8d',
-      //   begin: '00:09:03.24',
-      //   end: '00:15:00.00'
-      // });
     });
   });
 });

@@ -3,6 +3,7 @@ import WaveformDataUtils from '../services/WaveformDataUtils';
 
 const waveformUtils = new WaveformDataUtils();
 const initialState = {};
+let newState = null;
 
 const peaksInstance = (state = initialState, action) => {
   switch (action.type) {
@@ -10,12 +11,14 @@ const peaksInstance = (state = initialState, action) => {
       return waveformUtils.initPeaks(action.smData, action.options);
 
     case types.INSERT_SEGMENT:
-      return waveformUtils.insertNewSegment(action.payload, { ...state });
+      newState = waveformUtils.insertNewSegment(action.payload, { ...state });
+      return waveformUtils.rebuildPeaks(newState);
 
     case types.DELETE_SEGMENT:
-      return waveformUtils.deleteSegment(action.id, action.smData, {
+      newState = waveformUtils.deleteSegment(action.payload, {
         ...state
       });
+      return waveformUtils.rebuildPeaks(newState);
 
     case types.ACTIVATE_SEGMENT:
       return waveformUtils.activateSegment(action.payload, { ...state });

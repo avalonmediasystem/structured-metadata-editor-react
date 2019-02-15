@@ -51,16 +51,11 @@ export default class WaveformDataUtils {
 
   /**
    * Add a new segment to Peaks when a new timespan is created
-   * @param {Array} smData - updated structured metadata
+   * @param {Object} newSpan - new span created for the user input
    * @param {Object} peaksInstance - peaks instance for the waveform
    */
-  insertNewSegment(smData, peaksInstance) {
-    const allSpans = structMetadataUtils.getItemsOfType('span', smData);
-    const segments = peaksInstance.segments.getSegments();
-    const newSpan = allSpans.filter(
-      span => !segments.some(segment => segment.id === span.id)
-    );
-    const { begin, end, label, id } = newSpan[0];
+  insertNewSegment(newSpan, peaksInstance) {
+    const { begin, end, label, id } = newSpan;
     peaksInstance.segments.add({
       startTime: structMetadataUtils.toMs(begin) / 1000,
       endTime: structMetadataUtils.toMs(end) / 1000,
@@ -68,38 +63,35 @@ export default class WaveformDataUtils {
       id: id
     });
 
-    return this.updateSegmentColors(peaksInstance, smData);
+    return peaksInstance;
   }
 
   /**
    * Delete the corresponding segment when a timespan is deleted
    * @param {String} id - ID of the segment that is being deleted
-   * @param {Array} smData - updated structured metadata
    * @param {Object} peaksInstance - peaks instance for the current waveform
    */
-  deleteSegment(id, smData, peaksInstance) {
+  deleteSegment(id, peaksInstance) {
     peaksInstance.segments.removeById(id);
-    return this.updateSegmentColors(peaksInstance, smData);
+    return peaksInstance;
   }
 
   /**
    * Update the colors of the segment to alternate between colors in Avalon color pallette
    * @param {Object} peaksInstance - current peaks instance for the waveform
-   * @param {Array} allItems - updated structured metadata
    */
-  updateSegmentColors(peaksInstance, allItems) {
-    const allSpans = structMetadataUtils.getItemsOfType('span', allItems);
-    const segments = peaksInstance.segments.getSegments();
-
+  rebuildPeaks(peaksInstance) {
+    let clonedSegments = peaksInstance.segments
+      .getSegments()
+      .sort((x, y) => x.startTime - y.startTime);
     peaksInstance.segments.removeAll();
-
-    // Update the colors of each segment
-    segments.forEach(segment => {
-      let id = segment.id;
-      let index = allSpans.map(span => span.id).indexOf(id);
+    let index = 0;
+    clonedSegments.forEach(segment => {
       segment.color = this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0];
       peaksInstance.segments.add(segment);
+      index++;
     });
+
     return peaksInstance;
   }
 

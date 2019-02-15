@@ -13,13 +13,13 @@ class TimespanFormContainer extends Component {
 
   submit = values => {
     // Update the data structure with new heading
-    const updatedData = structuralMetadataUtils.insertNewTimespan(
+    const { newSpan, updatedData } = structuralMetadataUtils.insertNewTimespan(
       values,
       this.props.smData
     );
 
     // Update the waveform segments with new timespan
-    this.props.insertNewSegment(updatedData);
+    this.props.insertNewSegment(newSpan);
 
     // Update redux store
     this.props.buildSMUI(updatedData);

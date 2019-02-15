@@ -54,6 +54,7 @@ class ListItemEditForm extends Component {
       updatedSegment.startTime
     );
     payload.endTime = structuralMetadataUtils.toHHmmss(updatedSegment.endTime);
+
     // Update item values
     item = this.addUpdatedValues(item, payload);
 

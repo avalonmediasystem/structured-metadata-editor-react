@@ -563,7 +563,7 @@ export default class StructuralMetadataUtils {
    * Insert a new timespan as child of an existing heading
    * @param {Object} obj - object of form values submitted
    * @param {Array} allItems - The entire structured metadata collection
-   * @returns {Array} - The updated structured metadata collection, with new object inserted
+   * @returns ({Object}, {Array}) - (New span, The updated structured metadata collection, with new object inserted)
    */
   insertNewTimespan(obj, allItems) {
     let clonedItems = [...allItems];
@@ -586,7 +586,7 @@ export default class StructuralMetadataUtils {
       foundDiv.items.splice(insertIndex, 0, spanObj);
     }
 
-    return clonedItems;
+    return { newSpan: spanObj, updatedData: clonedItems };
   }
 
   /**
