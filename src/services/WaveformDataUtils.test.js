@@ -64,7 +64,6 @@ describe('WaveformDataUtils class', () => {
       {
         startTime: 3.32,
         endTime: 10.32,
-        editable: false,
         labelText: 'Segment 1.1',
         id: '123a-456b-789c-3d',
         color: '#80A590'
@@ -72,7 +71,6 @@ describe('WaveformDataUtils class', () => {
       {
         startTime: 11.23,
         endTime: 480,
-        editable: false,
         labelText: 'Segment 1.2',
         id: '123a-456b-789c-4d',
         color: '#2A5459'
@@ -80,7 +78,6 @@ describe('WaveformDataUtils class', () => {
       {
         startTime: 543.24,
         endTime: 900,
-        editable: false,
         labelText: 'Segment 2.1',
         id: '123a-456b-789c-8d',
         color: '#80A590'

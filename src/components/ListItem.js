@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import List from './List';
 import { connect } from 'react-redux';
 import * as smActions from '../actions/sm-data';
+import * as peaksActions from '../actions/peaks-instance';
 import PropTypes from 'prop-types';
 import { ItemTypes } from '../services/Constants';
 import { DragSource, DropTarget } from 'react-dnd';
@@ -52,11 +53,13 @@ class ListItem extends Component {
   };
 
   state = {
-    editing: false
+    editing: false,
+    clonedSegment: {}
   };
 
   handleDelete = () => {
     this.props.deleteItem(this.props.item.id);
+    this.props.deleteSegment(this.props.item.id, this.props.smData);
   };
 
   handleEditClick = () => {
@@ -64,11 +67,23 @@ class ListItem extends Component {
     const { id, type } = this.props.item;
     /* eslint-enable */
 
+    this.setState({
+      clonedSegment: this.props.peaksInstance.segments.getSegment(id)
+    });
+
+    this.props.activateSegment(this.props.item.id);
+
     this.setState({ editing: true });
   };
 
-  handleEditFormCancel = () => {
+  handleEditFormCancel = (flag = 'cancel') => {
     this.setState({ editing: false });
+
+    this.props.deactivateSegment(this.props.item.id);
+
+    if (flag === 'cancel') {
+      this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
+    }
   };
 
   handleShowDropTargetsClick = () => {
@@ -155,11 +170,16 @@ const mapDispatchToProps = {
   addDropTargets: smActions.addDropTargets,
   removeDropTargets: smActions.removeDropTargets,
   removeActiveDragSources: smActions.removeActiveDragSources,
-  setActiveDragSource: smActions.setActiveDragSource
+  setActiveDragSource: smActions.setActiveDragSource,
+  deleteSegment: peaksActions.deleteSegment,
+  revertSegment: peaksActions.revertSegment,
+  activateSegment: peaksActions.activateSegment,
+  deactivateSegment: peaksActions.deactivateSegment
 };
 
 const mapStateToProps = state => ({
-  smData: state.smData
+  smData: state.smData,
+  peaksInstance: state.peaksInstance
 });
 
 const ConnectedDropTarget = DropTarget(ItemTypes.SPAN, spanTarget, collectDrop);
