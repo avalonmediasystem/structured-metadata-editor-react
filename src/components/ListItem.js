@@ -67,7 +67,7 @@ class ListItem extends Component {
 
   handleEditClick = () => {
     /* eslint-disable */
-    const { type, id } = this.props.item;
+    const { id, type } = this.props.item;
     /* eslint-enable */
 
     this.setState({
@@ -93,6 +93,7 @@ class ListItem extends Component {
       // Set editing to true when there is only one item in edit status
       if (itemsInEdit === 1) {
         this.setState({ editing: true });
+        this.props.activateSegment(this.props.item.id);
       }
     } else {
       this.setState({ editing: true });
@@ -102,13 +103,14 @@ class ListItem extends Component {
   handleEditFormCancel = (flag = 'cancel') => {
     this.setState({ editing: false });
 
+    // Change segment colors in the waveform
     if (this.props.item.type === 'span') {
       this.props.deactivateSegment(this.props.item.id);
-
       if (flag === 'cancel') {
         this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
       }
     }
+
     this.props.item.editing = false;
   };
 
