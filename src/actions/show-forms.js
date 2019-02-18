@@ -8,3 +8,8 @@ export const handleResponse = code => ({
 export const closeAlert = () => ({
   type: types.CLOSE_ALERT
 });
+
+export const handleListEditing = code => ({
+  type: types.EDITING_TIMESPAN,
+  code
+});

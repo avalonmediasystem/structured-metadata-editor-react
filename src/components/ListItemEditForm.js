@@ -54,7 +54,9 @@ class ListItemEditForm extends Component {
       payload.beginTime = structuralMetadataUtils.toHHmmss(
         updatedSegment.startTime
       );
-      payload.endTime = structuralMetadataUtils.toHHmmss(updatedSegment.endTime);
+      payload.endTime = structuralMetadataUtils.toHHmmss(
+        updatedSegment.endTime
+      );
     }
 
     // Update item values
@@ -65,6 +67,7 @@ class ListItemEditForm extends Component {
 
     // Turn off editing state
     this.props.handleEditFormCancel('save');
+    item.editing = false;
   };
 
   render() {
