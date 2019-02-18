@@ -4,6 +4,7 @@ import * as actions from '../actions/sm-data';
 import APIUtils from '../api/Utils';
 import * as showFormActions from '../actions/show-forms';
 import uuidv1 from 'uuid/v1';
+import { cloneDeep } from 'lodash';
 
 const apiUtils = new APIUtils();
 
@@ -35,7 +36,7 @@ class GenerateStructureContainer extends Component {
    * @returns {Array}
    */
   addIds(structureJS) {
-    let structureWithIds = [...structureJS];
+    let structureWithIds = cloneDeep(structureJS);
 
     // Recursively loop through data structure
     let fn = items => {

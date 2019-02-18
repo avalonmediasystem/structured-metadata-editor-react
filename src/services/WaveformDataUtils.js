@@ -4,7 +4,7 @@ import Peaks from 'peaks.js';
 const structMetadataUtils = new StructuralMetadataUtils();
 
 // Colors for segments from Avalon branding pallette
-const COLOR_PALETTE = ['#80A590', '#2A5459'];
+const COLOR_PALETTE = ['#80A590', '#2A5459', '#FBB040'];
 
 export default class WaveformDataUtils {
   /**
@@ -85,11 +85,9 @@ export default class WaveformDataUtils {
       .getSegments()
       .sort((x, y) => x.startTime - y.startTime);
     peaksInstance.segments.removeAll();
-    let index = 0;
-    clonedSegments.forEach(segment => {
+    clonedSegments.forEach((segment, index) => {
       segment.color = this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0];
       peaksInstance.segments.add(segment);
-      index++;
     });
 
     return peaksInstance;
@@ -119,7 +117,7 @@ export default class WaveformDataUtils {
     peaksInstance.segments.add({
       ...tempSegment,
       editable: true,
-      color: '#FBB040'
+      color: COLOR_PALETTE[2]
     });
 
     let startTime = peaksInstance.segments.getSegment(id).startTime;

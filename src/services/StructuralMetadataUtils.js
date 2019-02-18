@@ -1,4 +1,4 @@
-import { findIndex } from 'lodash';
+import { findIndex, cloneDeep } from 'lodash';
 import moment from 'moment';
 import uuidv1 from 'uuid/v1';
 
@@ -50,7 +50,7 @@ export default class StructuralMetadataUtils {
    * @return {Array}
    */
   deleteListItem(id, allItems) {
-    let clonedItems = [...allItems];
+    let clonedItems = cloneDeep(allItems);
     let item = this.findItem(id, allItems);
     let parentDiv = this.getParentDiv(item, clonedItems);
     let indexToDelete = findIndex(parentDiv.items, { id: item.id });
@@ -67,14 +67,14 @@ export default class StructuralMetadataUtils {
    * @returns {Array} - new computed items
    */
   determineDropTargets(dragSource, allItems) {
-    const clonedItems = [...allItems];
+    const clonedItems = cloneDeep(allItems);
 
     if (dragSource.type === 'span') {
       let wrapperSpans = this.findWrapperSpans(
         dragSource,
-        this.getItemsOfType('span', allItems)
+        this.getItemsOfType('span', clonedItems)
       );
-      let parentDiv = this.getParentDiv(dragSource, allItems);
+      let parentDiv = this.getParentDiv(dragSource, clonedItems);
       let siblings = parentDiv ? parentDiv.items : [];
       let spanIndex = siblings
         .map(sibling => sibling.id)
@@ -113,7 +113,7 @@ export default class StructuralMetadataUtils {
         }
       }
 
-      let grandParentDiv = this.getParentDiv(parentDiv, allItems);
+      let grandParentDiv = this.getParentDiv(parentDiv, clonedItems);
       let parentIndex = grandParentDiv
         ? grandParentDiv.items.map(item => item.id).indexOf(parentDiv.id)
         : null;
@@ -134,18 +134,18 @@ export default class StructuralMetadataUtils {
 
           // Insert after the "before" wrapper span (if one exists)
           if (wrapperSpans.before) {
-            this.dndHelper.addSpanBefore(allItems, wrapperSpans.before);
+            this.dndHelper.addSpanBefore(clonedItems, wrapperSpans.before);
           }
         }
       }
 
       // Insert relative to the span after the active span
       if (wrapperSpans.after) {
-        this.dndHelper.addSpanAfter(allItems, wrapperSpans.after);
+        this.dndHelper.addSpanAfter(clonedItems, wrapperSpans.after);
       }
       // Insert when there is no wrapper span after active span, but empty headers
       if (!wrapperSpans.after) {
-        this.dndHelper.addSpanToEmptyHeader(parentDiv, allItems);
+        this.dndHelper.addSpanToEmptyHeader(parentDiv, clonedItems);
       }
     }
 
@@ -514,7 +514,7 @@ export default class StructuralMetadataUtils {
    * @returns {Array}
    */
   handleListItemDrop(dragSource, dropTarget, allItems) {
-    let clonedItems = [...allItems];
+    let clonedItems = cloneDeep(allItems);
     let itemToMove = this.findItem(dragSource.id, clonedItems);
 
     // Slice out previous position of itemToMove
@@ -542,7 +542,7 @@ export default class StructuralMetadataUtils {
    * @returns {Array} - The updated structured metadata collection, with new object inserted
    */
   insertNewHeader(obj, allItems) {
-    let clonedItems = [...allItems];
+    let clonedItems = cloneDeep(allItems);
     let foundDiv =
       this.findItem(obj.headingChildOf, clonedItems) || clonedItems[0];
 
@@ -566,7 +566,7 @@ export default class StructuralMetadataUtils {
    * @returns ({Object}, {Array}) - (New span, The updated structured metadata collection, with new object inserted)
    */
   insertNewTimespan(obj, allItems) {
-    let clonedItems = [...allItems];
+    let clonedItems = cloneDeep(allItems);
     let foundDiv = this.findItem(obj.timespanChildOf, clonedItems);
     const spanObj = this.createSpanObject(obj);
     let insertIndex = 0;
@@ -664,7 +664,7 @@ export default class StructuralMetadataUtils {
    * @param {Array} allItems - the data structure
    */
   updateHeading(heading, allItems) {
-    const clonedItems = [...allItems];
+    const clonedItems = cloneDeep(allItems);
     let item = this.findItem(heading.id, clonedItems);
     item.label = heading.headingTitle;
 

@@ -5,7 +5,9 @@ import { mount } from 'enzyme';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
+import { cloneDeep } from 'lodash';
 import { testMetadataStructure } from '../test/TestStructure';
+import Peaks from 'peaks';
 
 // Mock third party library peaks.js
 jest.mock('peaks.js');
@@ -94,5 +96,44 @@ describe('WaveformDataUtils class', () => {
     expect(value.options.segments).toEqual(expected);
     expect(value.options.segments).toHaveLength(3);
     expect(mockPeaks.init).toHaveBeenCalledTimes(2);
+  });
+
+  describe('tests util functions for Waveform manipulations', () => {
+    let peaks;
+    let options = {
+      container: null,
+      mediaElement: null,
+      dataUri: null,
+      dataUriDefaultFormat: 'json',
+      keyboard: true,
+      _zoomLevelIndex: 0,
+      _zoomLevels: [512, 1024, 2048, 4096]
+    };
+    beforeEach(() => {
+      peaks = Peaks.init(options);
+    });
+
+    test('inserts a new segment', () => {
+      const newspan = {
+        label: 'New span',
+        id: '123a-456b-789c-8d',
+        begin: '00:09:00.00',
+        end: '00:12:00.00',
+        type: 'span'
+      };
+      const value = waveformUtils.insertNewSegment(newspan, peaks);
+      expect(value.segments._segments).toHaveLength(3);
+      expect(value.segments._segments).toContainEqual({
+        startTime: 540,
+        endTime: 720,
+        id: '123a-456b-789c-8d',
+        labelText: 'New span'
+      });
+    });
+
+    test('deletes an existing segment', () => {
+      const value = waveformUtils.deleteSegment('123a-456b-789c-2d', peaks);
+      expect(value.segments._segments).toHaveLength(1);
+    });
   });
 });
