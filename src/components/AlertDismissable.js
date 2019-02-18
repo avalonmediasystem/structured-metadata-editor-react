@@ -40,6 +40,15 @@ class AlertDismissable extends React.Component {
             </Alert>
           </div>
         );
+      // Alert to maintain editing one timespan at a time
+      case status === 0:
+        return (
+          <Alert bsStyle="danger" onDismiss={this.handleDismiss}>
+            <p>
+              Please close the item currenly being edited to open this item.
+            </p>
+          </Alert>
+        );
       default:
         return (
           <div>

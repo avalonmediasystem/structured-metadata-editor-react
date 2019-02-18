@@ -53,6 +53,7 @@ class ListItemEditForm extends Component {
     this.props.buildSMUI(clonedItems);
 
     // Turn off editing state
+    item.editing = false;
     this.props.handleEditFormCancel();
   };
 

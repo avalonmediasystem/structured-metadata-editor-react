@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import List from './List';
 import { connect } from 'react-redux';
 import * as smActions from '../actions/sm-data';
+import * as showForms from '../actions/show-forms';
 import PropTypes from 'prop-types';
 import { ItemTypes } from '../services/Constants';
 import { DragSource, DropTarget } from 'react-dnd';
@@ -47,7 +48,8 @@ class ListItem extends Component {
       end: PropTypes.string,
       items: PropTypes.array,
       id: PropTypes.string,
-      type: PropTypes.string
+      type: PropTypes.string,
+      editing: PropTypes.bool
     })
   };
 
@@ -61,14 +63,33 @@ class ListItem extends Component {
 
   handleEditClick = () => {
     /* eslint-disable */
-    const { id, type } = this.props.item;
+    const { type } = this.props.item;
     /* eslint-enable */
 
-    this.setState({ editing: true });
+    // Set editing flag to true within the structure
+    this.props.item.editing = true;
+
+    if (type === 'span') {
+      // Get the number of items in editing status
+      let itemsInEdit = this.itemsInEditStatus(this.props.smData);
+
+      // When there are more than one items in edit status,
+      if (itemsInEdit > 1) {
+        this.props.handleListEditing(0); // Trigger an alert and block List component
+        this.props.item.editing = false; // Set editing to false of the current item
+      }
+      // Set editing to true when there is only one item in edit status
+      if (itemsInEdit === 1) {
+        this.setState({ editing: true });
+      }
+    } else {
+      this.setState({ editing: true });
+    }
   };
 
   handleEditFormCancel = () => {
     this.setState({ editing: false });
+    this.props.item.editing = false;
   };
 
   handleShowDropTargetsClick = () => {
@@ -97,6 +118,25 @@ class ListItem extends Component {
 
     // Redux way of setting active drag list item
     setActiveDragSource(item.id);
+  };
+
+  /**
+   * Check for number of items in the structure with editing flag set to true
+   */
+  itemsInEditStatus = smData => {
+    let count = 0;
+    let getStatus = items => {
+      for (let item of items) {
+        if (item.editing && item.type === 'span') {
+          count++;
+        }
+        if (item.items) {
+          getStatus(item.items);
+        }
+      }
+    };
+    getStatus(smData);
+    return count;
   };
 
   render() {
@@ -155,7 +195,8 @@ const mapDispatchToProps = {
   addDropTargets: smActions.addDropTargets,
   removeDropTargets: smActions.removeDropTargets,
   removeActiveDragSources: smActions.removeActiveDragSources,
-  setActiveDragSource: smActions.setActiveDragSource
+  setActiveDragSource: smActions.setActiveDragSource,
+  handleListEditing: showForms.handleListEditing
 };
 
 const mapStateToProps = state => ({
