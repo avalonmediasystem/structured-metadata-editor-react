@@ -135,5 +135,51 @@ describe('WaveformDataUtils class', () => {
       const value = waveformUtils.deleteSegment('123a-456b-789c-2d', peaks);
       expect(value.segments._segments).toHaveLength(1);
     });
+
+    describe('rebuilds waveform', () => {
+      test('when a segment is added in between existing segments', () => {
+        peaks.segments.add({
+          startTime: 540,
+          endTime: 720,
+          id: '123a-456b-789c-3d',
+          labelText: 'Added segment'
+        });
+
+        let value = waveformUtils.rebuildPeaks(peaks);
+        expect(value.segments._segments).toHaveLength(3);
+        // Tests adding color property to the new segment
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: '123a-456b-789c-3d',
+              color: '#2A5459'
+            })
+          ])
+        );
+        // Tests changing the color of an exisiting segment to adhere to alternating colors in waveform
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: '123a-456b-789c-9d',
+              color: '#80A590'
+            })
+          ])
+        );
+      });
+      test('when a segment is deleted', () => {
+        peaks.segments.removeById('123a-456b-789c-2d');
+        let value = waveformUtils.rebuildPeaks(peaks);
+        expect(value.segments._segments).toHaveLength(1);
+        // Tests changing the color of an exisiting segment to adhere to alternating colors in waveform
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: '123a-456b-789c-9d',
+              color: '#80A590'
+            })
+          ])
+        );
+      });
+    });
   });
 });
