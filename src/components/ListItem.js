@@ -67,7 +67,7 @@ class ListItem extends Component {
 
   handleEditClick = () => {
     /* eslint-disable */
-    const { id, type } = this.props.item;
+    const { type } = this.props.item;
     /* eslint-enable */
 
     this.setState({
