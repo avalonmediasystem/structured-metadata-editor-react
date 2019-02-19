@@ -50,4 +50,7 @@ const mapStateToProps = state => ({
   smData: state.smData
 });
 
-export default connect(mapStateToProps, actions)(StructureOutputContainer);
+export default connect(
+  mapStateToProps,
+  actions
+)(StructureOutputContainer);

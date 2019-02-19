@@ -10,12 +10,12 @@ const List = props => {
           return null;
         }
         if (item.type === 'optional') {
-          return <PlaceholderItem key={i} item={item} />
+          return <PlaceholderItem key={i} item={item} />;
         }
         return <ListItem key={item.id} item={item} />;
       })}
     </ul>
   );
-}
+};
 
 export default List;

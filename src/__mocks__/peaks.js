@@ -24,7 +24,44 @@ export const Peaks = jest.fn(opts => {
       currentTime: 0
     }
   };
-  peaks.segments = {};
+  peaks.segments = {
+    getSegment: jest.fn(id => {
+      peaks.segments._segments.find(seg => {
+        return seg.id === id;
+      });
+    }),
+    getSegments: jest.fn(() => {
+      return peaks.segments._segments;
+    }),
+    removeAll: jest.fn(() => {
+      peaks.segments._segments = [];
+    }),
+    add: jest.fn(segment => {
+      let index = peaks.segments._segments.length;
+      peaks.segments._segments.splice(index, 0, segment);
+    }),
+    removeById: jest.fn(id => {
+      let index = peaks.segments._segments.map(seg => seg.id).indexOf(id);
+      peaks.segments._segments.splice(index, 1);
+    }),
+    _peaks: peaks,
+    _segments: [
+      {
+        startTime: 0,
+        endTime: 360,
+        id: '123a-456b-789c-2d',
+        labelText: 'Sample segment',
+        color: '#80A590'
+      },
+      {
+        startTime: 750,
+        endTime: 1259.99,
+        id: '123a-456b-789c-9d',
+        labelText: 'Last segment',
+        color: '#2A5459'
+      }
+    ]
+  };
   return peaks;
 });
 

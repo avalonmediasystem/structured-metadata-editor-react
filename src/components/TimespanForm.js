@@ -8,7 +8,6 @@ import {
   FormGroup,
   Row
 } from 'react-bootstrap';
-import * as smActions from '../actions/sm-data';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import {
@@ -243,13 +242,6 @@ const mapStateToProps = state => ({
   smData: state.smData
 });
 
-const mapDispatchToProps = dispatch => ({
-  deleteItem: id => dispatch(smActions.deleteItem(id))
-});
-
-TimespanForm = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TimespanForm);
+TimespanForm = connect(mapStateToProps)(TimespanForm);
 
 export default TimespanForm;

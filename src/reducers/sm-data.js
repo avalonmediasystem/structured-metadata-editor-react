@@ -1,5 +1,6 @@
 import * as types from '../actions/types';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+import { cloneDeep } from 'lodash';
 
 const structrualMetadataUtils = new StructuralMetadataUtils();
 const initialState = [];
@@ -9,7 +10,7 @@ let newState = null;
 const smData = (state = initialState, action) => {
   switch (action.type) {
     case types.ADD_HEADING:
-      stateClone = [...state];
+      stateClone = cloneDeep(state);
       stateClone.push(action.payload);
       return stateClone;
 
@@ -17,22 +18,27 @@ const smData = (state = initialState, action) => {
       return action.payload;
 
     case types.DELETE_ITEM:
-      return structrualMetadataUtils.deleteListItem(action.id, [...state]);
+      return structrualMetadataUtils.deleteListItem(
+        action.id,
+        cloneDeep(state)
+      );
 
     case types.ADD_DROP_TARGETS:
-      newState = structrualMetadataUtils.determineDropTargets(action.payload, [...state]);
+      newState = structrualMetadataUtils.determineDropTargets(
+        action.payload,
+        cloneDeep(state)
+      );
       return newState;
 
     case types.REMOVE_DROP_TARGETS:
-      let noDropTargetsState = structrualMetadataUtils.removeDropTargets([...state]);
+      let noDropTargetsState = structrualMetadataUtils.removeDropTargets(
+        cloneDeep(state)
+      );
       return noDropTargetsState;
 
     case types.SET_ACTIVE_DRAG_SOURCE:
-      stateClone = [...state];
-      let target = structrualMetadataUtils.findItem(
-        action.id,
-        stateClone
-      );
+      stateClone = cloneDeep(state);
+      let target = structrualMetadataUtils.findItem(action.id, stateClone);
       // Put an active flag on list item
       target.active = true;
       return stateClone;
