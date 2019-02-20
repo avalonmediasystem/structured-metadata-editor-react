@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import APIUtils from '../api/Utils';
 import { connect } from 'react-redux';
 import * as peaksActions from '../actions/peaks-instance';
-import * as showFormActions from '../actions/show-forms';
+import * as actions from '../actions/show-forms';
 import Waveform from '../components/Waveform';
 import WaveformErrorBoundary from '../components/WaveformErrorBoundary';
 
@@ -71,9 +71,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  ...actions,
   initPeaks: (smData, options) =>
-    dispatch(peaksActions.initPeaks(smData, options)),
-  handleResponse: status => dispatch(showFormActions.handleResponse(status))
+    dispatch(peaksActions.initPeaks(smData, options))
 });
 
 export default connect(

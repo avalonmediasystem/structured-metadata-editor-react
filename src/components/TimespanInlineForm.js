@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { cloneDeep } from 'lodash';
 import ListItemInlineEditControls from './ListItemInlineEditControls';
+import * as peaksActions from '../actions/peaks-instance';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -63,6 +64,8 @@ class TimespanInlineForm extends Component {
       'span',
       this.tempSmData
     );
+
+    this.props.activateSegment(this.props.item.id);
   }
 
   formIsValid() {
@@ -79,6 +82,7 @@ class TimespanInlineForm extends Component {
   }
 
   handleCancelClick = () => {
+    this.props.deactivateSegment(this.props.item.id);
     this.props.cancelFn();
   };
 
@@ -161,4 +165,12 @@ const mapStateToProps = state => ({
   smData: state.smData
 });
 
-export default connect(mapStateToProps)(TimespanInlineForm);
+const mapDispatchToProps = {
+  activateSegment: peaksActions.activateSegment,
+  deactivateSegment: peaksActions.deactivateSegment
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(TimespanInlineForm);

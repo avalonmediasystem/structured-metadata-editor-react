@@ -70,29 +70,14 @@ class ListItem extends Component {
     const { id, type } = this.props.item;
     /* eslint-enable */
 
-    this.setState({
-      clonedSegment: this.props.peaksInstance.segments.getSegment(id),
-      editing: true
-    });
-
-    if (this.props.item.type === 'span') {
-      this.props.activateSegment(this.props.item.id);
-    }
-
     // Disable the edit buttons of other list items
     this.props.handleEditingTimespans(0);
+
+    this.setState({ editing: true });
   };
 
-  handleEditFormCancel = (flag = 'cancel') => {
+  handleEditFormCancel = () => {
     this.setState({ editing: false });
-
-    // Change segment colors in the waveform
-    if (this.props.item.type === 'span') {
-      this.props.deactivateSegment(this.props.item.id);
-      if (flag === 'cancel') {
-        this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
-      }
-    }
 
     // Enable the edit buttons of other list items
     this.props.handleEditingTimespans(1);
@@ -184,9 +169,6 @@ const mapDispatchToProps = {
   removeActiveDragSources: smActions.removeActiveDragSources,
   setActiveDragSource: smActions.setActiveDragSource,
   deleteSegment: peaksActions.deleteSegment,
-  revertSegment: peaksActions.revertSegment,
-  activateSegment: peaksActions.activateSegment,
-  deactivateSegment: peaksActions.deactivateSegment,
   handleEditingTimespans: showForms.handleEditingTimespans
 };
 

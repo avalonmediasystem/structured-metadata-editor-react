@@ -1,5 +1,4 @@
 import StructuralMetadataUtils from './StructuralMetadataUtils';
-import Peaks from 'peaks.js';
 
 const structMetadataUtils = new StructuralMetadataUtils();
 
@@ -10,9 +9,8 @@ export default class WaveformDataUtils {
   /**
    * Initialize Peaks instance for the app
    * @param {Array} smData - current structured metadata from the server masterfile
-   * @param {Object} options - set of configurations for setting up Peaks for the app
    */
-  initPeaks(smData, options) {
+  initSegments(smData) {
     let initSegments = [];
     let count = 0;
 
@@ -40,13 +38,7 @@ export default class WaveformDataUtils {
     // Build segments from initial metadata structure
     createSegment(smData);
 
-    // Initialize peaks instance
-    let peaksInstance = Peaks.init({
-      ...options,
-      segments: initSegments
-    });
-
-    return peaksInstance;
+    return initSegments;
   }
 
   /**
@@ -155,6 +147,17 @@ export default class WaveformDataUtils {
     peaksInstance.segments.removeById(id);
     peaksInstance.segments.add(clonedSegment);
     return peaksInstance;
+  }
+
+  updateSegment(segment) {
+    console.log(
+      'Label: ',
+      segment.labelText,
+      '| Start time: ',
+      segment.startTime,
+      ' | End time: ',
+      segment.endTime
+    );
   }
 
   isOdd(num) {
