@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import APIUtils from '../api/Utils';
 import { connect } from 'react-redux';
 import * as peaksActions from '../actions/peaks-instance';
+import * as actions from '../actions/show-forms';
 import Waveform from '../components/Waveform';
 
 const apiUtils = new APIUtils();
@@ -65,6 +66,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  ...actions,
   initPeaks: (smData, options) =>
     dispatch(peaksActions.initPeaks(smData, options))
 });

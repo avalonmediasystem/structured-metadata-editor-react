@@ -72,15 +72,11 @@ class ListItem extends Component {
       clonedSegment: this.props.peaksInstance.segments.getSegment(id)
     });
 
-    this.props.activateSegment(this.props.item.id);
-
     this.setState({ editing: true });
   };
 
   handleEditFormCancel = (flag = 'cancel') => {
     this.setState({ editing: false });
-
-    this.props.deactivateSegment(this.props.item.id);
 
     if (flag === 'cancel') {
       this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
@@ -173,9 +169,7 @@ const mapDispatchToProps = {
   removeActiveDragSources: smActions.removeActiveDragSources,
   setActiveDragSource: smActions.setActiveDragSource,
   deleteSegment: peaksActions.deleteSegment,
-  revertSegment: peaksActions.revertSegment,
-  activateSegment: peaksActions.activateSegment,
-  deactivateSegment: peaksActions.deactivateSegment
+  revertSegment: peaksActions.revertSegment
 };
 
 const mapStateToProps = state => ({
