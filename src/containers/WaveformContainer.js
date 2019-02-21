@@ -25,7 +25,6 @@ class WaveformContainer extends Component {
     super(props);
     this.waveformContainer = null;
     this.mediaPlayer = null;
-    this.peaksInstance = null;
   }
 
   componentDidMount() {
@@ -73,7 +72,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   ...actions,
   initPeaks: (smData, options) =>
-    dispatch(peaksActions.initPeaks(smData, options))
+    dispatch(peaksActions.initPeaksInstance(smData, options))
 });
 
 export default connect(

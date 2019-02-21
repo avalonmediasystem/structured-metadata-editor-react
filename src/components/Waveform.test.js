@@ -8,7 +8,7 @@ import Peaks from 'peaks';
 
 const mockStore = configureMockStore([thunk]);
 
-describe('WaveformDataUtils class', () => {
+describe('Waveform component', () => {
   let store, peaks;
   let options = {
     container: null,
@@ -22,7 +22,9 @@ describe('WaveformDataUtils class', () => {
   beforeEach(() => {
     peaks = Peaks.init(options);
     store = mockStore({
-      peaksInstance: peaks
+      peaksInstance: {
+        peaks: peaks
+      }
     });
   });
 
@@ -88,7 +90,7 @@ describe('WaveformDataUtils class', () => {
     );
 
     expect(
-      wrapper.instance().props.store.getState().peaksInstance.zoom
+      wrapper.instance().props.store.getState().peaksInstance.peaks.zoom
         ._zoomLevelIndex
     ).toEqual(2);
 
@@ -98,12 +100,12 @@ describe('WaveformDataUtils class', () => {
       .simulate('click');
 
     expect(
-      wrapper.instance().props.store.getState().peaksInstance.zoom
+      wrapper.instance().props.store.getState().peaksInstance.peaks.zoom
         ._zoomLevelIndex
     ).toEqual(1);
 
     expect(
-      wrapper.instance().props.store.getState().peaksInstance.zoom.zoomIn
+      wrapper.instance().props.store.getState().peaksInstance.peaks.zoom.zoomIn
     ).toHaveBeenCalledTimes(1);
   });
 
@@ -115,7 +117,7 @@ describe('WaveformDataUtils class', () => {
     );
 
     expect(
-      wrapper.instance().props.store.getState().peaksInstance.zoom
+      wrapper.instance().props.store.getState().peaksInstance.peaks.zoom
         ._zoomLevelIndex
     ).toEqual(2);
 
@@ -125,12 +127,12 @@ describe('WaveformDataUtils class', () => {
       .simulate('click');
 
     expect(
-      wrapper.instance().props.store.getState().peaksInstance.zoom
+      wrapper.instance().props.store.getState().peaksInstance.peaks.zoom
         ._zoomLevelIndex
     ).toEqual(3);
 
     expect(
-      wrapper.instance().props.store.getState().peaksInstance.zoom.zoomOut
+      wrapper.instance().props.store.getState().peaksInstance.peaks.zoom.zoomOut
     ).toHaveBeenCalledTimes(1);
   });
 
@@ -152,11 +154,12 @@ describe('WaveformDataUtils class', () => {
   });
 
   test('tests seek time button click', () => {
+    let peaksIns = { peaks: peaks };
     const wrapper = mount(
       <PureWaveform
         waveformRef={() => {}}
         mediaPlayerRef={() => {}}
-        peaksInstance={peaks}
+        peaksInstance={peaksIns}
       />
     );
 
@@ -165,7 +168,8 @@ describe('WaveformDataUtils class', () => {
 
     // Test current time of player instance before clicking seek button
     expect(
-      wrapper.instance().props.peaksInstance.player._mediaElement.currentTime
+      wrapper.instance().props.peaksInstance.peaks.player._mediaElement
+        .currentTime
     ).toEqual(0);
 
     wrapper
@@ -175,7 +179,8 @@ describe('WaveformDataUtils class', () => {
 
     // Test current time of the player instance after seek button is clicked
     expect(
-      wrapper.instance().props.peaksInstance.player._mediaElement.currentTime
+      wrapper.instance().props.peaksInstance.peaks.player._mediaElement
+        .currentTime
     ).toEqual(36);
   });
 });

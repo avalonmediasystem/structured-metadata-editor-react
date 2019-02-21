@@ -55,8 +55,7 @@ class ListItem extends Component {
   };
 
   state = {
-    editing: false,
-    clonedSegment: {}
+    editing: false
   };
 
   handleDelete = () => {
@@ -173,8 +172,7 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = state => ({
-  smData: state.smData,
-  peaksInstance: state.peaksInstance
+  smData: state.smData
 });
 
 const ConnectedDropTarget = DropTarget(ItemTypes.SPAN, spanTarget, collectDrop);

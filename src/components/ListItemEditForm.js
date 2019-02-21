@@ -46,19 +46,6 @@ class ListItemEditForm extends Component {
     let item = structuralMetadataUtils.findItem(id, clonedItems);
     /* eslint-enable */
 
-    if (this.props.item.type === 'span') {
-      // Updated segment through waveform
-      let updatedSegment = this.props.peaksInstance.segments.getSegment(id);
-
-      // Assign changes made through waveform to structure
-      payload.beginTime = structuralMetadataUtils.toHHmmss(
-        updatedSegment.startTime
-      );
-      payload.endTime = structuralMetadataUtils.toHHmmss(
-        updatedSegment.endTime
-      );
-    }
-
     // Update item values
     item = this.addUpdatedValues(item, payload);
 
@@ -66,9 +53,7 @@ class ListItemEditForm extends Component {
     this.props.buildSMUI(clonedItems);
 
     // Turn off editing state
-    item.editing = false;
-    this.props.handleEditFormCancel('save');
-    item.editing = false;
+    this.props.handleEditFormCancel();
   };
 
   render() {
@@ -97,8 +82,7 @@ class ListItemEditForm extends Component {
 }
 
 const mapStateToProps = state => ({
-  smData: state.smData,
-  peaksInstance: state.peaksInstance
+  smData: state.smData
 });
 
 const mapDispathToProps = dispatch => ({
