@@ -147,6 +147,17 @@ export default class WaveformDataUtils {
     return peaksInstance;
   }
 
+  saveSegment(currentState, peaksInstance) {
+    const { beginTime, endTime, clonedSegment } = currentState;
+    peaksInstance.segments.removeById(clonedSegment.id);
+    peaksInstance.segments.add({
+      ...clonedSegment,
+      startTime: structMetadataUtils.toMs(beginTime) / 1000,
+      endTime: structMetadataUtils.toMs(endTime) / 1000
+    });
+    return peaksInstance;
+  }
+
   /**
    * Reverse the changes made in peaks waveform when changes are cancelled
    * @param {String} id - ID of the segment being editied
@@ -159,15 +170,27 @@ export default class WaveformDataUtils {
     return peaksInstance;
   }
 
-  updateSegment(segment) {
-    console.log(
-      'Label: ',
-      segment.labelText,
-      '| Start time: ',
-      segment.startTime,
-      ' | End time: ',
-      segment.endTime
-    );
+  updateSegment(segment, property, value, peaksInstance) {
+    let clonedSegment = segment;
+    let valueInSeconds = structMetadataUtils.toMs(value) / 1000;
+
+    let update = () => {
+      peaksInstance.segments.removeById(segment.id);
+      peaksInstance.segments.add({
+        ...clonedSegment,
+        [property]: structMetadataUtils.toMs(value) / 1000
+      });
+      return peaksInstance;
+    };
+    if (property === 'startTime') {
+      peaksInstance =
+        valueInSeconds < clonedSegment.endTime ? update() : peaksInstance;
+    }
+    if (property === 'endTIme') {
+      peaksInstance =
+        valueInSeconds > clonedSegment.startTime ? update() : peaksInstance;
+    }
+    return peaksInstance;
   }
 
   isOdd(num) {

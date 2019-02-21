@@ -46,15 +46,6 @@ class ListItemEditForm extends Component {
     let item = structuralMetadataUtils.findItem(id, clonedItems);
     /* eslint-enable */
 
-    // Updated segment through waveform
-    let updatedSegment = this.props.peaksInstance.segments.getSegment(id);
-
-    // Assign changes made through waveform to structure
-    payload.beginTime = structuralMetadataUtils.toHHmmss(
-      updatedSegment.startTime
-    );
-    payload.endTime = structuralMetadataUtils.toHHmmss(updatedSegment.endTime);
-
     // Update item values
     item = this.addUpdatedValues(item, payload);
 
@@ -62,7 +53,7 @@ class ListItemEditForm extends Component {
     this.props.buildSMUI(clonedItems);
 
     // Turn off editing state
-    this.props.handleEditFormCancel('save');
+    this.props.handleEditFormCancel();
   };
 
   render() {

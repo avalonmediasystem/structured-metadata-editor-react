@@ -29,17 +29,26 @@ export function activateSegment(id) {
   };
 }
 
-export function deactivateSegment(id) {
-  return {
-    type: types.DEACTIVATE_SEGMENT,
-    payload: id
-  };
-}
-
 export function revertSegment(id, clone) {
   return {
     type: types.REVERT_SEGMENT,
     id,
     clone
+  };
+}
+
+export function saveSegment(state) {
+  return {
+    type: types.SAVE_SEGMENT,
+    payload: state
+  };
+}
+
+export function updateSegment(segment, property, value) {
+  return {
+    type: types.UPDATE_SEGMENT,
+    segment,
+    property,
+    value
   };
 }

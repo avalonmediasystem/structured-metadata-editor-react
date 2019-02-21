@@ -53,8 +53,7 @@ class ListItem extends Component {
   };
 
   state = {
-    editing: false,
-    clonedSegment: {}
+    editing: false
   };
 
   handleDelete = () => {
@@ -68,19 +67,11 @@ class ListItem extends Component {
     const { id, type } = this.props.item;
     /* eslint-enable */
 
-    this.setState({
-      clonedSegment: this.props.peaksInstance.segments.getSegment(id)
-    });
-
     this.setState({ editing: true });
   };
 
-  handleEditFormCancel = (flag = 'cancel') => {
+  handleEditFormCancel = () => {
     this.setState({ editing: false });
-
-    if (flag === 'cancel') {
-      this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
-    }
   };
 
   handleShowDropTargetsClick = () => {
@@ -168,8 +159,7 @@ const mapDispatchToProps = {
   removeDropTargets: smActions.removeDropTargets,
   removeActiveDragSources: smActions.removeActiveDragSources,
   setActiveDragSource: smActions.setActiveDragSource,
-  deleteSegment: peaksActions.deleteSegment,
-  revertSegment: peaksActions.revertSegment
+  deleteSegment: peaksActions.deleteSegment
 };
 
 const mapStateToProps = state => ({

@@ -30,6 +30,7 @@ class TimespanInlineForm extends Component {
     // To implement validation logic on begin and end times, we need to remove the current item
     // from the stored data
     this.tempSmData = undefined;
+    this.isTyping = false;
   }
 
   static propTypes = {
@@ -41,21 +42,26 @@ class TimespanInlineForm extends Component {
   state = {
     beginTime: '',
     endTime: '',
-    timespanTitle: ''
+    timespanTitle: '',
+    clonedSegment: {}
   };
 
   componentDidMount() {
-    const { smData } = this.props;
+    const { smData, item } = this.props;
 
     // Get a fresh copy of store data
     this.tempSmData = cloneDeep(smData);
 
     // Load existing form values
-    this.setState(getExistingFormValues(this.props.item.id, this.tempSmData));
+    this.setState(getExistingFormValues(item.id, this.tempSmData));
+
+    this.setState({
+      clonedSegment: this.props.peaksInstance.segments.getSegment(item.id)
+    });
 
     // Remove current list item from the data we're doing validation against in this form
     this.tempSmData = structuralMetadataUtils.deleteListItem(
-      this.props.item.id,
+      item.id,
       this.tempSmData
     );
 
@@ -65,7 +71,31 @@ class TimespanInlineForm extends Component {
       this.tempSmData
     );
 
-    this.props.activateSegment(this.props.item.id);
+    this.props.activateSegment(item.id);
+
+    // Trigger component's state updates every second to get changed segment times
+    this.pollForProps();
+  }
+
+  // Clear the timer when unmounting component
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
+  pollForProps() {
+    const { peaksInstance, item } = this.props;
+    this.interval = setInterval(
+      () =>
+        this.setState({
+          beginTime: structuralMetadataUtils.toHHmmss(
+            peaksInstance.segments.getSegment(item.id).startTime
+          ),
+          endTime: structuralMetadataUtils.toHHmmss(
+            peaksInstance.segments.getSegment(item.id).endTime
+          )
+        }),
+      500
+    );
   }
 
   formIsValid() {
@@ -82,15 +112,26 @@ class TimespanInlineForm extends Component {
   }
 
   handleCancelClick = () => {
-    this.props.deactivateSegment(this.props.item.id);
+    this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
     this.props.cancelFn();
   };
 
   handleInputChange = e => {
     this.setState({ [e.target.id]: e.target.value });
+
+    this.isTyping = true;
+    if (this.isTyping) {
+      clearInterval(this.interval);
+      const { item, peaksInstance } = this.props;
+      let segment = peaksInstance.segments.getSegment(item.id);
+      let property = e.target.id === 'beginTime' ? 'startTime' : 'endTime';
+      this.props.updateSegment(segment, property, e.target.value);
+    }
+    this.isTyping = false;
   };
 
   handleSaveClick = () => {
+    this.props.saveSegment(this.state);
     const { beginTime, endTime, timespanTitle } = this.state;
     this.props.saveFn(this.props.item.id, {
       beginTime,
@@ -162,12 +203,16 @@ class TimespanInlineForm extends Component {
 }
 
 const mapStateToProps = state => ({
-  smData: state.smData
+  smData: state.smData,
+  peaksInstance: state.peaksInstance
 });
 
 const mapDispatchToProps = {
   activateSegment: peaksActions.activateSegment,
-  deactivateSegment: peaksActions.deactivateSegment
+  revertSegment: peaksActions.revertSegment,
+  saveSegment: peaksActions.saveSegment,
+  updateSegment: peaksActions.updateSegment,
+  revertSegment: peaksActions.revertSegment
 };
 
 export default connect(

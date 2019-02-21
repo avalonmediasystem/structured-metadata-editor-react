@@ -8,7 +8,7 @@ import Peaks from 'peaks';
 
 const mockStore = configureMockStore([thunk]);
 
-describe('WaveformDataUtils class', () => {
+describe('Waveform component', () => {
   let store, peaks;
   let options = {
     container: null,

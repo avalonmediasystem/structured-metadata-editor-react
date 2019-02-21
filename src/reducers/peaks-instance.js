@@ -29,29 +29,34 @@ const peaksInstance = (state = initialState, action) => {
       return waveformUtils.rebuildPeaks(newState);
 
     case types.ACTIVATE_SEGMENT:
-      state.on('segments.dragged', function(segment) {
-        console.log(
-          'Label: ',
-          segment.labelText,
-          ' | Start time: ',
-          segment.startTime,
-          ' | End time: ',
-          segment.endTime
-        );
-      });
       return waveformUtils.activateSegment(action.payload, {
         ...state
       });
 
-    case types.DEACTIVATE_SEGMENT:
-      return waveformUtils.deactivateSegment(action.payload, {
-        ...state
-      });
+    case types.SAVE_SEGMENT:
+      newState = waveformUtils.deactivateSegment(
+        action.payload.clonedSegment.id,
+        {
+          ...state
+        }
+      );
+      return waveformUtils.saveSegment(action.payload, { ...newState });
 
     case types.REVERT_SEGMENT:
-      return waveformUtils.revertChanges(action.id, action.clone, {
+      newState = waveformUtils.deactivateSegment(action.id, {
         ...state
       });
+      return waveformUtils.revertChanges(action.id, action.clone, {
+        ...newState
+      });
+
+    case types.UPDATE_SEGMENT:
+      return waveformUtils.updateSegment(
+        action.segment,
+        action.property,
+        action.value,
+        { ...state }
+      );
 
     default:
       return state;
