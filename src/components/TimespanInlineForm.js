@@ -103,6 +103,7 @@ class TimespanInlineForm extends Component {
   }
 
   handleCancelClick = () => {
+    // Revert to segment to the state before
     this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
     this.props.cancelFn();
   };
