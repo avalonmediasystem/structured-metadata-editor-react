@@ -14,6 +14,7 @@ import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { cloneDeep } from 'lodash';
 import ListItemInlineEditControls from './ListItemInlineEditControls';
 import * as peaksActions from '../actions/peaks-instance';
+import { fromEvent } from 'rxjs';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -30,7 +31,6 @@ class TimespanInlineForm extends Component {
     // To implement validation logic on begin and end times, we need to remove the current item
     // from the stored data
     this.tempSmData = undefined;
-    this.isTyping = false;
   }
 
   static propTypes = {
@@ -73,28 +73,17 @@ class TimespanInlineForm extends Component {
 
     this.props.activateSegment(item.id);
 
-    // Trigger component's state updates every second to get changed segment times
-    this.pollForProps();
+    this.handleSegmentDraggedEvent();
   }
 
-  // Clear the timer when unmounting component
-  componentWillUnmount() {
-    clearInterval(this.interval);
-  }
-
-  pollForProps() {
-    const { peaksInstance, item } = this.props;
-    this.interval = setInterval(
-      () =>
+  handleSegmentDraggedEvent() {
+    fromEvent(this.props.peaksInstance, 'segments.dragged').subscribe(
+      segment => {
         this.setState({
-          beginTime: structuralMetadataUtils.toHHmmss(
-            peaksInstance.segments.getSegment(item.id).startTime
-          ),
-          endTime: structuralMetadataUtils.toHHmmss(
-            peaksInstance.segments.getSegment(item.id).endTime
-          )
-        }),
-      500
+          beginTime: structuralMetadataUtils.toHHmmss(segment.startTime),
+          endTime: structuralMetadataUtils.toHHmmss(segment.endTime)
+        });
+      }
     );
   }
 
@@ -112,6 +101,7 @@ class TimespanInlineForm extends Component {
   }
 
   handleCancelClick = () => {
+    // Revert to segment to the state before
     this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
     this.props.cancelFn();
   };
@@ -119,15 +109,10 @@ class TimespanInlineForm extends Component {
   handleInputChange = e => {
     this.setState({ [e.target.id]: e.target.value });
 
-    this.isTyping = true;
-    if (this.isTyping) {
-      clearInterval(this.interval);
-      const { item, peaksInstance } = this.props;
-      let segment = peaksInstance.segments.getSegment(item.id);
-      let property = e.target.id === 'beginTime' ? 'startTime' : 'endTime';
-      this.props.updateSegment(segment, property, e.target.value);
-    }
-    this.isTyping = false;
+    const { item, peaksInstance } = this.props;
+    let segment = peaksInstance.segments.getSegment(item.id);
+    let property = e.target.id === 'beginTime' ? 'startTime' : 'endTime';
+    this.props.updateSegment(segment, property, e.target.value);
   };
 
   handleSaveClick = () => {
@@ -211,8 +196,7 @@ const mapDispatchToProps = {
   activateSegment: peaksActions.activateSegment,
   revertSegment: peaksActions.revertSegment,
   saveSegment: peaksActions.saveSegment,
-  updateSegment: peaksActions.updateSegment,
-  revertSegment: peaksActions.revertSegment
+  updateSegment: peaksActions.updateSegment
 };
 
 export default connect(

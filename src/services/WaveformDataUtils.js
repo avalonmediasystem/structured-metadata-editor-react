@@ -186,7 +186,7 @@ export default class WaveformDataUtils {
       peaksInstance =
         valueInSeconds < clonedSegment.endTime ? update() : peaksInstance;
     }
-    if (property === 'endTIme') {
+    if (property === 'endTime') {
       peaksInstance =
         valueInSeconds > clonedSegment.startTime ? update() : peaksInstance;
     }
