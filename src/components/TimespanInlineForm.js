@@ -30,6 +30,7 @@ class TimespanInlineForm extends Component {
     // To implement validation logic on begin and end times, we need to remove the current item
     // from the stored data
     this.tempSmData = undefined;
+    this.subscription = undefined;
   }
 
   static propTypes = {
