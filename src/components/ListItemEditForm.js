@@ -82,8 +82,7 @@ class ListItemEditForm extends Component {
 }
 
 const mapStateToProps = state => ({
-  smData: state.smData,
-  peaksInstance: state.peaksInstance
+  smData: state.smData
 });
 
 const mapDispathToProps = dispatch => ({

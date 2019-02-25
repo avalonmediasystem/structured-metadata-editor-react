@@ -33,11 +33,11 @@ class Waveform extends Component {
   }
 
   zoomIn = () => {
-    this.props.peaksInstance.zoom.zoomIn();
+    this.props.peaksInstance.peaks.zoom.zoomIn();
   };
 
   zoomOut = () => {
-    this.props.peaksInstance.zoom.zoomOut();
+    this.props.peaksInstance.peaks.zoom.zoomOut();
   };
 
   handleSubmit(event) {
@@ -54,7 +54,7 @@ class Waveform extends Component {
   seekTime = () => {
     const timeInSeconds = parseFloat(this.state.seekTime);
     if (!Number.isNaN(timeInSeconds)) {
-      this.props.peaksInstance.player.seek(timeInSeconds);
+      this.props.peaksInstance.peaks.player.seek(timeInSeconds);
     }
   };
 

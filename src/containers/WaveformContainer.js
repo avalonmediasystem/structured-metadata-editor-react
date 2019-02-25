@@ -68,7 +68,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   ...actions,
   initPeaks: (smData, options) =>
-    dispatch(peaksActions.initPeaks(smData, options))
+    dispatch(peaksActions.initPeaksInstance(smData, options))
 });
 
 export default connect(

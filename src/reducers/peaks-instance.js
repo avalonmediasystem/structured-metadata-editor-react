@@ -1,10 +1,14 @@
 import * as types from '../actions/types';
 import WaveformDataUtils from '../services/WaveformDataUtils';
 import Peaks from 'peaks.js';
+import { fromEvent } from 'rxjs';
 
 const waveformUtils = new WaveformDataUtils();
-const initialState = {};
-let newState = null;
+const initialState = {
+  peaks: {},
+  events: null
+};
+let newPeaks = null;
 
 const peaksInstance = (state = initialState, action) => {
   switch (action.type) {
@@ -14,49 +18,81 @@ const peaksInstance = (state = initialState, action) => {
         ...action.options,
         segments: segments
       });
-      return peaksInstance;
+      return {
+        peaks: peaksInstance,
+        events: { ...state.events }
+      };
+
+    case types.BIND_PEAKS:
+      return {
+        peaks: { ...state.peaks },
+        events: fromEvent(action.payload, 'segments.dragged')
+      };
 
     case types.INSERT_SEGMENT:
-      newState = waveformUtils.insertNewSegment(action.payload, {
-        ...state
+      newPeaks = waveformUtils.insertNewSegment(action.payload, {
+        ...state.peaks
       });
-      return waveformUtils.rebuildPeaks(newState);
+      return {
+        peaks: waveformUtils.rebuildPeaks(newPeaks),
+        events: { ...state.events }
+      };
 
     case types.DELETE_SEGMENT:
-      newState = waveformUtils.deleteSegment(action.payload, {
-        ...state
+      newPeaks = waveformUtils.deleteSegment(action.payload, {
+        ...state.peaks
       });
-      return waveformUtils.rebuildPeaks(newState);
+      return {
+        peaks: waveformUtils.rebuildPeaks(newPeaks),
+        events: { ...state.events }
+      };
 
     case types.ACTIVATE_SEGMENT:
-      return waveformUtils.activateSegment(action.payload, {
-        ...state
+      newPeaks = waveformUtils.activateSegment(action.payload, {
+        ...state.peaks
       });
+      return {
+        peaks: newPeaks,
+        events: { ...state.events }
+      };
 
     case types.SAVE_SEGMENT:
-      newState = waveformUtils.deactivateSegment(
+      newPeaks = waveformUtils.deactivateSegment(
         action.payload.clonedSegment.id,
         {
-          ...state
+          ...state.peaks
         }
       );
-      return waveformUtils.saveSegment(action.payload, { ...newState });
+      let rebuiltPeaks = waveformUtils.saveSegment(action.payload, {
+        ...newPeaks
+      });
+      return {
+        peaks: rebuiltPeaks,
+        events: fromEvent(rebuiltPeaks, 'segments.dragged')
+      };
 
     case types.REVERT_SEGMENT:
-      newState = waveformUtils.deactivateSegment(action.id, {
-        ...state
+      newPeaks = waveformUtils.deactivateSegment(action.id, {
+        ...state.peaks
       });
-      return waveformUtils.revertChanges(action.id, action.clone, {
-        ...newState
-      });
+      return {
+        peaks: waveformUtils.revertChanges(action.id, action.clone, {
+          ...newPeaks
+        }),
+        events: { ...state.events }
+      };
 
     case types.UPDATE_SEGMENT:
-      return waveformUtils.updateSegment(
+      newPeaks = waveformUtils.updateSegment(
         action.segment,
         action.property,
         action.value,
-        { ...state }
+        { ...state.peaks }
       );
+      return {
+        peaks: { ...newPeaks },
+        events: { ...state.events }
+      };
 
     default:
       return state;

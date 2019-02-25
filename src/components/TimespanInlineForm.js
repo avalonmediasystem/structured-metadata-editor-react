@@ -14,7 +14,6 @@ import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { cloneDeep } from 'lodash';
 import ListItemInlineEditControls from './ListItemInlineEditControls';
 import * as peaksActions from '../actions/peaks-instance';
-import { fromEvent } from 'rxjs';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -31,6 +30,7 @@ class TimespanInlineForm extends Component {
     // To implement validation logic on begin and end times, we need to remove the current item
     // from the stored data
     this.tempSmData = undefined;
+    this.subscription = undefined;
   }
 
   static propTypes = {
@@ -56,7 +56,7 @@ class TimespanInlineForm extends Component {
     this.setState(getExistingFormValues(item.id, this.tempSmData));
 
     this.setState({
-      clonedSegment: this.props.peaksInstance.segments.getSegment(item.id)
+      clonedSegment: this.props.peaksInstance.peaks.segments.getSegment(item.id)
     });
 
     // Remove current list item from the data we're doing validation against in this form
@@ -77,14 +77,16 @@ class TimespanInlineForm extends Component {
   }
 
   handleSegmentDraggedEvent() {
-    fromEvent(this.props.peaksInstance, 'segments.dragged').subscribe(
-      segment => {
-        this.setState({
-          beginTime: structuralMetadataUtils.toHHmmss(segment.startTime),
-          endTime: structuralMetadataUtils.toHHmmss(segment.endTime)
-        });
-      }
-    );
+    this.subscription = this.props.peaksInstance.events.subscribe(segment => {
+      this.setState({
+        beginTime: structuralMetadataUtils.toHHmmss(segment.startTime),
+        endTime: structuralMetadataUtils.toHHmmss(segment.endTime)
+      });
+    });
+  }
+
+  componentWillUnmount() {
+    this.subscription.unsubscribe();
   }
 
   formIsValid() {
@@ -109,8 +111,9 @@ class TimespanInlineForm extends Component {
   handleInputChange = e => {
     this.setState({ [e.target.id]: e.target.value });
 
+    // Update Waveform segment when input form values change
     const { item, peaksInstance } = this.props;
-    let segment = peaksInstance.segments.getSegment(item.id);
+    let segment = peaksInstance.peaks.segments.getSegment(item.id);
     let property = e.target.id === 'beginTime' ? 'startTime' : 'endTime';
     this.props.updateSegment(segment, property, e.target.value);
   };

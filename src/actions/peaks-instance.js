@@ -1,10 +1,29 @@
 import * as types from './types';
 
+export const initPeaksInstance = (smData, options) => {
+  return (dispatch, getState) => {
+    dispatch(initPeaks(smData, options));
+
+    const { peaksInstance } = getState();
+
+    if (peaksInstance.peaks !== undefined) {
+      dispatch(bindPeaksEvents(peaksInstance.peaks));
+    }
+  };
+};
+
 export function initPeaks(smData, options) {
   return {
     type: types.INIT_PEAKS,
     smData,
     options
+  };
+}
+
+export function bindPeaksEvents(peaks) {
+  return {
+    type: types.BIND_PEAKS,
+    payload: peaks
   };
 }
 
