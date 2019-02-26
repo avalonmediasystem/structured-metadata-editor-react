@@ -6,8 +6,10 @@ export const initPeaksInstance = (smData, options) => {
 
     const { peaksInstance } = getState();
 
-    if (peaksInstance.peaks !== undefined) {
-      dispatch(bindPeaksEvents(peaksInstance.peaks));
+    if (peaksInstance.events !== undefined) {
+      peaksInstance.events.subscribe(segment => {
+        dispatch(changeSegment(segment));
+      });
     }
   };
 };
@@ -17,13 +19,6 @@ export function initPeaks(smData, options) {
     type: types.INIT_PEAKS,
     smData,
     options
-  };
-}
-
-export function bindPeaksEvents(peaks) {
-  return {
-    type: types.BIND_PEAKS,
-    payload: peaks
   };
 }
 
@@ -69,5 +64,12 @@ export function updateSegment(segment, property, value) {
     segment,
     property,
     value
+  };
+}
+
+export function changeSegment(segment) {
+  return {
+    type: types.DRAGGING_SEGMENT,
+    payload: segment
   };
 }

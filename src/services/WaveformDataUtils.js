@@ -147,6 +147,11 @@ export default class WaveformDataUtils {
     return peaksInstance;
   }
 
+  /**
+   * Save the segment into the Peaks
+   * @param {Object} currentState - current values for the timespan to be saved
+   * @param {Object} peaksInstance - current peaks instance for waveform
+   */
   saveSegment(currentState, peaksInstance) {
     const { beginTime, endTime, clonedSegment } = currentState;
     peaksInstance.segments.removeById(clonedSegment.id);
@@ -170,6 +175,13 @@ export default class WaveformDataUtils {
     return peaksInstance;
   }
 
+  /**
+   * Update Peaks instance when user changes the start and end times from the edit forms
+   * @param {Object} segment - segment related to timespan
+   * @param {String} property - name of the property to be changed
+   * @param {String} value - user input from the form
+   * @param {Object} peaksInstance - current peaks instance for waveform
+   */
   updateSegment(segment, property, value, peaksInstance) {
     let clonedSegment = segment;
     let valueInSeconds = structMetadataUtils.toMs(value) / 1000;

@@ -6,7 +6,8 @@ import { fromEvent } from 'rxjs';
 const waveformUtils = new WaveformDataUtils();
 const initialState = {
   peaks: {},
-  events: null
+  events: null,
+  segment: null
 };
 let newPeaks = null;
 
@@ -20,13 +21,8 @@ const peaksInstance = (state = initialState, action) => {
       });
       return {
         peaks: peaksInstance,
-        events: { ...state.events }
-      };
-
-    case types.BIND_PEAKS:
-      return {
-        peaks: { ...state.peaks },
-        events: fromEvent(action.payload, 'segments.dragged')
+        events: fromEvent(peaksInstance, 'segments.dragged'),
+        segment: { ...state.segment }
       };
 
     case types.INSERT_SEGMENT:
@@ -34,8 +30,8 @@ const peaksInstance = (state = initialState, action) => {
         ...state.peaks
       });
       return {
-        peaks: waveformUtils.rebuildPeaks(newPeaks),
-        events: { ...state.events }
+        ...state,
+        peaks: waveformUtils.rebuildPeaks(newPeaks)
       };
 
     case types.DELETE_SEGMENT:
@@ -43,8 +39,8 @@ const peaksInstance = (state = initialState, action) => {
         ...state.peaks
       });
       return {
-        peaks: waveformUtils.rebuildPeaks(newPeaks),
-        events: { ...state.events }
+        ...state,
+        peaks: waveformUtils.rebuildPeaks(newPeaks)
       };
 
     case types.ACTIVATE_SEGMENT:
@@ -52,8 +48,8 @@ const peaksInstance = (state = initialState, action) => {
         ...state.peaks
       });
       return {
-        peaks: newPeaks,
-        events: { ...state.events }
+        ...state,
+        peaks: newPeaks
       };
 
     case types.SAVE_SEGMENT:
@@ -67,8 +63,8 @@ const peaksInstance = (state = initialState, action) => {
         ...newPeaks
       });
       return {
-        peaks: rebuiltPeaks,
-        events: fromEvent(rebuiltPeaks, 'segments.dragged')
+        ...state,
+        peaks: rebuiltPeaks
       };
 
     case types.REVERT_SEGMENT:
@@ -76,10 +72,10 @@ const peaksInstance = (state = initialState, action) => {
         ...state.peaks
       });
       return {
+        ...state,
         peaks: waveformUtils.revertChanges(action.id, action.clone, {
           ...newPeaks
-        }),
-        events: { ...state.events }
+        })
       };
 
     case types.UPDATE_SEGMENT:
@@ -90,8 +86,14 @@ const peaksInstance = (state = initialState, action) => {
         { ...state.peaks }
       );
       return {
-        peaks: { ...newPeaks },
-        events: { ...state.events }
+        ...state,
+        peaks: { ...newPeaks }
+      };
+
+    case types.DRAGGING_SEGMENT:
+      return {
+        ...state,
+        segment: action.payload
       };
 
     default:

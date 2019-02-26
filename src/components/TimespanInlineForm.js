@@ -30,7 +30,6 @@ class TimespanInlineForm extends Component {
     // To implement validation logic on begin and end times, we need to remove the current item
     // from the stored data
     this.tempSmData = undefined;
-    this.subscription = undefined;
   }
 
   static propTypes = {
@@ -43,7 +42,8 @@ class TimespanInlineForm extends Component {
     beginTime: '',
     endTime: '',
     timespanTitle: '',
-    clonedSegment: {}
+    clonedSegment: {},
+    isTyping: false
   };
 
   componentDidMount() {
@@ -71,22 +71,23 @@ class TimespanInlineForm extends Component {
       this.tempSmData
     );
 
+    // Make segment related to timespan editable
     this.props.activateSegment(item.id);
 
-    this.handleSegmentDraggedEvent();
+    this.props.changeSegment();
   }
 
-  handleSegmentDraggedEvent() {
-    this.subscription = this.props.peaksInstance.events.subscribe(segment => {
-      this.setState({
-        beginTime: structuralMetadataUtils.toHHmmss(segment.startTime),
-        endTime: structuralMetadataUtils.toHHmmss(segment.endTime)
-      });
-    });
-  }
-
-  componentWillUnmount() {
-    this.subscription.unsubscribe();
+  componentWillReceiveProps(nextProps) {
+    if (this.props.peaksInstance !== nextProps.peaksInstance) {
+      if (nextProps.segment && !this.state.isTyping) {
+        this.setState({
+          beginTime: structuralMetadataUtils.toHHmmss(
+            nextProps.segment.startTime
+          ),
+          endTime: structuralMetadataUtils.toHHmmss(nextProps.segment.endTime)
+        });
+      }
+    }
   }
 
   formIsValid() {
@@ -109,7 +110,11 @@ class TimespanInlineForm extends Component {
   };
 
   handleInputChange = e => {
-    this.setState({ [e.target.id]: e.target.value });
+    this.setState({ isTyping: true });
+
+    this.setState({ [e.target.id]: e.target.value }, function() {
+      this.setState({ isTyping: false });
+    });
 
     // Update Waveform segment when input form values change
     const { item, peaksInstance } = this.props;
@@ -192,14 +197,16 @@ class TimespanInlineForm extends Component {
 
 const mapStateToProps = state => ({
   smData: state.smData,
-  peaksInstance: state.peaksInstance
+  peaksInstance: state.peaksInstance,
+  segment: state.peaksInstance.segment
 });
 
 const mapDispatchToProps = {
   activateSegment: peaksActions.activateSegment,
   revertSegment: peaksActions.revertSegment,
   saveSegment: peaksActions.saveSegment,
-  updateSegment: peaksActions.updateSegment
+  updateSegment: peaksActions.updateSegment,
+  changeSegment: peaksActions.changeSegment
 };
 
 export default connect(
