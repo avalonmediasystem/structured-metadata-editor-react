@@ -69,8 +69,13 @@ class ListItem extends Component {
     const { id, type } = this.props.item;
     /* eslint-enable */
 
-    // Disable the edit buttons of other list items
-    this.props.handleEditingTimespans(0);
+    this.setState({
+      clonedSegment: this.props.peaksInstance.segments.getSegment(id)
+    });
+
+    if (this.props.item.type === 'span') {
+      this.props.activateSegment(this.props.item.id);
+    }
 
     this.setState({ editing: true });
   };
@@ -78,8 +83,13 @@ class ListItem extends Component {
   handleEditFormCancel = () => {
     this.setState({ editing: false });
 
-    // Enable the edit buttons of other list items
-    this.props.handleEditingTimespans(1);
+    if (this.props.item.type === 'span') {
+      this.props.deactivateSegment(this.props.item.id);
+
+      if (flag === 'cancel') {
+        this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
+      }
+    }
   };
 
   handleShowDropTargetsClick = () => {
