@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import APIUtils from '../api/Utils';
 import { connect } from 'react-redux';
 import * as peaksActions from '../actions/peaks-instance';
+import * as showFormActions from '../actions/show-forms';
 import Waveform from '../components/Waveform';
+import WaveformErrorBoundary from '../components/WaveformErrorBoundary';
 
 const apiUtils = new APIUtils();
 
@@ -26,35 +28,39 @@ class WaveformContainer extends Component {
     this.peaksInstance = null;
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     peaksOptions.container = this.waveformContainer;
     peaksOptions.mediaElement = this.mediaPlayer;
-    await apiUtils
-      .getRequest('waveform.json')
-      .then(response => {
-        // Set the masterfile URL as the URI for the waveform data file
-        peaksOptions.dataUri = response.request.responseURL;
-        // Initialize Peaks
-        this.props.initPeaks(this.props.smData, peaksOptions);
-      })
-      .catch(error => {
-        if (error.response !== undefined) {
-          this.props.handleResponse(error.response.status);
-        } else if (error.request !== undefined) {
-          this.props.handleResponse(error.request.status);
-        } else {
-          this.props.handleResponse(-1);
-        }
-      });
+    this.initializePeaks();
+  }
+
+  async initializePeaks() {
+    try {
+      const response = await apiUtils.getRequest('waveform.json');
+      // Set the masterfile URL as the URI for the waveform data file
+      peaksOptions.dataUri = response.request.responseURL;
+      // Initialize Peaks
+      this.props.initPeaks(this.props.smData, peaksOptions);
+    } catch (error) {
+      if (error.response !== undefined) {
+        this.props.handleResponse(error.response.status);
+      } else if (error.request !== undefined) {
+        this.props.handleResponse(error.request.status);
+      } else {
+        this.props.handleResponse(-1);
+      }
+    }
   }
 
   render() {
     return (
       <section className="waveform-section">
-        <Waveform
-          waveformRef={ref => (this.waveformContainer = ref)}
-          mediaPlayerRef={ref => (this.mediaPlayer = ref)}
-        />
+        <WaveformErrorBoundary>
+          <Waveform
+            waveformRef={ref => (this.waveformContainer = ref)}
+            mediaPlayerRef={ref => (this.mediaPlayer = ref)}
+          />
+        </WaveformErrorBoundary>
       </section>
     );
   }
@@ -66,7 +72,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initPeaks: (smData, options) =>
-    dispatch(peaksActions.initPeaks(smData, options))
+    dispatch(peaksActions.initPeaks(smData, options)),
+  handleResponse: status => dispatch(showFormActions.handleResponse(status))
 });
 
 export default connect(
