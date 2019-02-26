@@ -72,7 +72,9 @@ class ListItem extends Component {
       clonedSegment: this.props.peaksInstance.segments.getSegment(id)
     });
 
-    this.props.activateSegment(this.props.item.id);
+    if (this.props.item.type === 'span') {
+      this.props.activateSegment(this.props.item.id);
+    }
 
     this.setState({ editing: true });
   };
@@ -80,10 +82,12 @@ class ListItem extends Component {
   handleEditFormCancel = (flag = 'cancel') => {
     this.setState({ editing: false });
 
-    this.props.deactivateSegment(this.props.item.id);
+    if (this.props.item.type === 'span') {
+      this.props.deactivateSegment(this.props.item.id);
 
-    if (flag === 'cancel') {
-      this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
+      if (flag === 'cancel') {
+        this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
+      }
     }
   };
 
