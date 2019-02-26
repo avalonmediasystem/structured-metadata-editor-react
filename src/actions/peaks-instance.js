@@ -72,3 +72,10 @@ export function changeSegment(segment) {
     payload: segment
   };
 }
+
+export function changeSegment(segment) {
+  return {
+    type: types.DRAGGING_SEGMENT,
+    payload: segment
+  };
+}

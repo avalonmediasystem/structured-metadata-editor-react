@@ -137,6 +137,11 @@ export default class WaveformDataUtils {
     return peaksInstance;
   }
 
+  /**
+   * Save the segment into the Peaks
+   * @param {Object} currentState - current values for the timespan to be saved
+   * @param {Object} peaksInstance - current peaks instance for waveform
+   */
   saveSegment(currentState, peaksInstance) {
     const { beginTime, endTime, clonedSegment } = currentState;
     peaksInstance.segments.removeById(clonedSegment.id);
