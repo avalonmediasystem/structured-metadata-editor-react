@@ -99,16 +99,6 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for the waveform
    */
   activateSegment(id, peaksInstance) {
-    // Check for existing editable segments
-    let existingEditableSegs = peaksInstance.segments
-      .getSegments()
-      .filter(seg => seg.editable);
-
-    if (existingEditableSegs) {
-      existingEditableSegs.map(seg =>
-        this.deactivateSegment(seg.id, peaksInstance)
-      );
-    }
     // Copy the current segment
     let tempSegment = peaksInstance.segments.getSegment(id);
     // Remove the current segment

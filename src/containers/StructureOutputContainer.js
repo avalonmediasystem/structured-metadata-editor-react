@@ -5,8 +5,6 @@ import GenerateStructureContainer from './GenerateStructureContainer';
 import { Button, Col, Row } from 'react-bootstrap';
 import * as actions from '../actions/show-forms';
 import APIUtils from '../api/Utils';
-import BlockUi from 'react-block-ui';
-import 'react-block-ui/style.css';
 
 const apiUtils = new APIUtils();
 
@@ -29,15 +27,12 @@ class StructureOutputContainer extends Component {
 
   render() {
     const { smData = [] } = this.props;
-    const { showForms } = this.props;
     return (
       <section>
         <h3>HTML Structure Tree from a masterfile in server</h3>
         <br />
         <GenerateStructureContainer />
-        <BlockUi blocking={showForms.blocking}>
-          <List items={smData} />
-        </BlockUi>
+        <List items={smData} />
         <Row>
           <Col xs={12} className="text-right">
             <Button bsStyle="primary" onClick={this.handleSaveItClick}>
@@ -51,8 +46,7 @@ class StructureOutputContainer extends Component {
 }
 
 const mapStateToProps = state => ({
-  smData: state.smData,
-  showForms: state.showForms
+  smData: state.smData
 });
 
 export default connect(

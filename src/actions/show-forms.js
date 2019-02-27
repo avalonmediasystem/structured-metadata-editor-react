@@ -9,7 +9,7 @@ export const closeAlert = () => ({
   type: types.CLOSE_ALERT
 });
 
-export const handleListEditing = code => ({
-  type: types.EDITING_TIMESPAN,
+export const handleEditingTimespans = code => ({
+  type: types.IS_EDITING_TIMESPAN,
   code
 });

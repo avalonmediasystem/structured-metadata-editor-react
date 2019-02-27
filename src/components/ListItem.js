@@ -71,33 +71,16 @@ class ListItem extends Component {
     /* eslint-enable */
 
     this.setState({
-      clonedSegment: this.props.peaksInstance.segments.getSegment(id)
+      clonedSegment: this.props.peaksInstance.segments.getSegment(id),
+      editing: true
     });
 
     if (this.props.item.type === 'span') {
       this.props.activateSegment(this.props.item.id);
     }
 
-    // Set editing flag to true within the structure
-    this.props.item.editing = true;
-
-    if (type === 'span') {
-      // Get the number of items in editing status
-      let itemsInEdit = this.itemsInEditStatus(this.props.smData);
-
-      // When there are more than one items in edit status,
-      if (itemsInEdit > 1) {
-        this.props.handleListEditing(0); // Trigger an alert and block List component
-        this.props.item.editing = false; // Set editing to false of the current item
-      }
-      // Set editing to true when there is only one item in edit status
-      if (itemsInEdit === 1) {
-        this.setState({ editing: true });
-        this.props.activateSegment(this.props.item.id);
-      }
-    } else {
-      this.setState({ editing: true });
-    }
+    // Disable the edit buttons of other list items
+    this.props.handleEditingTimespans(0);
   };
 
   handleEditFormCancel = (flag = 'cancel') => {
@@ -111,7 +94,8 @@ class ListItem extends Component {
       }
     }
 
-    this.props.item.editing = false;
+    // Enable the edit buttons of other list items
+    this.props.handleEditingTimespans(1);
   };
 
   handleShowDropTargetsClick = () => {
@@ -140,25 +124,6 @@ class ListItem extends Component {
 
     // Redux way of setting active drag list item
     setActiveDragSource(item.id);
-  };
-
-  /**
-   * Check for number of items in the structure with editing flag set to true
-   */
-  itemsInEditStatus = smData => {
-    let count = 0;
-    let getStatus = items => {
-      for (let item of items) {
-        if (item.editing && item.type === 'span') {
-          count++;
-        }
-        if (item.items) {
-          getStatus(item.items);
-        }
-      }
-    };
-    getStatus(smData);
-    return count;
   };
 
   render() {
@@ -222,7 +187,7 @@ const mapDispatchToProps = {
   revertSegment: peaksActions.revertSegment,
   activateSegment: peaksActions.activateSegment,
   deactivateSegment: peaksActions.deactivateSegment,
-  handleListEditing: showForms.handleListEditing
+  handleEditingTimespans: showForms.handleEditingTimespans
 };
 
 const mapStateToProps = state => ({
