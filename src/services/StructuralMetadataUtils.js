@@ -616,6 +616,7 @@ export default class StructuralMetadataUtils {
    * @param {Array} allItems
    */
   removeDropTargets(allItems) {
+    const clonedItems = cloneDeep(allItems);
     let removeFromTree = (parent, childTypeToRemove) => {
       if (!parent.items) {
         return parent;
@@ -627,7 +628,7 @@ export default class StructuralMetadataUtils {
 
       return parent;
     };
-    let cleanItems = removeFromTree(allItems[0], 'optional');
+    let cleanItems = removeFromTree(clonedItems[0], 'optional');
 
     return [cleanItems];
   }

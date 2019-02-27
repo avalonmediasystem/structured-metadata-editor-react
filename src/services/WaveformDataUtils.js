@@ -1,7 +1,3 @@
-import StructuralMetadataUtils from './StructuralMetadataUtils';
-
-const structMetadataUtils = new StructuralMetadataUtils();
-
 // Colors for segments from Avalon branding pallette
 const COLOR_PALETTE = ['#80A590', '#2A5459', '#FBB040'];
 
@@ -21,8 +17,8 @@ export default class WaveformDataUtils {
           count = count > 1 ? 0 : count;
           const { begin, end, label, id } = item;
           initSegments.push({
-            startTime: structMetadataUtils.toMs(begin) / 1000,
-            endTime: structMetadataUtils.toMs(end) / 1000,
+            startTime: this.toMs(begin),
+            endTime: this.toMs(end),
             labelText: label,
             id: id,
             color: COLOR_PALETTE[count]
@@ -49,8 +45,8 @@ export default class WaveformDataUtils {
   insertNewSegment(newSpan, peaksInstance) {
     const { begin, end, label, id } = newSpan;
     peaksInstance.segments.add({
-      startTime: structMetadataUtils.toMs(begin) / 1000,
-      endTime: structMetadataUtils.toMs(end) / 1000,
+      startTime: this.toMs(begin),
+      endTime: this.toMs(end),
       labelText: label,
       id: id
     });
@@ -101,10 +97,12 @@ export default class WaveformDataUtils {
         this.deactivateSegment(seg.id, peaksInstance)
       );
     }
+
     // Copy the current segment
-    let tempSegment = peaksInstance.segments.getSegment(id);
+    const tempSegment = peaksInstance.segments.getSegment(id);
     // Remove the current segment
     peaksInstance.segments.removeById(id);
+
     // Create a new segment with the same properties and set editable to true
     peaksInstance.segments.add({
       ...tempSegment,
@@ -157,8 +155,8 @@ export default class WaveformDataUtils {
     peaksInstance.segments.removeById(clonedSegment.id);
     peaksInstance.segments.add({
       ...clonedSegment,
-      startTime: structMetadataUtils.toMs(beginTime) / 1000,
-      endTime: structMetadataUtils.toMs(endTime) / 1000
+      startTime: this.toMs(beginTime),
+      endTime: this.toMs(endTime)
     });
     return peaksInstance;
   }
@@ -183,14 +181,14 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for waveform
    */
   updateSegment(segment, property, value, peaksInstance) {
-    let clonedSegment = segment;
-    let valueInSeconds = structMetadataUtils.toMs(value) / 1000;
+    let clonedSegment = { ...segment };
+    let valueInSeconds = this.toMs(value);
 
     let update = () => {
       peaksInstance.segments.removeById(segment.id);
       peaksInstance.segments.add({
         ...clonedSegment,
-        [property]: structMetadataUtils.toMs(value) / 1000
+        [property]: valueInSeconds
       });
       return peaksInstance;
     };
@@ -207,5 +205,12 @@ export default class WaveformDataUtils {
 
   isOdd(num) {
     return num % 2;
+  }
+
+  toMs(strTime) {
+    let [hours, minutes, seconds] = strTime.split(':');
+    let hoursAndMins = parseInt(hours) * 3600 + parseInt(minutes) * 60;
+    let secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
+    return hoursAndMins + secondsIn;
   }
 }

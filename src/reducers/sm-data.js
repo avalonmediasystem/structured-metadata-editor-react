@@ -18,22 +18,17 @@ const smData = (state = initialState, action) => {
       return action.payload;
 
     case types.DELETE_ITEM:
-      return structrualMetadataUtils.deleteListItem(
-        action.id,
-        cloneDeep(state)
-      );
+      return structrualMetadataUtils.deleteListItem(action.id, state);
 
     case types.ADD_DROP_TARGETS:
       newState = structrualMetadataUtils.determineDropTargets(
         action.payload,
-        cloneDeep(state)
+        state
       );
       return newState;
 
     case types.REMOVE_DROP_TARGETS:
-      let noDropTargetsState = structrualMetadataUtils.removeDropTargets(
-        cloneDeep(state)
-      );
+      let noDropTargetsState = structrualMetadataUtils.removeDropTargets(state);
       return noDropTargetsState;
 
     case types.SET_ACTIVE_DRAG_SOURCE:
