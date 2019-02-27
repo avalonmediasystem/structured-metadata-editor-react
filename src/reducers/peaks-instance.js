@@ -15,7 +15,7 @@ const peaksInstance = (state = initialState, action) => {
       return waveformUtils.rebuildPeaks(newState);
 
     case types.DELETE_SEGMENT:
-      newState = waveformUtils.deleteSegment(action.payload, {
+      newState = waveformUtils.deleteSegments(action.payload, {
         ...state
       });
       return waveformUtils.rebuildPeaks(newState);

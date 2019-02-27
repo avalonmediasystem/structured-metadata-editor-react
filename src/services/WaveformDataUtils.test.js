@@ -17,85 +17,87 @@ const waveformUtils = new WaveformDataUtils();
 const mockStore = configureMockStore([thunk]);
 
 describe('WaveformDataUtils class', () => {
-  beforeEach(() => {
-    const store = mockStore({});
-    const waveformContainer = React.createRef();
-    const mediaPlayer = React.createRef();
-    const wrapper = mount(
-      <Provider store={store}>
-        <Waveform
-          waveformRef={() => {}}
-          mediaPlayerRef={() => {}}
-          ref={waveformContainer}
-          ref={mediaPlayer}
-        />
-      </Provider>
-    );
-    // Get the current containers for React refs
-    const waveformRef = wrapper.find('#waveform-container').instance();
-    const audioRef = wrapper.find('audio').instance();
-    // Mock the Peaks.init() call for the test
-    mockPeaks.init.mockImplementationOnce(opts => {
-      return {
-        options: {
-          ...opts,
-          container: waveformRef,
-          mediaElement: audioRef,
-          dataUri: 'http://localhost:3123/data/mock-response-waveform.json',
-          dataUriDefaultFormat: 'json'
-        }
-      };
+  describe('tests Peaks initialization', () => {
+    beforeEach(() => {
+      const store = mockStore({});
+      const waveformContainer = React.createRef();
+      const mediaPlayer = React.createRef();
+      const wrapper = mount(
+        <Provider store={store}>
+          <Waveform
+            waveformRef={() => {}}
+            mediaPlayerRef={() => {}}
+            ref={waveformContainer}
+            ref={mediaPlayer}
+          />
+        </Provider>
+      );
+      // Get the current containers for React refs
+      const waveformRef = wrapper.find('#waveform-container').instance();
+      const audioRef = wrapper.find('audio').instance();
+      // Mock the Peaks.init() call for the test
+      mockPeaks.init.mockImplementationOnce(opts => {
+        return {
+          options: {
+            ...opts,
+            container: waveformRef,
+            mediaElement: audioRef,
+            dataUri: 'http://localhost:3123/data/mock-response-waveform.json',
+            dataUriDefaultFormat: 'json'
+          }
+        };
+      });
     });
-  });
 
-  test('initializes peaks with empty metadata structure', () => {
-    const value = waveformUtils.initPeaks([], {});
+    test('initializes peaks with empty metadata structure', () => {
+      const value = waveformUtils.initPeaks([], {});
 
-    expect(value).toBeDefined();
-    expect(value.options.container).not.toBeNull();
+      expect(value).toBeDefined();
+      expect(value.options.container).not.toBeNull();
 
-    expect(value.options.dataUri).toBe(
-      'http://localhost:3123/data/mock-response-waveform.json'
-    );
-    expect(value.options.segments).toEqual([]);
-    expect(mockPeaks.init).toHaveBeenCalledTimes(1);
-  });
+      expect(value.options.dataUri).toBe(
+        'http://localhost:3123/data/mock-response-waveform.json'
+      );
+      expect(value.options.segments).toEqual([]);
+      expect(mockPeaks.init).toHaveBeenCalledTimes(1);
+    });
 
-  test('initializes peaks with metadata structure', () => {
-    const expected = [
-      {
-        startTime: 3.32,
-        endTime: 10.32,
-        labelText: 'Segment 1.1',
-        id: '123a-456b-789c-3d',
-        color: '#80A590'
-      },
-      {
-        startTime: 11.23,
-        endTime: 480,
-        labelText: 'Segment 1.2',
-        id: '123a-456b-789c-4d',
-        color: '#2A5459'
-      },
-      {
-        startTime: 543.24,
-        endTime: 900,
-        labelText: 'Segment 2.1',
-        id: '123a-456b-789c-8d',
-        color: '#80A590'
-      }
-    ];
+    test('initializes peaks with metadata structure', () => {
+      const expected = [
+        {
+          startTime: 3.32,
+          endTime: 10.32,
+          labelText: 'Segment 1.1',
+          id: '123a-456b-789c-3d',
+          color: '#80A590'
+        },
+        {
+          startTime: 11.23,
+          endTime: 480,
+          labelText: 'Segment 1.2',
+          id: '123a-456b-789c-4d',
+          color: '#2A5459'
+        },
+        {
+          startTime: 543.24,
+          endTime: 900,
+          labelText: 'Segment 2.1',
+          id: '123a-456b-789c-8d',
+          color: '#80A590'
+        }
+      ];
 
-    const value = waveformUtils.initPeaks(testMetadataStructure, {});
+      const value = waveformUtils.initPeaks(testMetadataStructure, {});
 
-    expect(value).toBeDefined();
+      expect(value).toBeDefined();
 
-    expect(value.options.dataUri).toBe(
-      'http://localhost:3123/data/mock-response-waveform.json'
-    );
-    expect(value.options.segments).toEqual(expected);
-    expect(value.options.segments).toHaveLength(3);
-    expect(mockPeaks.init).toHaveBeenCalledTimes(2);
+      expect(value.options.dataUri).toBe(
+        'http://localhost:3123/data/mock-response-waveform.json'
+      );
+      expect(value.options.segments).toEqual(expected);
+      expect(value.options.segments).toHaveLength(3);
+      expect(mockPeaks.init).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe('tests util functions for Waveform manipulations', () => {
@@ -131,9 +133,90 @@ describe('WaveformDataUtils class', () => {
       });
     });
 
-    test('deletes an existing segment', () => {
-      const value = waveformUtils.deleteSegment('123a-456b-789c-2d', peaks);
-      expect(value.segments._segments).toHaveLength(1);
+    describe('deletes segments when structure metadata items are deleted', () => {
+      test('deleting a timespan', () => {
+        let item = {
+          begin: '00:00:00.00',
+          end: '00:06:00.00',
+          id: '123a-456b-789c-2d',
+          label: 'Sample segment',
+          type: 'span'
+        };
+        const value = waveformUtils.deleteSegments(item, peaks);
+        expect(value.segments._segments).toHaveLength(1);
+      });
+
+      test('deleting a childless header', () => {
+        let item = {
+          id: '123a-456b-789c-3d',
+          label: 'Sample header',
+          type: 'div',
+          items: []
+        };
+        const value = waveformUtils.deleteSegments(item, peaks);
+        expect(value.segments._segments).toHaveLength(2);
+      });
+
+      test('deleting a header with children', () => {
+        let item = {
+          id: '123a-456b-789c-3d',
+          label: 'Sample header',
+          type: 'div',
+          items: [
+            {
+              id: '123a-456b-789c-7d',
+              label: 'Sample sub header',
+              type: 'div',
+              items: []
+            },
+            {
+              begin: '00:12:30.00',
+              end: '00:20:59.99',
+              id: '123a-456b-789c-9d',
+              label: 'Last segment',
+              type: 'span'
+            }
+          ]
+        };
+        const value = waveformUtils.deleteSegments(item, peaks);
+        expect(value.segments._segments).toHaveLength(1);
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: '123a-456b-789c-2d',
+              labelText: 'Sample segment'
+            })
+          ])
+        );
+      });
+    });
+
+    test('activates a segment', () => {
+      const value = waveformUtils.activateSegment('123a-456b-789c-2d', peaks);
+      expect(value.segments._segments).toHaveLength(2);
+      expect(value.segments._segments).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: '123a-456b-789c-2d',
+            editable: true,
+            color: '#FBB040'
+          })
+        ])
+      );
+    });
+
+    test('deactivates a segment', () => {
+      const value = waveformUtils.deactivateSegment('123a-456b-789c-2d', peaks);
+      expect(value.segments._segments).toHaveLength(2);
+      expect(value.segments._segments).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: '123a-456b-789c-2d',
+            editable: false,
+            color: '#80A590'
+          })
+        ])
+      );
     });
   });
 });

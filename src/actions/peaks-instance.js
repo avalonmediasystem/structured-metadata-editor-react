@@ -15,10 +15,10 @@ export function insertNewSegment(span) {
   };
 }
 
-export function deleteSegment(id) {
+export function deleteSegment(item) {
   return {
     type: types.DELETE_SEGMENT,
-    payload: id
+    payload: item
   };
 }
 

@@ -68,11 +68,27 @@ export default class WaveformDataUtils {
 
   /**
    * Delete the corresponding segment when a timespan is deleted
-   * @param {String} id - ID of the segment that is being deleted
+   * @param {Object} item - item to be deleted
    * @param {Object} peaksInstance - peaks instance for the current waveform
    */
-  deleteSegment(id, peaksInstance) {
-    peaksInstance.segments.removeById(id);
+  deleteSegments(item, peaksInstance) {
+    let deleteChildren = item => {
+      let children = item.items;
+      for (let child of children) {
+        if (child.type === 'span') {
+          peaksInstance.segments.removeById(child.id);
+        }
+        if (child.items && child.items.length > 0) {
+          deleteChildren(child);
+        }
+      }
+    };
+
+    if (item.type === 'div') {
+      deleteChildren(item);
+    }
+
+    peaksInstance.segments.removeById(item.id);
     return peaksInstance;
   }
 
@@ -109,13 +125,13 @@ export default class WaveformDataUtils {
         this.deactivateSegment(seg.id, peaksInstance)
       );
     }
-    // Copy the current segment
-    let tempSegment = peaksInstance.segments.getSegment(id);
+
     // Remove the current segment
-    peaksInstance.segments.removeById(id);
+    const [removedSegment] = peaksInstance.segments.removeById(id);
+
     // Create a new segment with the same properties and set editable to true
     peaksInstance.segments.add({
-      ...tempSegment,
+      ...removedSegment,
       editable: true,
       color: COLOR_PALETTE[2]
     });
@@ -133,9 +149,6 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for the waveform
    */
   deactivateSegment(id, peaksInstance) {
-    // Copy the current segment
-    let tempSegment = peaksInstance.segments.getSegment(id);
-
     // Sort segments by start time
     let segments = peaksInstance.segments
       .getSegments()
@@ -144,10 +157,10 @@ export default class WaveformDataUtils {
     let index = segments.map(seg => seg.id).indexOf(id);
 
     // Remove the current segment
-    peaksInstance.segments.removeById(id);
+    const [removedSegment] = peaksInstance.segments.removeById(id);
     // Create a new segment and revert to its original color
     peaksInstance.segments.add({
-      ...tempSegment,
+      ...removedSegment,
       editable: false,
       color: this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0]
     });
