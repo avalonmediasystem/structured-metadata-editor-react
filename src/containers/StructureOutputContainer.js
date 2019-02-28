@@ -27,7 +27,6 @@ class StructureOutputContainer extends Component {
 
   render() {
     const { smData = [] } = this.props;
-
     return (
       <section>
         <h3>HTML Structure Tree from a masterfile in server</h3>

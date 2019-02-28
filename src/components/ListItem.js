@@ -3,6 +3,7 @@ import List from './List';
 import { connect } from 'react-redux';
 import * as smActions from '../actions/sm-data';
 import * as peaksActions from '../actions/peaks-instance';
+import * as showForms from '../actions/show-forms';
 import PropTypes from 'prop-types';
 import { ItemTypes } from '../services/Constants';
 import { DragSource, DropTarget } from 'react-dnd';
@@ -48,7 +49,8 @@ class ListItem extends Component {
       end: PropTypes.string,
       items: PropTypes.array,
       id: PropTypes.string,
-      type: PropTypes.string
+      type: PropTypes.string,
+      editing: PropTypes.bool
     })
   };
 
@@ -69,26 +71,31 @@ class ListItem extends Component {
     /* eslint-enable */
 
     this.setState({
-      clonedSegment: this.props.peaksInstance.segments.getSegment(id)
+      clonedSegment: this.props.peaksInstance.segments.getSegment(id),
+      editing: true
     });
 
     if (this.props.item.type === 'span') {
       this.props.activateSegment(this.props.item.id);
     }
 
-    this.setState({ editing: true });
+    // Disable the edit buttons of other list items
+    this.props.handleEditingTimespans(0);
   };
 
   handleEditFormCancel = (flag = 'cancel') => {
     this.setState({ editing: false });
 
+    // Change segment colors in the waveform
     if (this.props.item.type === 'span') {
       this.props.deactivateSegment(this.props.item.id);
-
       if (flag === 'cancel') {
         this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
       }
     }
+
+    // Enable the edit buttons of other list items
+    this.props.handleEditingTimespans(1);
   };
 
   handleShowDropTargetsClick = () => {
@@ -179,7 +186,8 @@ const mapDispatchToProps = {
   deleteSegment: peaksActions.deleteSegment,
   revertSegment: peaksActions.revertSegment,
   activateSegment: peaksActions.activateSegment,
-  deactivateSegment: peaksActions.deactivateSegment
+  deactivateSegment: peaksActions.deactivateSegment,
+  handleEditingTimespans: showForms.handleEditingTimespans
 };
 
 const mapStateToProps = state => ({

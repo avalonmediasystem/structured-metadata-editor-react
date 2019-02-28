@@ -1,7 +1,8 @@
 import * as types from '../actions/types';
 
 const initialState = {
-  alert: false
+  alert: false,
+  disabled: false
 };
 
 const showForms = (state = initialState, action) => {
@@ -14,7 +15,21 @@ const showForms = (state = initialState, action) => {
 
     case types.CLOSE_ALERT:
       return Object.assign({}, state, {
-        alert: false
+        alert: false,
+        blocking: false
+      });
+
+    case types.IS_EDITING_TIMESPAN:
+      if (action.code === 0) {
+        return Object.assign({}, state, {
+          statusCode: action.code,
+          disabled: true
+        });
+      }
+
+      return Object.assign({}, state, {
+        statusCode: action.code,
+        disabled: false
       });
 
     default:
