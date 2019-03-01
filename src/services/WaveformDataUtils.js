@@ -168,7 +168,6 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for wavefrom
    */
   revertSegment(clonedSegment, peaksInstance) {
-    console.log(clonedSegment);
     peaksInstance.segments.removeById(clonedSegment.id);
     peaksInstance.segments.add(clonedSegment);
     return peaksInstance;
