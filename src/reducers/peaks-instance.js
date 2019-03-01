@@ -35,7 +35,7 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.DELETE_SEGMENT:
-      newPeaks = waveformUtils.deleteSegment(action.payload, {
+      newPeaks = waveformUtils.deleteSegments(action.payload, {
         ...state.peaks
       });
       return {
@@ -68,12 +68,12 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.REVERT_SEGMENT:
-      newPeaks = waveformUtils.deactivateSegment(action.id, {
+      newPeaks = waveformUtils.deactivateSegment(action.payload.id, {
         ...state.peaks
       });
       return {
         ...state,
-        peaks: waveformUtils.revertChanges(action.id, action.clone, {
+        peaks: waveformUtils.revertSegment(action.payload, {
           ...newPeaks
         })
       };

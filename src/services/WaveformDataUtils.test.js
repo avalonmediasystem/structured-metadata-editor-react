@@ -5,7 +5,6 @@ import { mount } from 'enzyme';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
-import { cloneDeep } from 'lodash';
 import { testMetadataStructure } from '../test/TestStructure';
 import Peaks from 'peaks';
 
@@ -50,7 +49,6 @@ describe('WaveformDataUtils class', () => {
 
   test('initializes peaks segments with empty metadata structure', () => {
     const value = waveformUtils.initSegments([], {});
-
     expect(value).toBeDefined();
     expect(value).toEqual([]);
   });
@@ -81,7 +79,6 @@ describe('WaveformDataUtils class', () => {
     ];
 
     const value = waveformUtils.initSegments(testMetadataStructure);
-
     expect(value).toBeDefined();
     expect(value).toHaveLength(3);
     expect(value).toEqual(expected);
@@ -89,7 +86,7 @@ describe('WaveformDataUtils class', () => {
 
   describe('tests util functions for Waveform manipulations', () => {
     let peaks;
-    let options = {
+    const options = {
       container: null,
       mediaElement: null,
       dataUri: null,
@@ -120,20 +117,140 @@ describe('WaveformDataUtils class', () => {
       });
     });
 
-    test('deletes an existing segment', () => {
-      const value = waveformUtils.deleteSegment('123a-456b-789c-2d', peaks);
-      expect(value.segments._segments).toHaveLength(1);
-      expect(value.segments._segments).not.toEqual(
+    describe('deletes segments when structure metadata items are deleted', () => {
+      test('deleting a timespan', () => {
+        const item = {
+          begin: '00:00:00.00',
+          end: '00:06:00.00',
+          id: '123a-456b-789c-2d',
+          label: 'Sample segment',
+          type: 'span'
+        };
+        const value = waveformUtils.deleteSegments(item, peaks);
+        expect(value.segments._segments).toHaveLength(1);
+      });
+
+      test('deleting a childless header', () => {
+        const item = {
+          id: '123a-456b-789c-3d',
+          label: 'Sample header',
+          type: 'div',
+          items: []
+        };
+        const value = waveformUtils.deleteSegments(item, peaks);
+        expect(value.segments._segments).toHaveLength(2);
+      });
+
+      test('deleting a header with children', () => {
+        const item = {
+          id: '123a-456b-789c-3d',
+          label: 'Sample header',
+          type: 'div',
+          items: [
+            {
+              id: '123a-456b-789c-7d',
+              label: 'Sample sub header',
+              type: 'div',
+              items: []
+            },
+            {
+              begin: '00:12:30.00',
+              end: '00:20:59.99',
+              id: '123a-456b-789c-9d',
+              label: 'Last segment',
+              type: 'span'
+            }
+          ]
+        };
+        const value = waveformUtils.deleteSegments(item, peaks);
+        expect(value.segments._segments).toHaveLength(1);
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: '123a-456b-789c-2d',
+              labelText: 'Sample segment'
+            })
+          ])
+        );
+      });
+    });
+
+    describe('rebuilds waveform', () => {
+      test('when a segment is added in between existing segments', () => {
+        peaks.segments.add({
+          startTime: 540,
+          endTime: 720,
+          id: '123a-456b-789c-3d',
+          labelText: 'Added segment'
+        });
+
+        const value = waveformUtils.rebuildPeaks(peaks);
+        expect(value.segments._segments).toHaveLength(3);
+        // Tests adding color property to the new segment
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: '123a-456b-789c-3d',
+              color: '#2A5459'
+            })
+          ])
+        );
+        // Tests changing the color of an exisiting segment to adhere to alternating colors in waveform
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: '123a-456b-789c-9d',
+              color: '#80A590'
+            })
+          ])
+        );
+      });
+      test('when a segment is deleted', () => {
+        peaks.segments.removeById('123a-456b-789c-2d');
+        const value = waveformUtils.rebuildPeaks(peaks);
+        expect(value.segments._segments).toHaveLength(1);
+        // Tests changing the color of an exisiting segment to adhere to alternating colors in waveform
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: '123a-456b-789c-9d',
+              color: '#80A590'
+            })
+          ])
+        );
+      });
+    });
+
+    test('activates a segment', () => {
+      const value = waveformUtils.activateSegment('123a-456b-789c-2d', peaks);
+      expect(value.segments._segments).toHaveLength(2);
+      expect(value.segments._segments).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            id: '123a-456b-789c-2d'
+            id: '123a-456b-789c-2d',
+            editable: true,
+            color: '#FBB040'
+          })
+        ])
+      );
+    });
+
+    test('deactivates a segment', () => {
+      const value = waveformUtils.deactivateSegment('123a-456b-789c-2d', peaks);
+      expect(value.segments._segments).toHaveLength(2);
+      expect(value.segments._segments).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: '123a-456b-789c-2d',
+            editable: false,
+            color: '#80A590'
           })
         ])
       );
     });
 
     test('saves changes to an existing segment', () => {
-      let currentState = {
+      const currentState = {
         beginTime: '00:00:00.00',
         endTime: '00:09:59.99',
         clonedSegment: {
@@ -208,52 +325,6 @@ describe('WaveformDataUtils class', () => {
             expect.objectContaining({
               startTime: 239.99,
               id: '123a-456b-789c-2d'
-            })
-          ])
-        );
-      });
-    });
-
-    describe('rebuilds waveform', () => {
-      test('when a segment is added in between existing segments', () => {
-        peaks.segments.add({
-          startTime: 540,
-          endTime: 720,
-          id: '123a-456b-789c-3d',
-          labelText: 'Added segment'
-        });
-
-        let value = waveformUtils.rebuildPeaks(peaks);
-        expect(value.segments._segments).toHaveLength(3);
-        // Tests adding color property to the new segment
-        expect(value.segments._segments).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              id: '123a-456b-789c-3d',
-              color: '#2A5459'
-            })
-          ])
-        );
-        // Tests changing the color of an exisiting segment to adhere to alternating colors in waveform
-        expect(value.segments._segments).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              id: '123a-456b-789c-9d',
-              color: '#80A590'
-            })
-          ])
-        );
-      });
-      test('when a segment is deleted', () => {
-        peaks.segments.removeById('123a-456b-789c-2d');
-        let value = waveformUtils.rebuildPeaks(peaks);
-        expect(value.segments._segments).toHaveLength(1);
-        // Tests changing the color of an exisiting segment to adhere to alternating colors in waveform
-        expect(value.segments._segments).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              id: '123a-456b-789c-9d',
-              color: '#80A590'
             })
           ])
         );

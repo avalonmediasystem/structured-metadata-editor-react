@@ -29,10 +29,10 @@ export function insertNewSegment(span) {
   };
 }
 
-export function deleteSegment(id) {
+export function deleteSegment(item) {
   return {
     type: types.DELETE_SEGMENT,
-    payload: id
+    payload: item
   };
 }
 
@@ -43,11 +43,10 @@ export function activateSegment(id) {
   };
 }
 
-export function revertSegment(id, clone) {
+export function revertSegment(clone) {
   return {
     type: types.REVERT_SEGMENT,
-    id,
-    clone
+    payload: clone
   };
 }
 
