@@ -1,14 +1,14 @@
 import axios from 'axios';
 
 // Config flag to change the source of data retrieval endpoint
-const useLocalData = true;
+const useLocalData = false;
 
 export const BASE_URL = useLocalData
   ? 'http://localhost:3123/data/mock-response-'
   : 'https://spruce.dlib.indiana.edu';
 
 // Masterfile ID on the server
-export const masterFileID = 'j3860704z';
+export const masterFileID = 'd791sg30j';
 
 // Default headers for API calls
 export const defaultHeaders = new Headers();

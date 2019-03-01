@@ -44,8 +44,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = state => ({
-  smData: state.smData,
-  peaksInstance: state.peaksInstance
+  smData: state.smData
 });
 
 export default connect(

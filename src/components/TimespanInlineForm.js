@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { cloneDeep } from 'lodash';
 import ListItemInlineEditControls from './ListItemInlineEditControls';
+import * as peaksActions from '../actions/peaks-instance';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -40,21 +41,27 @@ class TimespanInlineForm extends Component {
   state = {
     beginTime: '',
     endTime: '',
-    timespanTitle: ''
+    timespanTitle: '',
+    clonedSegment: {},
+    isTyping: false
   };
 
   componentDidMount() {
-    const { smData } = this.props;
+    const { smData, item } = this.props;
 
     // Get a fresh copy of store data
     this.tempSmData = cloneDeep(smData);
 
     // Load existing form values
-    this.setState(getExistingFormValues(this.props.item.id, this.tempSmData));
+    this.setState(getExistingFormValues(item.id, this.tempSmData));
+
+    this.setState({
+      clonedSegment: this.props.peaksInstance.peaks.segments.getSegment(item.id)
+    });
 
     // Remove current list item from the data we're doing validation against in this form
     this.tempSmData = structuralMetadataUtils.deleteListItem(
-      this.props.item.id,
+      item.id,
       this.tempSmData
     );
 
@@ -63,6 +70,24 @@ class TimespanInlineForm extends Component {
       'span',
       this.tempSmData
     );
+
+    // Make segment related to timespan editable
+    this.props.activateSegment(item.id);
+
+    this.props.changeSegment();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.peaksInstance !== nextProps.peaksInstance) {
+      if (nextProps.segment && !this.state.isTyping) {
+        this.setState({
+          beginTime: structuralMetadataUtils.toHHmmss(
+            nextProps.segment.startTime
+          ),
+          endTime: structuralMetadataUtils.toHHmmss(nextProps.segment.endTime)
+        });
+      }
+    }
   }
 
   formIsValid() {
@@ -79,14 +104,23 @@ class TimespanInlineForm extends Component {
   }
 
   handleCancelClick = () => {
+    // Revert to segment to the state before
+    this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
     this.props.cancelFn();
   };
 
-  handleInputChange = e => {
-    this.setState({ [e.target.id]: e.target.value });
+  handleInputChange = (e, callback) => {
+    this.setState({ isTyping: true });
+    this.setState({ [e.target.id]: e.target.value }, e => {
+      callback();
+      const { item, peaksInstance } = this.props;
+      let segment = peaksInstance.peaks.segments.getSegment(item.id);
+      this.props.updateSegment(segment, this.state);
+    });
   };
 
   handleSaveClick = () => {
+    this.props.saveSegment(this.state);
     const { beginTime, endTime, timespanTitle } = this.state;
     this.props.saveFn(this.props.item.id, {
       beginTime,
@@ -111,7 +145,11 @@ class TimespanInlineForm extends Component {
                 type="text"
                 style={styles.formControl}
                 value={timespanTitle}
-                onChange={this.handleInputChange}
+                onChange={e => {
+                  this.handleInputChange(e, () => {
+                    this.setState({ isTyping: false });
+                  });
+                }}
               />
             </FormGroup>
             <FormGroup
@@ -126,7 +164,11 @@ class TimespanInlineForm extends Component {
                 type="text"
                 style={styles.formControl}
                 value={beginTime}
-                onChange={this.handleInputChange}
+                onChange={e => {
+                  this.handleInputChange(e, () => {
+                    this.setState({ isTyping: false });
+                  });
+                }}
               />
             </FormGroup>
             <FormGroup
@@ -142,7 +184,11 @@ class TimespanInlineForm extends Component {
                 type="text"
                 style={styles.formControl}
                 value={endTime}
-                onChange={this.handleInputChange}
+                onChange={e => {
+                  this.handleInputChange(e, () => {
+                    this.setState({ isTyping: false });
+                  });
+                }}
               />
             </FormGroup>
           </div>
@@ -158,7 +204,20 @@ class TimespanInlineForm extends Component {
 }
 
 const mapStateToProps = state => ({
-  smData: state.smData
+  smData: state.smData,
+  peaksInstance: state.peaksInstance,
+  segment: state.peaksInstance.segment
 });
 
-export default connect(mapStateToProps)(TimespanInlineForm);
+const mapDispatchToProps = {
+  activateSegment: peaksActions.activateSegment,
+  revertSegment: peaksActions.revertSegment,
+  saveSegment: peaksActions.saveSegment,
+  updateSegment: peaksActions.updateSegment,
+  changeSegment: peaksActions.changeSegment
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(TimespanInlineForm);

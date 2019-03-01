@@ -42,7 +42,7 @@ export const Peaks = jest.fn(opts => {
     }),
     removeById: jest.fn(id => {
       let index = peaks.segments._segments.map(seg => seg.id).indexOf(id);
-      peaks.segments._segments.splice(index, 1);
+      return peaks.segments._segments.splice(index, 1);
     }),
     _peaks: peaks,
     _segments: [

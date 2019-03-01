@@ -48,20 +48,14 @@ describe('WaveformDataUtils class', () => {
     });
   });
 
-  test('initializes peaks with empty metadata structure', () => {
-    const value = waveformUtils.initPeaks([], {});
+  test('initializes peaks segments with empty metadata structure', () => {
+    const value = waveformUtils.initSegments([], {});
 
     expect(value).toBeDefined();
-    expect(value.options.container).not.toBeNull();
-
-    expect(value.options.dataUri).toBe(
-      'http://localhost:3123/data/mock-response-waveform.json'
-    );
-    expect(value.options.segments).toEqual([]);
-    expect(mockPeaks.init).toHaveBeenCalledTimes(1);
+    expect(value).toEqual([]);
   });
 
-  test('initializes peaks with metadata structure', () => {
+  test('initializes peaks segments with metadata structure', () => {
     const expected = [
       {
         startTime: 3.32,
@@ -86,16 +80,11 @@ describe('WaveformDataUtils class', () => {
       }
     ];
 
-    const value = waveformUtils.initPeaks(testMetadataStructure, {});
+    const value = waveformUtils.initSegments(testMetadataStructure);
 
     expect(value).toBeDefined();
-
-    expect(value.options.dataUri).toBe(
-      'http://localhost:3123/data/mock-response-waveform.json'
-    );
-    expect(value.options.segments).toEqual(expected);
-    expect(value.options.segments).toHaveLength(3);
-    expect(mockPeaks.init).toHaveBeenCalledTimes(2);
+    expect(value).toHaveLength(3);
+    expect(value).toEqual(expected);
   });
 
   describe('tests util functions for Waveform manipulations', () => {
@@ -134,6 +123,95 @@ describe('WaveformDataUtils class', () => {
     test('deletes an existing segment', () => {
       const value = waveformUtils.deleteSegment('123a-456b-789c-2d', peaks);
       expect(value.segments._segments).toHaveLength(1);
+      expect(value.segments._segments).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: '123a-456b-789c-2d'
+          })
+        ])
+      );
+    });
+
+    test('saves changes to an existing segment', () => {
+      let currentState = {
+        beginTime: '00:00:00.00',
+        endTime: '00:09:59.99',
+        clonedSegment: {
+          startTime: 0,
+          endTime: 360,
+          id: '123a-456b-789c-2d',
+          labelText: 'Sample segment',
+          color: '#80A590'
+        }
+      };
+      const value = waveformUtils.saveSegment(currentState, peaks);
+      expect(value.segments._segments).toHaveLength(2);
+      expect(value.segments._segments).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            startTime: 0,
+            endTime: 599.99,
+            id: '123a-456b-789c-2d'
+          })
+        ])
+      );
+    });
+
+    describe('updates a segment when editing a timespan', () => {
+      let segment;
+      beforeEach(() => {
+        segment = {
+          startTime: 0,
+          endTime: 360,
+          id: '123a-456b-789c-2d',
+          labelText: 'Sample segment',
+          color: '#80A590'
+        };
+      });
+      test('start time = 00:03:', () => {
+        const currentState = { beginTime: '00:03:', endTime: '00:06:00.00' };
+        const value = waveformUtils.updateSegment(segment, currentState, peaks);
+        expect(value.segments._segments).toHaveLength(2);
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              startTime: 180,
+              id: '123a-456b-789c-2d'
+            })
+          ])
+        );
+      });
+
+      test('start time = 00:03:59', () => {
+        const currentState = { beginTime: '00:03:59', endTime: '00:06:00.00' };
+        const value = waveformUtils.updateSegment(segment, currentState, peaks);
+        expect(value.segments._segments).toHaveLength(2);
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              startTime: 239,
+              id: '123a-456b-789c-2d'
+            })
+          ])
+        );
+      });
+
+      test('start time = 00:03:59.99', () => {
+        const currentState = {
+          beginTime: '00:03:59.99',
+          endTime: '00:06:00.00'
+        };
+        const value = waveformUtils.updateSegment(segment, currentState, peaks);
+        expect(value.segments._segments).toHaveLength(2);
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              startTime: 239.99,
+              id: '123a-456b-789c-2d'
+            })
+          ])
+        );
+      });
     });
 
     describe('rebuilds waveform', () => {
