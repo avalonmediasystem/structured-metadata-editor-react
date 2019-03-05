@@ -20,6 +20,9 @@ export const Peaks = jest.fn(opts => {
     seek: jest.fn(time => {
       peaks.player._mediaElement.currentTime = time;
     }),
+    getCurrentTime: jest.fn(() => {
+      return peaks.player._mediaElement.currentTime;
+    }),
     _mediaElement: {
       currentTime: 0
     }

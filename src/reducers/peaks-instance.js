@@ -87,11 +87,22 @@ const peaksInstance = (state = initialState, action) => {
         peaks: { ...newPeaks }
       };
 
-    case types.DRAGGING_SEGMENT:
+    case types.DRAG_SEGMENT:
       return {
         ...state,
         segment: action.payload
       };
+
+    case types.TEMP_INSERT_SEGMENT:
+      newPeaks = waveformUtils.insertTempSegment({ ...state.peaks });
+      return {
+        ...state,
+        peaks: { ...newPeaks }
+      };
+
+    case types.TEMP_DELETE_SEGMENT:
+      state.peaks.segments.removeById(action.payload);
+      return { ...state };
 
     default:
       return state;

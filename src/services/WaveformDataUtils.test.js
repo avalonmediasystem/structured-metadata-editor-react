@@ -117,6 +117,56 @@ describe('WaveformDataUtils class', () => {
       });
     });
 
+    describe('tests inserting temporary segment', () => {
+      test('when current time is in between an existing segment', () => {
+        peaks.player.seek(270);
+        const value = waveformUtils.insertTempSegment(peaks);
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              startTime: 360.01,
+              endTime: 420.01,
+              id: 'temp-segment',
+              color: '#FBB040',
+              editable: true
+            })
+          ])
+        );
+      });
+
+      test('when current time is outside of an existing segment without overlapping', () => {
+        peaks.player.seek(540);
+        const value = waveformUtils.insertTempSegment(peaks);
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              startTime: 540,
+              endTime: 600,
+              id: 'temp-segment',
+              color: '#FBB040',
+              editable: true
+            })
+          ])
+        );
+      });
+
+      test('when end time of temporary segment overlaps existing segment', () => {
+        peaks.player.seek(699.99);
+        const value = waveformUtils.insertTempSegment(peaks);
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              startTime: 699.99,
+              endTime: 749.99,
+              id: 'temp-segment',
+              color: '#FBB040',
+              editable: true
+            })
+          ])
+        );
+      });
+    });
+
     describe('deletes segments when structure metadata items are deleted', () => {
       test('deleting a timespan', () => {
         const item = {
