@@ -55,6 +55,46 @@ export default class WaveformDataUtils {
   }
 
   /**
+   * Add a temporary segment to be edited when adding a new timespan to structure
+   * @param {Object} peaksInstance - peaks instance for the current waveform
+   */
+  insertTempSegment(peaksInstance) {
+    // Current time of the playhead
+    let currentTime = peaksInstance.player.getCurrentTime();
+    let rangeEndTime;
+
+    const currentSegments = this.sortSegments(
+      peaksInstance.segments.getSegments(),
+      'startTime'
+    );
+
+    // Get the start and end times for temporary segment without overlapping current segments
+    currentSegments.map(segment => {
+      if (currentTime >= segment.startTime && currentTime < segment.endTime) {
+        // adds 0.01 to check consecutive segments with only a 0.01s difference
+        currentTime = segment.endTime + 0.01;
+        // adds 59.99 because a timespan can start from the end time of previous span
+        rangeEndTime = segment.endTime + 59.99;
+        return [currentTime, rangeEndTime];
+      } else {
+        rangeEndTime = currentTime + 59.99;
+        return [currentTime, rangeEndTime];
+      }
+    });
+
+    peaksInstance.player.seek(currentTime);
+    peaksInstance.segments.add({
+      startTime: currentTime - 0.01,
+      endTime: rangeEndTime,
+      editable: true,
+      color: COLOR_PALETTE[2],
+      id: 'temp-segment'
+    });
+
+    return peaksInstance;
+  }
+
+  /**
    * Delete the corresponding segment when a timespan is deleted
    * @param {Object} item - item to be deleted
    * @param {Object} peaksInstance - peaks instance for the current waveform
@@ -85,9 +125,10 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for the waveform
    */
   rebuildPeaks(peaksInstance) {
-    let clonedSegments = peaksInstance.segments
-      .getSegments()
-      .sort((x, y) => x.startTime - y.startTime);
+    let clonedSegments = this.sortSegments(
+      peaksInstance.segments.getSegments(),
+      'startTime'
+    );
     peaksInstance.segments.removeAll();
     clonedSegments.forEach((segment, index) => {
       segment.color = this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0];
@@ -127,9 +168,10 @@ export default class WaveformDataUtils {
    */
   deactivateSegment(id, peaksInstance) {
     // Sort segments by start time
-    let segments = peaksInstance.segments
-      .getSegments()
-      .sort((x, y) => x.startTime - y.startTime);
+    let segments = this.sortSegments(
+      peaksInstance.segments.getSegments(),
+      'startTime'
+    );
 
     let index = segments.map(seg => seg.id).indexOf(id);
 
@@ -211,5 +253,9 @@ export default class WaveformDataUtils {
     let hoursAndMins = parseInt(hours) * 3600 + parseInt(minutes) * 60;
     let secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
     return hoursAndMins + secondsIn;
+  }
+
+  sortSegments(segments, sortBy) {
+    return segments.sort((x, y) => x[sortBy] - y[sortBy]);
   }
 }

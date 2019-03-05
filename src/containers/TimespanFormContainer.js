@@ -29,18 +29,13 @@ class TimespanFormContainer extends Component {
   };
 
   render() {
-    return (
-      <TimespanForm
-        onSubmit={this.submit}
-        cancelClick={this.props.cancelClick}
-      />
-    );
+    return <TimespanForm {...this.props} onSubmit={this.submit} />;
   }
 }
 
 const mapDispatchToProps = dispatch => ({
   buildSMUI: data => dispatch(smActions.buildSMUI(data)),
-  insertNewSegment: smData => dispatch(peaksActions.insertNewSegment(smData))
+  insertNewSegment: newspan => dispatch(peaksActions.insertNewSegment(newspan))
 });
 
 const mapStateToProps = state => ({

@@ -109,7 +109,7 @@ class TimespanInlineForm extends Component {
 
   handleInputChange = (e, callback) => {
     this.setState({ isTyping: true });
-    this.setState({ [e.target.id]: e.target.value }, e => {
+    this.setState({ [e.target.id]: e.target.value }, () => {
       callback();
       const { item, peaksInstance } = this.props;
       let segment = peaksInstance.peaks.segments.getSegment(item.id);

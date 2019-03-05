@@ -18,6 +18,7 @@ import {
   validTimespans
 } from '../services/form-helper';
 import { isEqual } from 'lodash';
+import * as peaksActions from '../actions/peaks-instance';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -29,7 +30,8 @@ class TimespanForm extends Component {
       endTime: '',
       timespanChildOf: '',
       timespanTitle: '',
-      validHeadings: []
+      validHeadings: [],
+      isTyping: false
     };
     this.allSpans = null;
   }
@@ -38,6 +40,34 @@ class TimespanForm extends Component {
     const { smData } = this.props;
     if (!isEqual(smData, prevProps.smData)) {
       this.allSpans = structuralMetadataUtils.getItemsOfType('span', smData);
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.timespanOpen && !this.state.isTyping) {
+      const { initSegment, isInitializing, peaksInstance, segment } = nextProps;
+
+      // Set state to get initial begin and end times from temporary segment
+      if (initSegment !== this.props.initSegment && isInitializing) {
+        const { startTime, endTime } = initSegment;
+        this.setState({
+          beginTime: structuralMetadataUtils.toHHmmss(startTime),
+          endTime: structuralMetadataUtils.toHHmmss(endTime)
+        });
+        this.props.updateInitialize(false);
+      }
+
+      // Update state when segment handles are dragged in the waveform
+      if (this.props.peaksInstance !== peaksInstance && !isInitializing) {
+        const { startTime, endTime } = segment;
+        this.setState(
+          {
+            beginTime: structuralMetadataUtils.toHHmmss(startTime),
+            endTime: structuralMetadataUtils.toHHmmss(endTime)
+          },
+          this.updateChildOfOptions()
+        );
+      }
     }
   }
 
@@ -76,7 +106,8 @@ class TimespanForm extends Component {
       endTime: '',
       timespanChildOf: '',
       timespanTitle: '',
-      validHeadings: []
+      validHeadings: [],
+      isTyping: false
     });
   }
 
@@ -90,12 +121,14 @@ class TimespanForm extends Component {
 
   handleInputChange = e => {
     this.setState({ [e.target.id]: e.target.value });
+    this.updateChildOfOptions();
   };
 
   handleSubmit = e => {
     e.preventDefault();
     const { beginTime, endTime, timespanChildOf, timespanTitle } = this.state;
 
+    this.props.cancelClick();
     this.props.onSubmit({
       beginTime,
       endTime,
@@ -107,16 +140,20 @@ class TimespanForm extends Component {
     this.clearFormValues();
   };
 
-  handleTimeChange = e => {
-    this.setState({ [e.target.id]: e.target.value }, this.updateChildOfOptions);
+  handleTimeChange = (e, callback) => {
+    // Update waveform segment with user inputs in the form
+    this.setState({ isTyping: true });
+
+    this.setState({ [e.target.id]: e.target.value }, () => {
+      callback();
+      this.updateChildOfOptions();
+      const { initSegment, peaksInstance } = this.props;
+      let segment = peaksInstance.peaks.segments.getSegment(initSegment.id);
+      this.props.updateSegment(segment, this.state);
+    });
   };
 
   handleCancelClick = () => {
-    // Add the edited item back to data structure
-    if (this.unEditedFormItem !== undefined) {
-      this.props.onSubmit(this.unEditedFormItem);
-    }
-
     this.props.cancelClick();
   };
 
@@ -176,7 +213,11 @@ class TimespanForm extends Component {
                 type="text"
                 value={beginTime}
                 placeholder="00:00:00"
-                onChange={this.handleTimeChange}
+                onChange={e => {
+                  this.handleTimeChange(e, () => {
+                    this.setState({ isTyping: false });
+                  });
+                }}
               />
               <FormControl.Feedback />
             </FormGroup>
@@ -195,7 +236,11 @@ class TimespanForm extends Component {
                 type="text"
                 value={endTime}
                 placeholder="00:00:00"
-                onChange={this.handleTimeChange}
+                onChange={e => {
+                  this.handleTimeChange(e, () => {
+                    this.setState({ isTyping: false });
+                  });
+                }}
               />
               <FormControl.Feedback />
             </FormGroup>
@@ -222,7 +267,7 @@ class TimespanForm extends Component {
         <Row>
           <Col xs={12}>
             <ButtonToolbar className="pull-right">
-              <Button onClick={this.props.cancelClick}>Cancel</Button>
+              <Button onClick={this.handleCancelClick}>Cancel</Button>
               <Button
                 bsStyle="primary"
                 type="submit"
@@ -239,9 +284,18 @@ class TimespanForm extends Component {
 }
 
 const mapStateToProps = state => ({
-  smData: state.smData
+  smData: state.smData,
+  peaksInstance: state.peaksInstance,
+  segment: state.peaksInstance.segment
 });
 
-TimespanForm = connect(mapStateToProps)(TimespanForm);
+const mapDispatchToProps = {
+  updateSegment: peaksActions.updateSegment
+};
+
+TimespanForm = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(TimespanForm);
 
 export default TimespanForm;
