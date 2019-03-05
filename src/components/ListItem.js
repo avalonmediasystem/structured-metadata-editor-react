@@ -59,9 +59,9 @@ class ListItem extends Component {
   };
 
   handleDelete = () => {
-    const { id } = this.props.item;
-    this.props.deleteItem(id);
-    this.props.deleteSegment(id);
+    const { item } = this.props;
+    this.props.deleteItem(item.id);
+    this.props.deleteSegment(item);
   };
 
   handleEditClick = () => {

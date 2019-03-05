@@ -5,7 +5,7 @@ const structuralMetadataUtils = new StructuralMetadataUtils();
 /**
  * Load existing form values to state, if in 'EDIT' mode
  */
-export function getExistingFormValues(id, smData) {
+export function getExistingFormValues(id, smData, peaks = {}) {
   let item = structuralMetadataUtils.findItem(id, smData);
 
   // Heading
@@ -23,7 +23,8 @@ export function getExistingFormValues(id, smData) {
       beginTime: item.begin,
       endTime: item.end,
       timespanChildOf: parentDiv ? parentDiv.id : '',
-      timespanTitle: item.label
+      timespanTitle: item.label,
+      clonedSegment: peaks.segments.getSegment(id)
     };
   }
 }

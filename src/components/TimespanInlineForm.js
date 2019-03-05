@@ -47,17 +47,15 @@ class TimespanInlineForm extends Component {
   };
 
   componentDidMount() {
-    const { smData, item } = this.props;
+    const { smData, item, peaksInstance } = this.props;
 
     // Get a fresh copy of store data
     this.tempSmData = cloneDeep(smData);
 
     // Load existing form values
-    this.setState(getExistingFormValues(item.id, this.tempSmData));
-
-    this.setState({
-      clonedSegment: this.props.peaksInstance.peaks.segments.getSegment(item.id)
-    });
+    this.setState(
+      getExistingFormValues(item.id, this.tempSmData, peaksInstance.peaks)
+    );
 
     // Remove current list item from the data we're doing validation against in this form
     this.tempSmData = structuralMetadataUtils.deleteListItem(
@@ -105,7 +103,7 @@ class TimespanInlineForm extends Component {
 
   handleCancelClick = () => {
     // Revert to segment to the state before
-    this.props.revertSegment(this.props.item.id, this.state.clonedSegment);
+    this.props.revertSegment(this.state.clonedSegment);
     this.props.cancelFn();
   };
 
