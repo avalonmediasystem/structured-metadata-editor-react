@@ -67,7 +67,20 @@ export function updateSegment(segment, state) {
 
 export function changeSegment(segment) {
   return {
-    type: types.DRAGGING_SEGMENT,
+    type: types.DRAG_SEGMENT,
     payload: segment
+  };
+}
+
+export function insertTempSegment() {
+  return {
+    type: types.TEMP_INSERT_SEGMENT
+  };
+}
+
+export function deleteTempSegment(id) {
+  return {
+    type: types.TEMP_DELETE_SEGMENT,
+    payload: id
   };
 }
