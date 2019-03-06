@@ -1,14 +1,14 @@
 {
-  "main.css": "/structured-metadata-editor-react/static/css/main.6efab050.chunk.css",
-  "main.js": "/structured-metadata-editor-react/static/js/main.d310e643.chunk.js",
-  "main.js.map": "/structured-metadata-editor-react/static/js/main.d310e643.chunk.js.map",
-  "static/js/1.9b54f3ba.chunk.js": "/structured-metadata-editor-react/static/js/1.9b54f3ba.chunk.js",
-  "static/js/1.9b54f3ba.chunk.js.map": "/structured-metadata-editor-react/static/js/1.9b54f3ba.chunk.js.map",
-  "runtime~main.js": "/structured-metadata-editor-react/static/js/runtime~main.8ac5a441.js",
-  "runtime~main.js.map": "/structured-metadata-editor-react/static/js/runtime~main.8ac5a441.js.map",
-  "static/media/utah_phillips_one.mp3": "/structured-metadata-editor-react/static/media/utah_phillips_one.786f6474.mp3",
-  "static/css/main.6efab050.chunk.css.map": "/structured-metadata-editor-react/static/css/main.6efab050.chunk.css.map",
+  "main.css": "/structured-metadata-editor-react/static/css/main.b1c01772.chunk.css",
+  "main.js": "/structured-metadata-editor-react/static/js/main.8dddd555.chunk.js",
+  "main.js.map": "/structured-metadata-editor-react/static/js/main.8dddd555.chunk.js.map",
+  "runtime~main.js": "/structured-metadata-editor-react/static/js/runtime~main.774c8a81.js",
+  "runtime~main.js.map": "/structured-metadata-editor-react/static/js/runtime~main.774c8a81.js.map",
+  "static/js/2.b466331a.chunk.js": "/structured-metadata-editor-react/static/js/2.b466331a.chunk.js",
+  "static/js/2.b466331a.chunk.js.map": "/structured-metadata-editor-react/static/js/2.b466331a.chunk.js.map",
   "index.html": "/structured-metadata-editor-react/index.html",
-  "precache-manifest.1e334bb4a4ba3af7a1c2add39de8a6e8.js": "/structured-metadata-editor-react/precache-manifest.1e334bb4a4ba3af7a1c2add39de8a6e8.js",
-  "service-worker.js": "/structured-metadata-editor-react/service-worker.js"
+  "precache-manifest.09b6e78354f4107356a86d50e213b4c6.js": "/structured-metadata-editor-react/precache-manifest.09b6e78354f4107356a86d50e213b4c6.js",
+  "service-worker.js": "/structured-metadata-editor-react/service-worker.js",
+  "static/css/main.b1c01772.chunk.css.map": "/structured-metadata-editor-react/static/css/main.b1c01772.chunk.css.map",
+  "static/media/utah_phillips_one.mp3": "/structured-metadata-editor-react/static/media/utah_phillips_one.786f6474.mp3"
 }
