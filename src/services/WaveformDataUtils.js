@@ -60,35 +60,52 @@ export default class WaveformDataUtils {
    */
   insertTempSegment(peaksInstance) {
     // Current time of the playhead
-    let currentTime = peaksInstance.player.getCurrentTime();
-    let rangeEndTime;
+    const currentTime = peaksInstance.player.getCurrentTime();
+    let rangeEndTime,
+      rangeBeginTime = Math.round(currentTime * 100) / 100;
 
     const currentSegments = this.sortSegments(
       peaksInstance.segments.getSegments(),
       'startTime'
     );
 
-    // Get the start and end times for temporary segment without overlapping current segments
+    // Validate start time of the temporary segment
     currentSegments.map(segment => {
-      if (currentTime >= segment.startTime && currentTime < segment.endTime) {
+      if (
+        rangeBeginTime >= segment.startTime &&
+        rangeBeginTime <= segment.endTime
+      ) {
         // adds 0.01 to check consecutive segments with only a 0.01s difference
-        currentTime = segment.endTime + 0.01;
+        rangeBeginTime = segment.endTime + 0.01;
       }
-      return currentTime;
+      return rangeBeginTime;
     });
 
-    rangeEndTime = currentTime + 60;
+    // Set the default end time of the temporary segment
+    rangeEndTime = rangeBeginTime + 60;
 
+    // Validate end time of the temporary segment
     currentSegments.map(segment => {
-      if (rangeEndTime >= segment.startTime && rangeEndTime < segment.endTime) {
-        rangeEndTime = segment.startTime - 0.01;
+      if (rangeBeginTime < segment.startTime) {
+        const segmentLength = segment.endTime - segment.startTime;
+        if (segmentLength < 60) {
+          rangeEndTime = segment.startTime - 0.01;
+        }
+        if (
+          rangeEndTime >= segment.startTime &&
+          rangeEndTime < segment.endTime
+        ) {
+          rangeEndTime = segment.startTime - 0.01;
+        }
       }
       return rangeEndTime;
     });
 
-    peaksInstance.player.seek(currentTime);
+    // Move playhead to start of the temporary segment
+    peaksInstance.player.seek(rangeBeginTime);
+
     peaksInstance.segments.add({
-      startTime: currentTime,
+      startTime: rangeBeginTime,
       endTime: rangeEndTime,
       editable: true,
       color: COLOR_PALETTE[2],
@@ -229,6 +246,7 @@ export default class WaveformDataUtils {
     const { beginTime, endTime } = currentState;
     let beginSeconds = this.toMs(beginTime);
     let endSeconds = this.toMs(endTime);
+
     if (beginSeconds < segment.endTime && segment.startTime !== beginSeconds) {
       let [removed] = peaksInstance.segments.removeById(segment.id);
       peaksInstance.segments.add({
@@ -246,6 +264,57 @@ export default class WaveformDataUtils {
       return peaksInstance;
     }
     return peaksInstance;
+  }
+
+  /**
+   * Prevent the times of segment being edited overlapping with the existing segments
+   * @param {Object} segment - segement being edited in the waveform
+   * @param {Object} peaksInstance - current peaks instance for waveform
+   */
+  preventSegmentOverlapping(segment, peaksInstance) {
+    const allSegments = this.sortSegments(
+      peaksInstance.segments.getSegments(),
+      'startTime'
+    );
+    const wrapperSegments = this.findWrapperSegments(segment, allSegments);
+    if (
+      wrapperSegments.before !== null &&
+      segment.startTime <= wrapperSegments.before.endTime
+    ) {
+      segment.startTime = wrapperSegments.before.endTime + 0.01;
+    }
+    if (
+      wrapperSegments.after !== null &&
+      segment.endTime >= wrapperSegments.after.startTime
+    ) {
+      segment.endTime = wrapperSegments.after.startTime - 0.01;
+    }
+    return segment;
+  }
+
+  /**
+   * Find the before and after segments of a given segment
+   * @param {Object} currentSegment - current segment being added/edited
+   * @param {Array} allSegments - segments in the current peaks instance
+   */
+  findWrapperSegments(currentSegment, allSegments) {
+    let wrapperSegments = {
+      before: null,
+      after: null
+    };
+
+    let currentIndex = allSegments
+      .map(segment => segment.id)
+      .indexOf(currentSegment.id);
+
+    wrapperSegments.before =
+      currentIndex > 0 ? allSegments[currentIndex - 1] : null;
+    wrapperSegments.after =
+      currentIndex < allSegments.length - 1
+        ? allSegments[currentIndex + 1]
+        : null;
+
+    return wrapperSegments;
   }
 
   isOdd(num) {

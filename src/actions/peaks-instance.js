@@ -1,6 +1,6 @@
 import * as types from './types';
 
-export const initPeaksInstance = (smData, options) => {
+export function initPeaksInstance(smData, options) {
   return (dispatch, getState) => {
     dispatch(initPeaks(smData, options));
 
@@ -12,7 +12,7 @@ export const initPeaksInstance = (smData, options) => {
       });
     }
   };
-};
+}
 
 export function initPeaks(smData, options) {
   return {
