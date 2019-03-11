@@ -14,8 +14,10 @@ import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { cloneDeep } from 'lodash';
 import ListItemInlineEditControls from './ListItemInlineEditControls';
 import * as peaksActions from '../actions/peaks-instance';
+import WaveformDataUtils from '../services/WaveformDataUtils';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
+const waveformUtils = new WaveformDataUtils();
 
 const styles = {
   formControl: {
@@ -78,11 +80,15 @@ class TimespanInlineForm extends Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.peaksInstance !== nextProps.peaksInstance) {
       if (nextProps.segment && !this.state.isTyping) {
+        const { segment, peaksInstance } = nextProps;
+        // Prevent from overlapping when dragging the handles
+        const { startTime, endTime } = waveformUtils.preventSegmentOverlapping(
+          segment,
+          peaksInstance.peaks
+        );
         this.setState({
-          beginTime: structuralMetadataUtils.toHHmmss(
-            nextProps.segment.startTime
-          ),
-          endTime: structuralMetadataUtils.toHHmmss(nextProps.segment.endTime)
+          beginTime: structuralMetadataUtils.toHHmmss(startTime),
+          endTime: structuralMetadataUtils.toHHmmss(endTime)
         });
       }
     }
@@ -113,7 +119,9 @@ class TimespanInlineForm extends Component {
       callback();
       const { item, peaksInstance } = this.props;
       let segment = peaksInstance.peaks.segments.getSegment(item.id);
-      this.props.updateSegment(segment, this.state);
+      if (this.formIsValid()) {
+        this.props.updateSegment(segment, this.state);
+      }
     });
   };
 
@@ -200,6 +208,9 @@ class TimespanInlineForm extends Component {
     );
   }
 }
+
+// For testing purposes
+export { TimespanInlineForm as PureTimespanInlineForm };
 
 const mapStateToProps = state => ({
   smData: state.smData,

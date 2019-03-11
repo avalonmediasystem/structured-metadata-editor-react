@@ -19,8 +19,10 @@ import {
 } from '../services/form-helper';
 import { isEqual } from 'lodash';
 import * as peaksActions from '../actions/peaks-instance';
+import WaveformDataUtils from '../services/WaveformDataUtils';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
+const waveformDataUtils = new WaveformDataUtils();
 
 class TimespanForm extends Component {
   constructor(props) {
@@ -59,7 +61,14 @@ class TimespanForm extends Component {
 
       // Update state when segment handles are dragged in the waveform
       if (this.props.peaksInstance !== peaksInstance && !isInitializing) {
-        const { startTime, endTime } = segment;
+        // Prevent from overlapping when dragging the handles
+        const {
+          startTime,
+          endTime
+        } = waveformDataUtils.preventSegmentOverlapping(
+          segment,
+          peaksInstance.peaks
+        );
         this.setState(
           {
             beginTime: structuralMetadataUtils.toHHmmss(startTime),
@@ -120,8 +129,10 @@ class TimespanForm extends Component {
   }
 
   handleInputChange = e => {
-    this.setState({ [e.target.id]: e.target.value });
-    this.updateChildOfOptions();
+    this.setState(
+      { [e.target.id]: e.target.value },
+      this.updateChildOfOptions()
+    );
   };
 
   handleSubmit = e => {
@@ -149,7 +160,9 @@ class TimespanForm extends Component {
       this.updateChildOfOptions();
       const { initSegment, peaksInstance } = this.props;
       let segment = peaksInstance.peaks.segments.getSegment(initSegment.id);
-      this.props.updateSegment(segment, this.state);
+      if (this.localValidTimespans().valid) {
+        this.props.updateSegment(segment, this.state);
+      }
     });
   };
 
@@ -283,6 +296,9 @@ class TimespanForm extends Component {
   }
 }
 
+// For testing purposes
+export { TimespanForm as PureTimespanForm };
+
 const mapStateToProps = state => ({
   smData: state.smData,
   peaksInstance: state.peaksInstance,
@@ -293,9 +309,7 @@ const mapDispatchToProps = {
   updateSegment: peaksActions.updateSegment
 };
 
-TimespanForm = connect(
+export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(TimespanForm);
-
-export default TimespanForm;

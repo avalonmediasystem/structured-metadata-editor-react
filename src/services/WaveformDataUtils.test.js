@@ -102,123 +102,159 @@ describe('WaveformDataUtils class', () => {
     test('inserts a new segment', () => {
       const newspan = {
         label: 'New span',
-        id: '123a-456b-789c-8d',
+        id: '123a-456b-789c-9d',
         begin: '00:09:00.00',
         end: '00:12:00.00',
         type: 'span'
       };
       const value = waveformUtils.insertNewSegment(newspan, peaks);
-      expect(value.segments._segments).toHaveLength(3);
+      expect(value.segments._segments).toHaveLength(4);
       expect(value.segments._segments).toContainEqual({
         startTime: 540,
         endTime: 720,
-        id: '123a-456b-789c-8d',
+        id: '123a-456b-789c-9d',
         labelText: 'New span'
       });
     });
 
     describe('tests inserting temporary segment', () => {
-      test('when current time is in between an existing segment', () => {
-        peaks.player.seek(270);
+      test('when current time is at zero', () => {
         const value = waveformUtils.insertTempSegment(peaks);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 360.01,
-              endTime: 420.01,
+              startTime: 0,
+              endTime: 3.31,
               id: 'temp-segment',
               color: '#FBB040',
               editable: true
             })
           ])
         );
+        expect(value.player.getCurrentTime()).toEqual(0);
       });
 
-      test('when current time is outside of an existing segment without overlapping', () => {
-        peaks.player.seek(540);
+      test('when current time is in between an existing segment', () => {
+        peaks.player.seek(450);
         const value = waveformUtils.insertTempSegment(peaks);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 540,
-              endTime: 600,
+              startTime: 480.01,
+              endTime: 540.01,
               id: 'temp-segment',
               color: '#FBB040',
               editable: true
             })
           ])
         );
+        expect(value.player.getCurrentTime()).toEqual(480.01);
+      });
+
+      test('when current time is at the end time of an existing timespan', () => {
+        peaks.player.seek(480.0);
+        const value = waveformUtils.insertTempSegment(peaks);
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              startTime: 480.01,
+              endTime: 540.01,
+              id: 'temp-segment',
+              color: '#FBB040',
+              editable: true
+            })
+          ])
+        );
+        expect(value.player.getCurrentTime()).toEqual(480.01);
+      });
+
+      test('when current time is at the begint time of an existing timespan', () => {
+        peaks.player.seek(543.24);
+        const value = waveformUtils.insertTempSegment(peaks);
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              startTime: 900.01,
+              endTime: 960.01,
+              id: 'temp-segment',
+              color: '#FBB040',
+              editable: true
+            })
+          ])
+        );
+        expect(value.player.getCurrentTime()).toEqual(900.01);
       });
 
       test('when end time of temporary segment overlaps existing segment', () => {
-        peaks.player.seek(699.99);
+        peaks.player.seek(520);
         const value = waveformUtils.insertTempSegment(peaks);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 699.99,
-              endTime: 749.99,
+              startTime: 520,
+              endTime: 543.23,
               id: 'temp-segment',
               color: '#FBB040',
               editable: true
             })
           ])
         );
+        expect(value.player.getCurrentTime()).toEqual(520);
       });
     });
 
     describe('deletes segments when structure metadata items are deleted', () => {
       test('deleting a timespan', () => {
         const item = {
-          begin: '00:00:00.00',
-          end: '00:06:00.00',
-          id: '123a-456b-789c-2d',
-          label: 'Sample segment',
-          type: 'span'
-        };
-        const value = waveformUtils.deleteSegments(item, peaks);
-        expect(value.segments._segments).toHaveLength(1);
-      });
-
-      test('deleting a childless header', () => {
-        const item = {
-          id: '123a-456b-789c-3d',
-          label: 'Sample header',
-          type: 'div',
-          items: []
+          type: 'span',
+          label: 'Segment 1.2',
+          id: '123a-456b-789c-4d',
+          begin: '00:00:11.23',
+          end: '00:08:00.00'
         };
         const value = waveformUtils.deleteSegments(item, peaks);
         expect(value.segments._segments).toHaveLength(2);
       });
 
+      test('deleting a childless header', () => {
+        const item = {
+          type: 'div',
+          label: 'Sub-Segment 1.1',
+          id: '123a-456b-789c-2d',
+          items: []
+        };
+        const value = waveformUtils.deleteSegments(item, peaks);
+        expect(value.segments._segments).toHaveLength(3);
+      });
+
       test('deleting a header with children', () => {
         const item = {
-          id: '123a-456b-789c-3d',
-          label: 'Sample header',
           type: 'div',
+          label: 'Sub-Segment 2.1',
+          id: '123a-456b-789c-6d',
           items: [
             {
-              id: '123a-456b-789c-7d',
-              label: 'Sample sub header',
               type: 'div',
+              label: 'Sub-Segment 2.1.1',
+              id: '123a-456b-789c-7d',
               items: []
             },
             {
-              begin: '00:12:30.00',
-              end: '00:20:59.99',
-              id: '123a-456b-789c-9d',
-              label: 'Last segment',
-              type: 'span'
+              type: 'span',
+              label: 'Segment 2.1',
+              id: '123a-456b-789c-8d',
+              begin: '00:09:03.24',
+              end: '00:15:00.00'
             }
           ]
         };
         const value = waveformUtils.deleteSegments(item, peaks);
-        expect(value.segments._segments).toHaveLength(1);
+        expect(value.segments._segments).toHaveLength(2);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              id: '123a-456b-789c-2d',
-              labelText: 'Sample segment'
+              id: '123a-456b-789c-4d',
+              labelText: 'Segment 1.2'
             })
           ])
         );
@@ -228,20 +264,20 @@ describe('WaveformDataUtils class', () => {
     describe('rebuilds waveform', () => {
       test('when a segment is added in between existing segments', () => {
         peaks.segments.add({
-          startTime: 540,
-          endTime: 720,
-          id: '123a-456b-789c-3d',
+          startTime: 500,
+          endTime: 540,
+          id: '123a-456b-789c-9d',
           labelText: 'Added segment'
         });
 
         const value = waveformUtils.rebuildPeaks(peaks);
-        expect(value.segments._segments).toHaveLength(3);
+        expect(value.segments._segments).toHaveLength(4);
         // Tests adding color property to the new segment
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              id: '123a-456b-789c-3d',
-              color: '#2A5459'
+              id: '123a-456b-789c-9d',
+              color: '#80A590'
             })
           ])
         );
@@ -249,22 +285,22 @@ describe('WaveformDataUtils class', () => {
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              id: '123a-456b-789c-9d',
-              color: '#80A590'
+              id: '123a-456b-789c-8d',
+              color: '#2A5459'
             })
           ])
         );
       });
       test('when a segment is deleted', () => {
-        peaks.segments.removeById('123a-456b-789c-2d');
+        peaks.segments.removeById('123a-456b-789c-4d');
         const value = waveformUtils.rebuildPeaks(peaks);
-        expect(value.segments._segments).toHaveLength(1);
+        expect(value.segments._segments).toHaveLength(2);
         // Tests changing the color of an exisiting segment to adhere to alternating colors in waveform
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              id: '123a-456b-789c-9d',
-              color: '#80A590'
+              id: '123a-456b-789c-8d',
+              color: '#2A5459'
             })
           ])
         );
@@ -272,12 +308,12 @@ describe('WaveformDataUtils class', () => {
     });
 
     test('activates a segment', () => {
-      const value = waveformUtils.activateSegment('123a-456b-789c-2d', peaks);
-      expect(value.segments._segments).toHaveLength(2);
+      const value = waveformUtils.activateSegment('123a-456b-789c-4d', peaks);
+      expect(value.segments._segments).toHaveLength(3);
       expect(value.segments._segments).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            id: '123a-456b-789c-2d',
+            id: '123a-456b-789c-4d',
             editable: true,
             color: '#FBB040'
           })
@@ -286,14 +322,14 @@ describe('WaveformDataUtils class', () => {
     });
 
     test('deactivates a segment', () => {
-      const value = waveformUtils.deactivateSegment('123a-456b-789c-2d', peaks);
-      expect(value.segments._segments).toHaveLength(2);
+      const value = waveformUtils.deactivateSegment('123a-456b-789c-4d', peaks);
+      expect(value.segments._segments).toHaveLength(3);
       expect(value.segments._segments).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            id: '123a-456b-789c-2d',
+            id: '123a-456b-789c-4d',
             editable: false,
-            color: '#80A590'
+            color: '#2A5459'
           })
         ])
       );
@@ -301,24 +337,24 @@ describe('WaveformDataUtils class', () => {
 
     test('saves changes to an existing segment', () => {
       const currentState = {
-        beginTime: '00:00:00.00',
-        endTime: '00:09:59.99',
+        beginTime: '00:00:10.33',
+        endTime: '00:08:00.00',
         clonedSegment: {
-          startTime: 0,
-          endTime: 360,
-          id: '123a-456b-789c-2d',
-          labelText: 'Sample segment',
-          color: '#80A590'
+          startTime: 11.23,
+          endTime: 480,
+          id: '123a-456b-789c-4d',
+          labelText: 'Segment 1.2',
+          color: '#2A5459'
         }
       };
       const value = waveformUtils.saveSegment(currentState, peaks);
-      expect(value.segments._segments).toHaveLength(2);
+      expect(value.segments._segments).toHaveLength(3);
       expect(value.segments._segments).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            startTime: 0,
-            endTime: 599.99,
-            id: '123a-456b-789c-2d'
+            startTime: 10.33,
+            endTime: 480,
+            id: '123a-456b-789c-4d'
           })
         ])
       );
@@ -328,36 +364,36 @@ describe('WaveformDataUtils class', () => {
       let segment;
       beforeEach(() => {
         segment = {
-          startTime: 0,
-          endTime: 360,
-          id: '123a-456b-789c-2d',
-          labelText: 'Sample segment',
-          color: '#80A590'
+          startTime: 11.23,
+          endTime: 480,
+          id: '123a-456b-789c-4d',
+          labelText: 'Segment 1.2',
+          color: '#2A5459'
         };
       });
       test('start time = 00:03:', () => {
-        const currentState = { beginTime: '00:03:', endTime: '00:06:00.00' };
+        const currentState = { beginTime: '00:03:', endTime: '00:08:00.00' };
         const value = waveformUtils.updateSegment(segment, currentState, peaks);
-        expect(value.segments._segments).toHaveLength(2);
+        expect(value.segments._segments).toHaveLength(3);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               startTime: 180,
-              id: '123a-456b-789c-2d'
+              id: '123a-456b-789c-4d'
             })
           ])
         );
       });
 
       test('start time = 00:03:59', () => {
-        const currentState = { beginTime: '00:03:59', endTime: '00:06:00.00' };
+        const currentState = { beginTime: '00:03:59', endTime: '00:08:00.00' };
         const value = waveformUtils.updateSegment(segment, currentState, peaks);
-        expect(value.segments._segments).toHaveLength(2);
+        expect(value.segments._segments).toHaveLength(3);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               startTime: 239,
-              id: '123a-456b-789c-2d'
+              id: '123a-456b-789c-4d'
             })
           ])
         );
@@ -366,18 +402,92 @@ describe('WaveformDataUtils class', () => {
       test('start time = 00:03:59.99', () => {
         const currentState = {
           beginTime: '00:03:59.99',
-          endTime: '00:06:00.00'
+          endTime: '00:08:00.00'
         };
         const value = waveformUtils.updateSegment(segment, currentState, peaks);
-        expect(value.segments._segments).toHaveLength(2);
+        expect(value.segments._segments).toHaveLength(3);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               startTime: 239.99,
-              id: '123a-456b-789c-2d'
+              id: '123a-456b-789c-4d'
             })
           ])
         );
+      });
+    });
+
+    describe('prevents overlapping with existing segments', () => {
+      test('when start time of an editing segment overlaps segment before', () => {
+        const testSegment = {
+          startTime: 480,
+          endTime: 500,
+          editable: true,
+          id: 'test-segment',
+          color: '#FBB040'
+        };
+        peaks.segments.add(testSegment);
+        // Change start time to overlap with previous segment
+        testSegment.startTime = 480;
+        const value = waveformUtils.preventSegmentOverlapping(
+          testSegment,
+          peaks
+        );
+        expect(value).toEqual({
+          startTime: 480.01,
+          endTime: 500,
+          editable: true,
+          id: 'test-segment',
+          color: '#FBB040'
+        });
+      });
+
+      test('when end time of an editing segment overlaps segment after', () => {
+        const testSegment = {
+          startTime: 490.99,
+          endTime: 540,
+          editable: true,
+          id: 'test-segment',
+          color: '#FBB040'
+        };
+        peaks.segments.add(testSegment);
+        // Change end time to overlap with following segment
+        testSegment.endTime = 543.24;
+        const value = waveformUtils.preventSegmentOverlapping(
+          testSegment,
+          peaks
+        );
+        expect(value).toEqual({
+          startTime: 490.99,
+          endTime: 543.23,
+          editable: true,
+          id: 'test-segment',
+          color: '#FBB040'
+        });
+      });
+
+      test('when a segment does not overlap neighboring segments', () => {
+        const testSegment = {
+          startTime: 499.99,
+          endTime: 529.99,
+          editable: true,
+          id: 'test-segment',
+          color: '#FBB040'
+        };
+        peaks.segments.add(testSegment);
+        // Change end time to overlap with following segment
+        testSegment.endTime = 540.99;
+        const value = waveformUtils.preventSegmentOverlapping(
+          testSegment,
+          peaks
+        );
+        expect(value).toEqual({
+          startTime: 499.99,
+          endTime: 540.99,
+          editable: true,
+          id: 'test-segment',
+          color: '#FBB040'
+        });
       });
     });
   });
