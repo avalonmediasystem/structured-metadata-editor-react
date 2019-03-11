@@ -47,8 +47,6 @@ class WaveformContainer extends Component {
     if (error.response !== undefined) {
       status = error.response.status;
     } else if (error.request !== undefined) {
-      status = error.request.status;
-    } else {
       status = -3;
     }
 
