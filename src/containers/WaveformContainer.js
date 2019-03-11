@@ -5,6 +5,8 @@ import * as peaksActions from '../actions/peaks-instance';
 import * as actions from '../actions/show-forms';
 import Waveform from '../components/Waveform';
 import WaveformErrorBoundary from '../components/WaveformErrorBoundary';
+import AlertContainer from '../containers/AlertContainer';
+import { configureAlert } from '../services/alert-status';
 
 const apiUtils = new APIUtils();
 
@@ -27,10 +29,31 @@ class WaveformContainer extends Component {
     this.mediaPlayer = null;
   }
 
+  state = {
+    alertObj: null
+  };
+
   componentDidMount() {
     peaksOptions.container = this.waveformContainer;
     peaksOptions.mediaElement = this.mediaPlayer;
     this.initializePeaks();
+  }
+
+  handleError(error) {
+    console.log('TCL: WaveformContainer -> handleError -> error', error);
+    let status = null;
+
+    // Pull status code out of error response/request
+    if (error.response !== undefined) {
+      status = error.response.status;
+    } else if (error.request !== undefined) {
+      status = error.request.status;
+    } else {
+      status = -1;
+    }
+
+    const alertObj = configureAlert(status);
+    this.setState({ alertObj, error: true });
   }
 
   async initializePeaks() {
@@ -41,17 +64,13 @@ class WaveformContainer extends Component {
       // Initialize Peaks
       this.props.initPeaks(this.props.smData, peaksOptions);
     } catch (error) {
-      if (error.response !== undefined) {
-        this.props.handleResponse(error.response.status);
-      } else if (error.request !== undefined) {
-        this.props.handleResponse(error.request.status);
-      } else {
-        this.props.handleResponse(-1);
-      }
+      this.handleError(error);
     }
   }
 
   render() {
+    const { alertObj } = this.state;
+
     return (
       <section className="waveform-section">
         <WaveformErrorBoundary>
@@ -60,6 +79,13 @@ class WaveformContainer extends Component {
             mediaPlayerRef={ref => (this.mediaPlayer = ref)}
           />
         </WaveformErrorBoundary>
+
+        {alertObj && (
+          <AlertContainer
+            message={alertObj.message}
+            alertStyle={alertObj.alertStyle}
+          />
+        )}
       </section>
     );
   }

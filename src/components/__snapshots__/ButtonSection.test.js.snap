@@ -241,7 +241,6 @@ ShallowWrapper {
             />
           </div>
         </Collapse>,
-        <Connect(AlertContainer) />,
       ],
       "style": Object {
         "margin": "4rem 0",
@@ -496,15 +495,6 @@ ShallowWrapper {
         },
         "type": [Function],
       },
-      Object {
-        "instance": null,
-        "key": undefined,
-        "nodeType": "class",
-        "props": Object {},
-        "ref": null,
-        "rendered": null,
-        "type": [Function],
-      },
     ],
     "type": "section",
   },
@@ -600,7 +590,6 @@ ShallowWrapper {
               />
             </div>
           </Collapse>,
-          <Connect(AlertContainer) />,
         ],
         "style": Object {
           "margin": "4rem 0",
@@ -853,15 +842,6 @@ ShallowWrapper {
             },
             "type": "div",
           },
-          "type": [Function],
-        },
-        Object {
-          "instance": null,
-          "key": undefined,
-          "nodeType": "class",
-          "props": Object {},
-          "ref": null,
-          "rendered": null,
           "type": [Function],
         },
       ],

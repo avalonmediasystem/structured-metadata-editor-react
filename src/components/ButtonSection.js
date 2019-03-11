@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Button, Col, Collapse, Row } from 'react-bootstrap';
-import AlertContainer from '../containers/AlertContainer';
 import HeadingFormContainer from '../containers/HeadingFormContainer';
 import TimespanFormContainer from '../containers/TimespanFormContainer';
 import * as peaksActions from '../actions/peaks-instance';
@@ -99,7 +98,6 @@ class ButtonSection extends Component {
             <TimespanFormContainer {...timespanFormProps} />
           </div>
         </Collapse>
-        <AlertContainer />
       </section>
     );
   }

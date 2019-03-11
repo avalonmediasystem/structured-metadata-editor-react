@@ -2,7 +2,6 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../actions/sm-data';
 import APIUtils from '../api/Utils';
-import * as showFormActions from '../actions/show-forms';
 import uuidv1 from 'uuid/v1';
 import { cloneDeep } from 'lodash';
 
@@ -20,13 +19,16 @@ class GenerateStructureContainer extends Component {
       // Update the redux store
       this.props.buildSMUI(smData);
     } catch (error) {
-      if (error.response !== undefined) {
-        this.props.handleResponse(error.response.status);
-      } else if (error.request !== undefined) {
-        this.props.handleResponse(error.request.status);
-      } else {
-        this.props.handleResponse(-1);
-      }
+      console.log('TCL: GenerateStructureContainer -> }catch -> error', error);
+      // TODO: Put new Alert in here
+
+      // if (error.response !== undefined) {
+      //   this.props.handleResponse(error.response.status);
+      // } else if (error.request !== undefined) {
+      //   this.props.handleResponse(error.request.status);
+      // } else {
+      //   this.props.handleResponse(-1);
+      // }
     }
   }
 
@@ -62,9 +64,7 @@ class GenerateStructureContainer extends Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-  buildSMUI: smData => dispatch(actions.buildSMUI(smData)),
-  handleResponse: statusCode =>
-    dispatch(showFormActions.handleResponse(statusCode))
+  buildSMUI: smData => dispatch(actions.buildSMUI(smData))
 });
 
 export default connect(
