@@ -37,15 +37,17 @@ const ListItemControls = props => {
           <FontAwesomeIcon icon="pen" />
         </Button>
       </OverlayTrigger>
-      <OverlayTrigger placement="right" overlay={tooltip('Delete')}>
-        <Button
-          bsStyle="link"
-          onClick={handleDelete}
-          disabled={showForms.disabled}
-        >
-          <FontAwesomeIcon icon="trash" />
-        </Button>
-      </OverlayTrigger>
+      {itemType !== 'root' && (
+        <OverlayTrigger placement="right" overlay={tooltip('Delete')}>
+          <Button
+            bsStyle="link"
+            onClick={handleDelete}
+            disabled={showForms.disabled}
+          >
+            <FontAwesomeIcon icon="trash" />
+          </Button>
+        </OverlayTrigger>
+      )}
     </div>
   );
 };

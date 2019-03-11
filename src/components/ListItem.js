@@ -142,7 +142,7 @@ class ListItem extends Component {
                   {label} ({begin} - {end})
                 </span>
               )}
-              {type === 'div' && (
+              {(type === 'div' || type === 'root') && (
                 <div className="structure-title heading">{label}</div>
               )}
               <ListItemControls

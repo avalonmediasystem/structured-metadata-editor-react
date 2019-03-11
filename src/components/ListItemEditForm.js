@@ -22,14 +22,13 @@ class ListItemEditForm extends Component {
   };
 
   addUpdatedValues(item, payload) {
-    if (item.type === 'div') {
+    if (item.type === 'div' || item.type === 'root') {
       item.label = payload.headingTitle;
     } else if (item.type === 'span') {
       item.label = payload.timespanTitle;
       item.begin = payload.beginTime;
       item.end = payload.endTime;
     }
-
     return item;
   }
 
@@ -69,7 +68,7 @@ class ListItemEditForm extends Component {
       );
     }
 
-    if (item.type === 'div') {
+    if (item.type === 'div' || item.type === 'root') {
       return (
         <HeadingInlineForm
           item={item}

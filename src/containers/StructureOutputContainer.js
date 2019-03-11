@@ -9,19 +9,24 @@ import uuidv1 from 'uuid/v1';
 import { cloneDeep } from 'lodash';
 import { buildSMUI } from '../actions/sm-data';
 
-const apiUtils = new APIUtils();
-
 class StructureOutputContainer extends Component {
+  constructor(props) {
+    super(props);
+    this.apiUtils = new APIUtils();
+  }
   state = {
     alertObj: {}
   };
 
   async componentDidMount() {
     try {
-      const response = await apiUtils.getRequest('structure.json');
+      const response = await this.apiUtils.getRequest('structure.json');
 
       // Add unique ids to every object
       let smData = this.addIds([response.data]);
+
+      // Tag the root element
+      this.markRootElement(smData);
 
       // Update the redux store
       this.props.buildSMUI(smData);
@@ -57,6 +62,12 @@ class StructureOutputContainer extends Component {
     return structureWithIds;
   }
 
+  markRootElement(smData) {
+    if (smData.length > 0) {
+      smData[0].type = 'root';
+    }
+  }
+
   handleFetchError(error) {
     let status = error.response !== undefined ? error.response.status : -2;
     const alertObj = configureAlert(status);
@@ -77,7 +88,7 @@ class StructureOutputContainer extends Component {
 
   handleSaveItClick = () => {
     let postData = { json: this.props.smData[0] };
-    apiUtils
+    this.apiUtils
       .postRequest('structure.json', postData)
       .then(response => {
         const { status } = response;
