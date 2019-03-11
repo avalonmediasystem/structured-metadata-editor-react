@@ -81,28 +81,15 @@ class TimespanInlineForm extends Component {
     if (this.props.peaksInstance !== nextProps.peaksInstance) {
       if (nextProps.segment && !this.state.isTyping) {
         const { segment, peaksInstance } = nextProps;
-        this.setState(
-          {
-            beginTime: structuralMetadataUtils.toHHmmss(segment.startTime),
-            endTime: structuralMetadataUtils.toHHmmss(segment.endTime)
-          },
-          () => {
-            // Prevent from overlapping when dragging the handles
-            if (!this.formIsValid()) {
-              const {
-                startTime,
-                endTime
-              } = waveformUtils.preventSegmentOverlapping(
-                segment,
-                peaksInstance.peaks
-              );
-              this.setState({
-                beginTime: structuralMetadataUtils.toHHmmss(startTime),
-                endTime: structuralMetadataUtils.toHHmmss(endTime)
-              });
-            }
-          }
+        // Prevent from overlapping when dragging the handles
+        const { startTime, endTime } = waveformUtils.preventSegmentOverlapping(
+          segment,
+          peaksInstance.peaks
         );
+        this.setState({
+          beginTime: structuralMetadataUtils.toHHmmss(startTime),
+          endTime: structuralMetadataUtils.toHHmmss(endTime)
+        });
       }
     }
   }
