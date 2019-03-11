@@ -5,7 +5,7 @@ const useLocalData = false;
 
 export const BASE_URL = useLocalData
   ? 'http://localhost:3123/data/mock-response-'
-  : 'https://spruce.dlib.indiana.eduZ';
+  : 'https://spruce.dlib.indiana.edu';
 
 // Masterfile ID on the server
 export const masterFileID = 'd791sg30j';

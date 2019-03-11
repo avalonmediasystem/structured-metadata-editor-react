@@ -13,23 +13,12 @@ class AlertContainer extends Component {
   };
 
   componentDidMount() {
-    console.log('componentDidMount()');
-    console.log('this.props', this.props);
     if (this.props.message) {
       this.setState({ show: true });
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('componentDidUpdate()');
-    console.log(
-      'TCL: AlertContainer -> componentDidUpdate -> this.state',
-      this.state
-    );
-    console.log(
-      'TCL: AlertContainer -> componentDidUpdate -> prevState',
-      prevState
-    );
     if (this.props.message && !prevState.show) {
       this.setState({ show: true });
     }

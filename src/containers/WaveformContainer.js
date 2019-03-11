@@ -49,7 +49,7 @@ class WaveformContainer extends Component {
     } else if (error.request !== undefined) {
       status = error.request.status;
     } else {
-      status = -1;
+      status = -3;
     }
 
     const alertObj = configureAlert(status);
