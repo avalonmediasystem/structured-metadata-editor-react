@@ -9,7 +9,7 @@ export function getExistingFormValues(id, smData, peaks = {}) {
   let item = structuralMetadataUtils.findItem(id, smData);
 
   // Heading
-  if (item.type === 'div') {
+  if (item.type === 'div' || item.type === 'root') {
     return {
       headingTitle: item.label
     };
