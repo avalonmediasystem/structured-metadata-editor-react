@@ -62,10 +62,7 @@ class TimespanForm extends Component {
       // Update state when segment handles are dragged in the waveform
       if (this.props.peaksInstance !== peaksInstance && !isInitializing) {
         // Prevent from overlapping when dragging the handles
-        const {
-          startTime,
-          endTime
-        } = waveformDataUtils.preventSegmentOverlapping(
+        const { startTime, endTime } = waveformDataUtils.validateSegment(
           segment,
           peaksInstance.peaks
         );
@@ -191,7 +188,12 @@ class TimespanForm extends Component {
     const { beginTime, endTime } = this.state;
     const { allSpans } = this;
 
-    return validTimespans(beginTime, endTime, allSpans, this.props.smData);
+    return validTimespans(
+      beginTime,
+      endTime,
+      allSpans,
+      this.props.peaksInstance.peaks
+    );
   }
 
   render() {
@@ -241,7 +243,8 @@ class TimespanForm extends Component {
               validationState={getValidationEndState(
                 beginTime,
                 endTime,
-                this.allSpans
+                this.allSpans,
+                this.props.peaksInstance.peaks
               )}
             >
               <ControlLabel>End Time</ControlLabel>

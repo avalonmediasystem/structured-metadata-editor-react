@@ -49,7 +49,19 @@ export function getValidationBeginState(beginTime, allSpans) {
   return null;
 }
 
-export function getValidationEndState(beginTime, endTime, allSpans) {
+export function getValidationEndState(
+  beginTime,
+  endTime,
+  allSpans,
+  peaksInstance
+) {
+  let duration;
+  if (peaksInstance !== undefined) {
+    if (peaksInstance.player !== undefined) {
+      duration = Math.round(peaksInstance.player.getDuration() * 100) / 100;
+    }
+  }
+
   if (!endTime || endTime.indexOf(':') === -1) {
     return null;
   }
@@ -57,7 +69,8 @@ export function getValidationEndState(beginTime, endTime, allSpans) {
   const validFormat = structuralMetadataUtils.validTimeFormat(endTime);
   const validEndTime = structuralMetadataUtils.doesTimeOverlap(
     endTime,
-    allSpans
+    allSpans,
+    duration
   );
   const validOrdering = structuralMetadataUtils.validateBeforeEndTimeOrder(
     beginTime,
@@ -102,7 +115,13 @@ export function isTitleValid(title) {
  *
  * This function also preps handy feedback messages we might want to display to the user
  */
-export function validTimespans(beginTime, endTime, allSpans, smData) {
+export function validTimespans(beginTime, endTime, allSpans, peaksInstance) {
+  let duration;
+  if (peaksInstance !== undefined) {
+    if (peaksInstance.player !== undefined) {
+      duration = Math.round(peaksInstance.player.getDuration() * 100) / 100;
+    }
+  }
   // Valid formats?
   if (!structuralMetadataUtils.validTimeFormat(beginTime)) {
     return {
@@ -143,6 +162,13 @@ export function validTimespans(beginTime, endTime, allSpans, smData) {
     return {
       valid: false,
       message: 'New timespan region overlaps an existing timespan region'
+    };
+  }
+  // Timespan end time is greater than end time of the media file
+  if (duration < structuralMetadataUtils.toMs(endTime) / 1000) {
+    return {
+      valid: false,
+      message: 'End time overlaps duration of the media file'
     };
   }
 

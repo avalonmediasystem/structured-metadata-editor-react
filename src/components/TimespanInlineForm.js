@@ -82,7 +82,7 @@ class TimespanInlineForm extends Component {
       if (nextProps.segment && !this.state.isTyping) {
         const { segment, peaksInstance } = nextProps;
         // Prevent from overlapping when dragging the handles
-        const { startTime, endTime } = waveformUtils.preventSegmentOverlapping(
+        const { startTime, endTime } = waveformUtils.validateSegment(
           segment,
           peaksInstance.peaks
         );
@@ -101,7 +101,7 @@ class TimespanInlineForm extends Component {
       beginTime,
       endTime,
       this.allSpans,
-      this.tempSmData
+      this.props.peaksInstance.peaks
     );
 
     return titleValid && timesValidResponse.valid;
@@ -182,7 +182,8 @@ class TimespanInlineForm extends Component {
               validationState={getValidationEndState(
                 beginTime,
                 endTime,
-                this.allSpans
+                this.allSpans,
+                this.props.peaksInstance.peaks
               )}
             >
               <ControlLabel>End Time</ControlLabel>

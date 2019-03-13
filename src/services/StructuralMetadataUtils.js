@@ -204,7 +204,7 @@ export default class StructuralMetadataUtils {
    * @param {*} allSpans - all timespans in the data structure
    * @return {Boolean}
    */
-  doesTimeOverlap(time, allSpans) {
+  doesTimeOverlap(time, allSpans, duration = Number.MAX_SAFE_INTEGER) {
     const { toMs } = this;
     let valid = true;
     time = toMs(time);
@@ -216,6 +216,11 @@ export default class StructuralMetadataUtils {
 
       // Illegal time (falls between existing start/end times)
       if (time >= spanBegin && time < spanEnd) {
+        valid = false;
+        break;
+      }
+      // Time exceeds the end time of the media file
+      if (time / 1000 > duration) {
         valid = false;
         break;
       }
