@@ -23,8 +23,12 @@ export const Peaks = jest.fn(opts => {
     getCurrentTime: jest.fn(() => {
       return peaks.player._mediaElement.currentTime;
     }),
+    getDuration: jest.fn(() => {
+      return peaks.player._mediaElement.duration;
+    }),
     _mediaElement: {
-      currentTime: 0
+      currentTime: 0,
+      duration: 1738.945306
     }
   };
   peaks.segments = {

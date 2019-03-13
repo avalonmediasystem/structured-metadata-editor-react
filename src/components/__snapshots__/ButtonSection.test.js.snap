@@ -25,8 +25,10 @@ ShallowWrapper {
           "player": Object {
             "_mediaElement": Object {
               "currentTime": 0,
+              "duration": 1738.945306,
             },
             "getCurrentTime": [MockFunction],
+            "getDuration": [MockFunction],
             "seek": [MockFunction],
           },
           "segments": Object {

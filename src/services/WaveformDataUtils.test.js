@@ -201,6 +201,22 @@ describe('WaveformDataUtils class', () => {
         );
         expect(value.player.getCurrentTime()).toEqual(520);
       });
+
+      test('when current playhead time + 60 > duration of the media file', () => {
+        peaks.player.seek(1680);
+        const value = waveformUtils.insertTempSegment(peaks);
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              startTime: 1680,
+              endTime: 1738.95,
+              id: 'temp-segment',
+              color: '#FBB040',
+              editable: true
+            })
+          ])
+        );
+      });
     });
 
     describe('deletes segments when structure metadata items are deleted', () => {
@@ -429,10 +445,7 @@ describe('WaveformDataUtils class', () => {
         peaks.segments.add(testSegment);
         // Change start time to overlap with previous segment
         testSegment.startTime = 480;
-        const value = waveformUtils.preventSegmentOverlapping(
-          testSegment,
-          peaks
-        );
+        const value = waveformUtils.validateSegment(testSegment, peaks);
         expect(value).toEqual({
           startTime: 480.01,
           endTime: 500,
@@ -453,10 +466,7 @@ describe('WaveformDataUtils class', () => {
         peaks.segments.add(testSegment);
         // Change end time to overlap with following segment
         testSegment.endTime = 543.24;
-        const value = waveformUtils.preventSegmentOverlapping(
-          testSegment,
-          peaks
-        );
+        const value = waveformUtils.validateSegment(testSegment, peaks);
         expect(value).toEqual({
           startTime: 490.99,
           endTime: 543.23,
@@ -475,15 +485,33 @@ describe('WaveformDataUtils class', () => {
           color: '#FBB040'
         };
         peaks.segments.add(testSegment);
-        // Change end time to overlap with following segment
+        // Change end time of the segment
         testSegment.endTime = 540.99;
-        const value = waveformUtils.preventSegmentOverlapping(
-          testSegment,
-          peaks
-        );
+        const value = waveformUtils.validateSegment(testSegment, peaks);
         expect(value).toEqual({
           startTime: 499.99,
           endTime: 540.99,
+          editable: true,
+          id: 'test-segment',
+          color: '#FBB040'
+        });
+      });
+
+      test('when a segment overlaps the end time of the media file', () => {
+        const testSegment = {
+          startTime: 1200.99,
+          endTime: 1699.99,
+          editable: true,
+          id: 'test-segment',
+          color: '#FBB040'
+        };
+        peaks.segments.add(testSegment);
+        // Change the end time to exceed the end time of the media file
+        testSegment.endTime = 1740;
+        const value = waveformUtils.validateSegment(testSegment, peaks);
+        expect(value).toEqual({
+          startTime: 1200.99,
+          endTime: 1738.95,
           editable: true,
           id: 'test-segment',
           color: '#FBB040'

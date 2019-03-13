@@ -60,14 +60,14 @@ export default class WaveformDataUtils {
    */
   insertTempSegment(peaksInstance) {
     // Current time of the playhead
-    const currentTime = peaksInstance.player.getCurrentTime();
-    let rangeEndTime,
-      rangeBeginTime = Math.round(currentTime * 100) / 100;
+    const currentTime = this.roundOff(peaksInstance.player.getCurrentTime());
+    // End time of the media file
+    const fileEndTime = this.roundOff(peaksInstance.player.getDuration());
 
-    const currentSegments = this.sortSegments(
-      peaksInstance.segments.getSegments(),
-      'startTime'
-    );
+    let rangeEndTime,
+      rangeBeginTime = currentTime;
+
+    const currentSegments = this.sortSegments(peaksInstance, 'startTime');
 
     // Validate start time of the temporary segment
     currentSegments.map(segment => {
@@ -97,6 +97,9 @@ export default class WaveformDataUtils {
         ) {
           rangeEndTime = segment.startTime - 0.01;
         }
+      }
+      if (rangeEndTime > fileEndTime) {
+        rangeEndTime = fileEndTime;
       }
       return rangeEndTime;
     });
@@ -146,10 +149,7 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for the waveform
    */
   rebuildPeaks(peaksInstance) {
-    let clonedSegments = this.sortSegments(
-      peaksInstance.segments.getSegments(),
-      'startTime'
-    );
+    let clonedSegments = this.sortSegments(peaksInstance, 'startTime');
     peaksInstance.segments.removeAll();
     clonedSegments.forEach((segment, index) => {
       segment.color = this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0];
@@ -188,11 +188,8 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for the waveform
    */
   deactivateSegment(id, peaksInstance) {
-    // Sort segments by start time
-    let segments = this.sortSegments(
-      peaksInstance.segments.getSegments(),
-      'startTime'
-    );
+    // Sorted segments by start time
+    let segments = this.sortSegments(peaksInstance, 'startTime');
 
     let index = segments.map(seg => seg.id).indexOf(id);
 
@@ -271,23 +268,27 @@ export default class WaveformDataUtils {
    * @param {Object} segment - segement being edited in the waveform
    * @param {Object} peaksInstance - current peaks instance for waveform
    */
-  preventSegmentOverlapping(segment, peaksInstance) {
-    const allSegments = this.sortSegments(
-      peaksInstance.segments.getSegments(),
-      'startTime'
-    );
+  validateSegment(segment, peaksInstance) {
+    const allSegments = this.sortSegments(peaksInstance, 'startTime');
     const wrapperSegments = this.findWrapperSegments(segment, allSegments);
+    const duration = this.roundOff(peaksInstance.player.getDuration());
+    const startTime = this.roundOff(segment.startTime);
+    const endTime = this.roundOff(segment.endTime);
+
     if (
       wrapperSegments.before !== null &&
-      segment.startTime <= wrapperSegments.before.endTime
+      startTime <= wrapperSegments.before.endTime
     ) {
       segment.startTime = wrapperSegments.before.endTime + 0.01;
     }
     if (
       wrapperSegments.after !== null &&
-      segment.endTime >= wrapperSegments.after.startTime
+      endTime >= wrapperSegments.after.startTime
     ) {
       segment.endTime = wrapperSegments.after.startTime - 0.01;
+    }
+    if (wrapperSegments.after === null && endTime > duration) {
+      segment.endTime = duration;
     }
     return segment;
   }
@@ -328,7 +329,12 @@ export default class WaveformDataUtils {
     return hoursAndMins + secondsIn;
   }
 
-  sortSegments(segments, sortBy) {
-    return segments.sort((x, y) => x[sortBy] - y[sortBy]);
+  sortSegments(peaksInstance, sortBy) {
+    let allSegments = peaksInstance.segments.getSegments();
+    return allSegments.sort((x, y) => x[sortBy] - y[sortBy]);
+  }
+
+  roundOff(value) {
+    return Math.round(value * 100) / 100;
   }
 }
