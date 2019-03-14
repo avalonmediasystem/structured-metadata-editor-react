@@ -1,24 +1,88 @@
-import React from 'react';
-import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import React, { Component } from 'react';
+import { Button, ButtonToolbar, Overlay, Popover } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
+import { handleEditingTimespans } from '../actions/show-forms';
 
-const tooltip = tip => <Tooltip id="tooltip">{tip}</Tooltip>;
+const styles = {
+  buttonToolbar: {
+    display: 'flex',
+    justifyContent: 'flex-end'
+  },
+  popover: {
+    width: '250px',
+    height: 'auto'
+  }
+};
 
-const ListItemControls = props => {
-  const {
-    itemType,
-    handleShowDropTargetsClick,
-    handleEditClick,
-    handleDelete,
-    showForms
-  } = props;
+class ListItemControls extends Component {
+  static propTypes = {
+    handleShowDropTargetsClick: PropTypes.func,
+    handleEditClick: PropTypes.func,
+    handleDelete: PropTypes.func,
+    item: PropTypes.shape({
+      childrenCount: PropTypes.number,
+      label: PropTypes.string.isRequired,
+      type: PropTypes.string
+    })
+  };
 
-  return (
-    <div className="edit-controls-wrapper">
-      {itemType === 'span' && (
-        <OverlayTrigger placement="left" overlay={tooltip('Show drop targets')}>
+  state = {
+    deleteMessage: '',
+    showDeleteConfirm: false,
+    target: null
+  };
+
+  enableEditing() {
+    // Enable editing of other list items
+    this.props.handleEditingTimespans(1);
+  }
+
+  handleConfirmDelete = () => {
+    this.props.handleDelete();
+    this.enableEditing();
+    this.setState({ deleteMessage: '', showDeleteConfirm: false });
+  };
+
+  handleDeleteClick = e => {
+    const { childrenCount, label } = this.props.item;
+    let deleteMessage = `Are you sure you'd like to delete <strong>${label}</strong>`;
+
+    if (childrenCount > 0) {
+      deleteMessage += ` and it's <strong>${childrenCount}</strong> child items`;
+    }
+    deleteMessage += `?`;
+
+    // Disable editing of other list items
+    this.props.handleEditingTimespans(0);
+
+    this.setState({
+      deleteMessage,
+      showDeleteConfirm: true,
+      target: e.target
+    });
+  };
+
+  cancelDeleteClick = e => {
+    this.enableEditing();
+    this.setState({
+      showDeleteConfirm: false
+    });
+  };
+
+  render() {
+    const {
+      handleShowDropTargetsClick,
+      handleEditClick,
+      item,
+      showForms
+    } = this.props;
+    const { deleteMessage, showDeleteConfirm } = this.state;
+
+    return (
+      <div className="edit-controls-wrapper">
+        {item.type === 'span' && (
           <Button
             bsStyle="link"
             disabled={showForms.disabled}
@@ -26,9 +90,7 @@ const ListItemControls = props => {
           >
             <FontAwesomeIcon icon="dot-circle" />
           </Button>
-        </OverlayTrigger>
-      )}
-      <OverlayTrigger placement="top" overlay={tooltip('Edit')}>
+        )}
         <Button
           bsStyle="link"
           onClick={handleEditClick}
@@ -36,31 +98,58 @@ const ListItemControls = props => {
         >
           <FontAwesomeIcon icon="pen" />
         </Button>
-      </OverlayTrigger>
-      {itemType !== 'root' && (
-        <OverlayTrigger placement="right" overlay={tooltip('Delete')}>
-          <Button
-            bsStyle="link"
-            onClick={handleDelete}
-            disabled={showForms.disabled}
-          >
-            <FontAwesomeIcon icon="trash" />
-          </Button>
-        </OverlayTrigger>
-      )}
-    </div>
-  );
-};
 
-ListItemControls.propTypes = {
-  handleShowDropTargetsClick: PropTypes.func,
-  handleEditClick: PropTypes.func,
-  handleDelete: PropTypes.func,
-  itemType: PropTypes.string
-};
+        {item.type !== 'root' && (
+          <>
+            <Button
+              bsStyle="link"
+              onClick={this.handleDeleteClick}
+              disabled={showForms.disabled}
+            >
+              <FontAwesomeIcon icon="trash" />
+            </Button>
+            <Overlay
+              show={showDeleteConfirm}
+              target={this.state.target}
+              placement="left"
+              container={this}
+            >
+              <Popover
+                id="popover-contained"
+                title="Confirm delete?"
+                style={styles.popover}
+              >
+                <p dangerouslySetInnerHTML={{ __html: deleteMessage }} />
+                <ButtonToolbar style={styles.buttonToolbar}>
+                  <Button
+                    bsStyle="danger"
+                    bsSize="xsmall"
+                    onClick={this.handleConfirmDelete}
+                  >
+                    Delete
+                  </Button>
+                  <Button bsSize="xsmall" onClick={this.cancelDeleteClick}>
+                    Cancel
+                  </Button>
+                </ButtonToolbar>
+              </Popover>
+            </Overlay>
+          </>
+        )}
+      </div>
+    );
+  }
+}
+
+const mapDispatchToProps = dispatch => ({
+  handleEditingTimespans: code => dispatch(handleEditingTimespans(code))
+});
 
 const mapStateToProps = state => ({
   showForms: state.showForms
 });
 
-export default connect(mapStateToProps)(ListItemControls);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ListItemControls);

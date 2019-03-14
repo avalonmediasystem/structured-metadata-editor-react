@@ -65,10 +65,6 @@ class ListItem extends Component {
   };
 
   handleEditClick = () => {
-    /* eslint-disable */
-    const { id, type } = this.props.item;
-    /* eslint-enable */
-
     // Disable the edit buttons of other list items
     this.props.handleEditingTimespans(0);
 
@@ -124,6 +120,11 @@ class ListItem extends Component {
     } = this.props;
 
     const subMenu = items && items.length > 0 ? <List items={items} /> : null;
+    const itemProp = {
+      childrenCount: item.items ? item.items.length : 0,
+      label: item.label,
+      type: item.type
+    };
 
     return connectDragSource(
       connectDropTarget(
@@ -148,7 +149,7 @@ class ListItem extends Component {
               <ListItemControls
                 handleDelete={this.handleDelete}
                 handleEditClick={this.handleEditClick}
-                itemType={type}
+                item={itemProp}
                 handleShowDropTargetsClick={this.handleShowDropTargetsClick}
               />
             </div>
