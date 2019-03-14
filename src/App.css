@@ -31,6 +31,10 @@ section {
   margin-bottom: 10px;
 }
 
+.edit-controls-wrapper {
+  position: relative;
+}
+
 .edit-controls-wrapper a {
   margin: 0 5px;
   cursor: pointer;
