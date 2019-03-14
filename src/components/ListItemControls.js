@@ -1,11 +1,5 @@
 import React, { Component } from 'react';
-import {
-  Button,
-  ButtonToolbar,
-  OverlayTrigger,
-  Popover,
-  Tooltip
-} from 'react-bootstrap';
+import { Button, ButtonToolbar, Overlay, Popover } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
@@ -15,16 +9,12 @@ const styles = {
   buttonToolbar: {
     display: 'flex',
     justifyContent: 'flex-end'
+  },
+  popover: {
+    width: '250px',
+    height: 'auto'
   }
 };
-
-const tooltip = tip => <Tooltip id="tooltip">{tip}</Tooltip>;
-
-// const popoverTop = message => (
-//   <Popover id="popover-positioned-top" title="Popover top">
-//     <strong>Holy guacamole!</strong> Check this info.
-//   </Popover>
-// );
 
 class ListItemControls extends Component {
   static propTypes = {
@@ -40,36 +30,42 @@ class ListItemControls extends Component {
 
   state = {
     deleteMessage: '',
-    showDeleteConfirm: false
+    showDeleteConfirm: false,
+    target: null
   };
+
+  enableEditing() {
+    // Enable editing of other list items
+    this.props.handleEditingTimespans(1);
+  }
 
   handleConfirmDelete = () => {
     this.props.handleDelete();
+    this.enableEditing();
     this.setState({ deleteMessage: '', showDeleteConfirm: false });
   };
 
   handleDeleteClick = e => {
     const { childrenCount, label } = this.props.item;
-    let deleteMessage = `Are you sure you'd like to delete "${label}"`;
+    let deleteMessage = `Are you sure you'd like to delete <strong>${label}</strong>`;
+
+    if (childrenCount > 0) {
+      deleteMessage += ` and it's <strong>${childrenCount}</strong> child items`;
+    }
+    deleteMessage += `?`;
 
     // Disable editing of other list items
     this.props.handleEditingTimespans(0);
 
-    if (childrenCount > 0) {
-      deleteMessage += ` and it's ${childrenCount} child items`;
-    }
-    deleteMessage += `?`;
-
     this.setState({
       deleteMessage,
-      showDeleteConfirm: true
+      showDeleteConfirm: true,
+      target: e.target
     });
   };
 
   cancelDeleteClick = e => {
-    // Enable editing of other list items
-    this.props.handleEditingTimespans(1);
-
+    this.enableEditing();
     this.setState({
       showDeleteConfirm: false
     });
@@ -104,37 +100,41 @@ class ListItemControls extends Component {
         </Button>
 
         {item.type !== 'root' && (
-          <Button
-            bsStyle="link"
-            onClick={this.handleDeleteClick}
-            disabled={showForms.disabled}
-          >
-            <FontAwesomeIcon icon="trash" />
-          </Button>
-        )}
-        {showDeleteConfirm && (
-          <Popover
-            id="delete-confirm-popover"
-            title="Confirm delete?"
-            placement="top"
-            positionTop={-120}
-            positionLeft={-70}
-            style={{ height: 'auto', width: 250 }}
-          >
-            <p>{deleteMessage}</p>
-            <ButtonToolbar style={styles.buttonToolbar}>
-              <Button
-                bsStyle="danger"
-                bsSize="xsmall"
-                onClick={this.handleConfirmDelete}
+          <>
+            <Button
+              bsStyle="link"
+              onClick={this.handleDeleteClick}
+              disabled={showForms.disabled}
+            >
+              <FontAwesomeIcon icon="trash" />
+            </Button>
+            <Overlay
+              show={showDeleteConfirm}
+              target={this.state.target}
+              placement="left"
+              container={this}
+            >
+              <Popover
+                id="popover-contained"
+                title="Confirm delete?"
+                style={styles.popover}
               >
-                Delete
-              </Button>
-              <Button bsSize="xsmall" onClick={this.cancelDeleteClick}>
-                Cancel
-              </Button>
-            </ButtonToolbar>
-          </Popover>
+                <p dangerouslySetInnerHTML={{ __html: deleteMessage }} />
+                <ButtonToolbar style={styles.buttonToolbar}>
+                  <Button
+                    bsStyle="danger"
+                    bsSize="xsmall"
+                    onClick={this.handleConfirmDelete}
+                  >
+                    Delete
+                  </Button>
+                  <Button bsSize="xsmall" onClick={this.cancelDeleteClick}>
+                    Cancel
+                  </Button>
+                </ButtonToolbar>
+              </Popover>
+            </Overlay>
+          </>
         )}
       </div>
     );
