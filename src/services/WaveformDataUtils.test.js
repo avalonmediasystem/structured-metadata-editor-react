@@ -217,6 +217,29 @@ describe('WaveformDataUtils class', () => {
           ])
         );
       });
+
+      test('when there are multiple small segments with a length of less than 60 seconds', () => {
+        peaks.segments.add({
+          startTime: 1690,
+          endTime: 1738.95,
+          id: '123a-456b-789c-9d',
+          color: '#2A5459',
+          labelText: 'Test segment'
+        });
+        peaks.player.seek(450);
+        const value = waveformUtils.insertTempSegment(peaks);
+        expect(value.segments._segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              startTime: 480.01,
+              endTime: 540.01,
+              id: 'temp-segment',
+              color: '#FBB040',
+              editable: true
+            })
+          ])
+        );
+      });
     });
 
     describe('deletes segments when structure metadata items are deleted', () => {

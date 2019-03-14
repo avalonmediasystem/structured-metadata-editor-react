@@ -39,6 +39,12 @@ class WaveformContainer extends Component {
     this.initializePeaks();
   }
 
+  clearAlert = () => {
+    this.setState({
+      alertObj: null
+    });
+  };
+
   handleError(error) {
     console.log('TCL: WaveformContainer -> handleError -> error', error);
     let status = null;
@@ -50,7 +56,7 @@ class WaveformContainer extends Component {
       status = -3;
     }
 
-    const alertObj = configureAlert(status);
+    const alertObj = configureAlert(status, this.clearAlert);
     this.setState({ alertObj, error: true });
   }
 
@@ -78,12 +84,7 @@ class WaveformContainer extends Component {
           />
         </WaveformErrorBoundary>
 
-        {alertObj && (
-          <AlertContainer
-            message={alertObj.message}
-            alertStyle={alertObj.alertStyle}
-          />
-        )}
+        {alertObj && <AlertContainer {...alertObj} />}
       </section>
     );
   }

@@ -33,9 +33,13 @@ export const Peaks = jest.fn(opts => {
   };
   peaks.segments = {
     getSegment: jest.fn(id => {
-      return peaks.segments._segments.find(seg => {
+      let segment = peaks.segments._segments.find(seg => {
         return seg.id === id;
       });
+      if (segment === undefined) {
+        return null;
+      }
+      return segment;
     }),
     getSegments: jest.fn(() => {
       return peaks.segments._segments;
@@ -43,9 +47,14 @@ export const Peaks = jest.fn(opts => {
     removeAll: jest.fn(() => {
       peaks.segments._segments = [];
     }),
-    add: jest.fn(segment => {
-      let index = peaks.segments._segments.length;
-      peaks.segments._segments.splice(index, 0, segment);
+    add: jest.fn(segments => {
+      if (Array.isArray(segments)) {
+        segments.forEach(segment => {
+          peaks.segments._segments.push(segment);
+        });
+      } else {
+        peaks.segments._segments.push(segments);
+      }
     }),
     removeById: jest.fn(id => {
       let index = peaks.segments._segments.map(seg => seg.id).indexOf(id);

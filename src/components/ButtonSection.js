@@ -4,6 +4,8 @@ import { Button, Col, Collapse, Row } from 'react-bootstrap';
 import HeadingFormContainer from '../containers/HeadingFormContainer';
 import TimespanFormContainer from '../containers/TimespanFormContainer';
 import * as peaksActions from '../actions/peaks-instance';
+import { configureAlert } from '../services/alert-status';
+import AlertContainer from '../containers/AlertContainer';
 
 const styles = {
   section: {
@@ -19,7 +21,8 @@ class ButtonSection extends Component {
     headingOpen: false,
     timespanOpen: false,
     initSegment: null,
-    isInitializing: true
+    isInitializing: true,
+    alertObj: null
   };
 
   updateInitializeFlag = value => {
@@ -27,13 +30,24 @@ class ButtonSection extends Component {
       isInitializing: value
     });
   };
+
+  clearAlert = () => {
+    this.setState({
+      alertObj: null
+    });
+  };
+
   handleCancelHeadingClick = () => {
     this.setState({ headingOpen: false });
+    this.clearAlert();
   };
 
   handleCancelTimespanClick = () => {
-    this.props.deleteTempSegment(this.state.initSegment.id);
+    if (this.state.initSegment !== null) {
+      this.props.deleteTempSegment(this.state.initSegment.id);
+    }
     this.setState({ timespanOpen: false });
+    this.clearAlert();
   };
 
   handleHeadingClick = () => {
@@ -41,27 +55,29 @@ class ButtonSection extends Component {
       this.props.deleteTempSegment(this.state.initSegment.id);
     }
     this.setState({
+      alertObj: null,
       headingOpen: true,
       timespanOpen: false
     });
   };
 
   handleTimeSpanClick = () => {
-    this.createDefaultSegment();
-    this.setState({
-      headingOpen: false,
-      timespanOpen: true,
-      isInitializing: true
-    });
-  };
-
-  createDefaultSegment = () => {
-    if (!this.state.timespanOpen) {
-      this.props.createTempSegment();
-      const tempSegment = this.props.peaksInstance.peaks.segments.getSegment(
-        'temp-segment'
-      );
-      this.setState({ initSegment: tempSegment });
+    this.props.createTempSegment();
+    const tempSegment = this.props.peaksInstance.peaks.segments.getSegment(
+      'temp-segment'
+    );
+    if (tempSegment === null) {
+      this.setState({
+        alertObj: configureAlert(-4, this.clearAlert),
+        headingOpen: false
+      });
+    } else {
+      this.setState({
+        initSegment: tempSegment,
+        headingOpen: false,
+        timespanOpen: true,
+        isInitializing: true
+      });
     }
   };
 
@@ -75,6 +91,7 @@ class ButtonSection extends Component {
     };
     return (
       <section style={styles.section}>
+        <AlertContainer {...this.state.alertObj} />
         <Row>
           <Col xs={6}>
             <Button block onClick={this.handleHeadingClick}>

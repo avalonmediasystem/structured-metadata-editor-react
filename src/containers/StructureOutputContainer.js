@@ -68,9 +68,15 @@ class StructureOutputContainer extends Component {
     }
   }
 
+  clearAlert = () => {
+    this.setState({
+      alertObj: null
+    });
+  };
+
   handleFetchError(error) {
     let status = error.response !== undefined ? error.response.status : -2;
-    const alertObj = configureAlert(status);
+    const alertObj = configureAlert(status, this.clearAlert);
 
     this.setState({ alertObj });
   }
@@ -81,7 +87,7 @@ class StructureOutputContainer extends Component {
       error.response !== undefined
         ? error.response.status
         : error.request.status;
-    const alertObj = configureAlert(status);
+    const alertObj = configureAlert(status, this.clearAlert);
 
     this.setState({ alertObj });
   }
@@ -92,9 +98,9 @@ class StructureOutputContainer extends Component {
       .postRequest('structure.json', postData)
       .then(response => {
         const { status } = response;
-        const alertObj = configureAlert(status);
+        const alertObj = configureAlert(status, this.clearAlert);
 
-        this.setState({ alertObj, showAlert: true });
+        this.setState({ alertObj });
       })
       .catch(error => {
         this.handleSaveError(error);
