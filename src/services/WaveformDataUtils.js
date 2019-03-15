@@ -88,7 +88,7 @@ export default class WaveformDataUtils {
     currentSegments.map(segment => {
       if (rangeBeginTime < segment.startTime) {
         const segmentLength = segment.endTime - segment.startTime;
-        if (segmentLength < 60) {
+        if (segmentLength < 60 && rangeEndTime >= segment.endTime) {
           rangeEndTime = segment.startTime - 0.01;
         }
         if (
@@ -104,16 +104,18 @@ export default class WaveformDataUtils {
       return rangeEndTime;
     });
 
-    // Move playhead to start of the temporary segment
-    peaksInstance.player.seek(rangeBeginTime);
+    if (rangeBeginTime < fileEndTime && rangeEndTime > rangeBeginTime) {
+      // Move playhead to start of the temporary segment
+      peaksInstance.player.seek(rangeBeginTime);
 
-    peaksInstance.segments.add({
-      startTime: rangeBeginTime,
-      endTime: rangeEndTime,
-      editable: true,
-      color: COLOR_PALETTE[2],
-      id: 'temp-segment'
-    });
+      peaksInstance.segments.add({
+        startTime: rangeBeginTime,
+        endTime: rangeEndTime,
+        editable: true,
+        color: COLOR_PALETTE[2],
+        id: 'temp-segment'
+      });
+    }
 
     return peaksInstance;
   }

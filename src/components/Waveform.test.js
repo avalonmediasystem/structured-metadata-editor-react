@@ -1,12 +1,12 @@
 import React from 'react';
 import Waveform, { PureWaveform } from '../components/Waveform';
 import { shallow, mount } from 'enzyme';
-import configureMockStore from 'redux-mock-store';
+import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import Peaks from 'peaks';
 
-const mockStore = configureMockStore([thunk]);
+const mockStore = configureStore([thunk]);
 
 describe('Waveform component', () => {
   let store, peaks;
