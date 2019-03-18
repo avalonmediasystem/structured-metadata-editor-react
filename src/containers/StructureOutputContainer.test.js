@@ -16,14 +16,13 @@ describe('StructureOutputContainer component', () => {
       smData: [],
       buildSMUI: jest.fn()
     });
-  });
-  test('component mounts without crashing', () => {
     mockAxios.get.mockImplementationOnce(() => {
       return Promise.resolve({
         data: testMetadataStructure[0]
       });
     });
-
+  });
+  test('component mounts without crashing', () => {
     const wrapper = mount(
       <Provider store={store}>
         <StructureOutputContainer />

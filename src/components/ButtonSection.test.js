@@ -20,11 +20,22 @@ describe('ButtonSection component', () => {
   };
   beforeEach(() => {
     const peaks = { peaks: Peaks.init(options) };
+    let forms = {
+      disabled: false
+    };
     props = {
       peaksInstance: peaks,
       smData: testMetadataStructure,
+      showForms: forms,
       createTempSegment: jest.fn(() => {
         waveformUtils.insertTempSegment(peaks.peaks);
+      }),
+      handleEditingTimespans: jest.fn(code => {
+        if (code === 0) {
+          forms.disabled = true;
+        } else {
+          forms.disabled = false;
+        }
       })
     };
     wrapper = shallow(<PureButtonSection {...props} />);
@@ -36,7 +47,8 @@ describe('ButtonSection component', () => {
       timespanOpen,
       isInitializing,
       initSegment,
-      alertObj
+      alertObj,
+      disabled
     } = wrapper.instance().state;
     expect(wrapper).toMatchSnapshot();
     expect(headingOpen).toBeFalsy();
@@ -44,18 +56,22 @@ describe('ButtonSection component', () => {
     expect(isInitializing).toBeTruthy();
     expect(initSegment).toBeNull();
     expect(alertObj).toBeNull();
+    expect(disabled).toBeTruthy();
     expect(wrapper.find('Button').at(0)).toBeDefined();
   });
 
-  test('tests Add Heading', () => {
+  test('tests Add a Heading', () => {
     const addheading = wrapper.find('Button').at(0);
     addheading.simulate('click');
 
+    expect(wrapper.instance().props.showForms.disabled).toBeTruthy();
+
     expect(wrapper.instance().state.headingOpen).toBeTruthy();
     expect(wrapper.instance().state.timespanOpen).toBeFalsy();
+    expect(wrapper.instance().state.disabled).toBeFalsy();
   });
 
-  test('tests Add Timespan', () => {
+  test('tests Add a Timespan', () => {
     // Move the playhead to a time within an existing segment
     wrapper.instance().props.peaksInstance.peaks.player.seek(450);
 
@@ -63,8 +79,11 @@ describe('ButtonSection component', () => {
     addSpan.simulate('click');
 
     expect(wrapper.instance().props.createTempSegment).toHaveBeenCalled();
+    expect(wrapper.instance().props.showForms.disabled).toBeTruthy();
+
     expect(wrapper.instance().state.timespanOpen).toBeTruthy();
     expect(wrapper.instance().state.headingOpen).toBeFalsy();
+    expect(wrapper.instance().state.disabled).toBeFalsy();
     expect(wrapper.instance().state.initSegment).toEqual({
       id: 'temp-segment',
       startTime: 480.01,
@@ -74,7 +93,7 @@ describe('ButtonSection component', () => {
     });
   });
 
-  test('tests Add Timespan when there is no space to add a new timespan', () => {
+  test('tests Add a Timespan when there is no space to add a new timespan', () => {
     const { peaks } = wrapper.instance().props.peaksInstance;
     // Prep work: add segments to reach the end of the file
     peaks.segments.add([
@@ -99,6 +118,10 @@ describe('ButtonSection component', () => {
       .find('Button')
       .at(1)
       .simulate('click');
+
+    expect(wrapper.instance().props.showForms.disabled).toBeFalsy();
+
+    expect(wrapper.instance().state.disabled).toBeFalsy();
     expect(wrapper.instance().state.alertObj.alertStyle).toEqual('warning');
     expect(wrapper.instance().state.alertObj.message).toEqual(
       'Time ahead has timespans reaching the end of media file, there is no available time to insert a new timespan'
