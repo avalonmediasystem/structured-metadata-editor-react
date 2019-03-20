@@ -17,9 +17,9 @@ import {
   isTitleValid,
   validTimespans
 } from '../services/form-helper';
-import { isEqual } from 'lodash';
 import * as peaksActions from '../actions/peaks-instance';
 import WaveformDataUtils from '../services/WaveformDataUtils';
+import { isEqual } from 'lodash';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 const waveformDataUtils = new WaveformDataUtils();
@@ -36,6 +36,11 @@ class TimespanForm extends Component {
       isTyping: false
     };
     this.allSpans = null;
+  }
+
+  componentDidMount() {
+    const { smData } = this.props;
+    this.allSpans = structuralMetadataUtils.getItemsOfType('span', smData);
   }
 
   componentDidUpdate(prevProps) {

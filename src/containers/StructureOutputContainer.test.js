@@ -1,37 +1,77 @@
 import React from 'react';
-import StructureOutputContainer from './StructureOutputContainer';
+import { PureStructureOutputContainer } from './StructureOutputContainer';
 import { mount } from 'enzyme';
-import thunk from 'redux-thunk';
-import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
 import mockAxios from 'axios';
 import { testMetadataStructure } from '../test/TestStructure';
 
-const mockStore = configureStore([thunk]);
-
-describe('StructureOutputContainer component', () => {
-  let store;
+describe('StructureOutputContainer class', () => {
+  let props,
+    pureWrapper,
+    initForms = {
+      editingDisabled: false,
+      structureRetrieved: false,
+      waveformRetrieved: false
+    };
   beforeEach(() => {
-    store = mockStore({
+    props = {
       smData: [],
-      buildSMUI: jest.fn()
-    });
+      forms: initForms,
+      buildSMUI: jest.fn(),
+      handleStructureFile: jest.fn(code => {
+        if (code === 0) {
+          initForms.structureRetrieved = true;
+        }
+      })
+    };
     mockAxios.get.mockImplementationOnce(() => {
       return Promise.resolve({
         data: testMetadataStructure[0]
       });
     });
+    pureWrapper = mount(<PureStructureOutputContainer {...props} />);
   });
   test('component mounts without crashing', () => {
-    const wrapper = mount(
-      <Provider store={store}>
-        <StructureOutputContainer />
-      </Provider>
-    );
     expect(mockAxios.get).toHaveBeenCalledTimes(1);
-    expect(wrapper.find('h3').instance()).toBeDefined();
-    expect(wrapper.find('Button').instance().props.children).toBe(
-      'Save Structure'
-    );
+    expect(pureWrapper.instance()).toBeDefined();
+
+    // Re-render component with updated props
+    pureWrapper.setProps({
+      ...props
+    });
+
+    // expect(pureWrapper.find('h3').instance()).toBeDefined();
+    expect(
+      pureWrapper
+        .find('Button')
+        .at(0)
+        .instance().props.children
+    ).toBe('Save Structure');
+  });
+
+  test('component renders AlertContainer when error occurs in API call', () => {
+    mockAxios.get.mockImplementationOnce(() => {
+      return Promise.reject({
+        response: {
+          status: 404
+        }
+      });
+    });
+
+    const badWrapper = mount(<PureStructureOutputContainer {...props} />);
+
+    // Test for changes in state and AlertContainer asynchronously
+    setImmediate(() => {
+      expect(badWrapper.instance().state.alertObj).not.toBeNull();
+      expect(badWrapper.instance().state.alertObj.alertStyle).toEqual('danger');
+      expect(badWrapper.instance().state.alertObj.message).toEqual(
+        'Requested masterfile not found'
+      );
+      const alertContainer = badWrapper.find('AlertContainer').instance();
+      expect(alertContainer).toBeDefined();
+      expect(alertContainer.props.message).toBe(
+        'Requested masterfile not found'
+      );
+      expect(alertContainer.state.show).toBeTruthy();
+    }, 0);
   });
 });

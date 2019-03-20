@@ -2,7 +2,10 @@ import React from 'react';
 import { cloneDeep } from 'lodash';
 import TimespanForm, { PureTimespanForm } from './TimespanForm';
 import { shallow, mount } from 'enzyme';
-import { testMetadataStructure } from '../test/TestStructure';
+import {
+  testMetadataStructure,
+  testEmptyHeaderAfter
+} from '../test/TestStructure';
 import Peaks from 'peaks';
 
 describe('TimespanForm component', () => {
@@ -19,8 +22,8 @@ describe('TimespanForm component', () => {
   beforeAll(() => {
     peaks = { peaks: Peaks.init(options) };
     props = {
-      peaksInstance: {},
-      smData: [],
+      peaksInstance: peaks,
+      smData: testEmptyHeaderAfter, // initially mount with a different structure
       segment: {},
       updateSegment: jest.fn()
     };
@@ -31,7 +34,7 @@ describe('TimespanForm component', () => {
     expect(wrapper.find('#timespanTitle')).toBeDefined();
     expect(wrapper.find('#beginTime')).toBeDefined();
     expect(wrapper.find('#endTime')).toBeDefined();
-    expect(wrapper.instance().props.smData).toEqual([]);
+    expect(wrapper.instance().props.smData).toEqual(testEmptyHeaderAfter);
   });
 
   describe('tests the pure TimespanForm component', () => {
@@ -60,12 +63,21 @@ describe('TimespanForm component', () => {
     });
 
     test('mounts pure component without crashing', () => {
-      expect(pureWrapper.instance().state.beginTime).toBe('');
-      expect(pureWrapper.instance().state.endTime).toBe('');
-      expect(pureWrapper.instance().state.timespanTitle).toBe('');
-      expect(pureWrapper.instance().state.timespanChildOf).toBe('');
-      expect(pureWrapper.instance().state.validHeadings).toEqual([]);
-      expect(pureWrapper.instance().state.isTyping).toBeFalsy();
+      const {
+        beginTime,
+        endTime,
+        timespanTitle,
+        timespanChildOf,
+        validHeadings,
+        isTyping
+      } = pureWrapper.instance().state;
+      expect(beginTime).toBe('');
+      expect(endTime).toBe('');
+      expect(timespanTitle).toBe('');
+      expect(timespanChildOf).toBe('');
+      expect(validHeadings).toEqual([]);
+      expect(isTyping).toBeFalsy();
+      expect(pureWrapper.instance().allSpans).toHaveLength(1);
     });
 
     test('updates component with correct props fires componentDidUpdate()', () => {

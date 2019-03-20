@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import APIUtils from '../api/Utils';
 import { connect } from 'react-redux';
 import * as peaksActions from '../actions/peaks-instance';
-import * as actions from '../actions/show-forms';
+import * as actions from '../actions/forms';
 import Waveform from '../components/Waveform';
-import WaveformErrorBoundary from '../components/WaveformErrorBoundary';
 import AlertContainer from '../containers/AlertContainer';
 import { configureAlert } from '../services/alert-status';
+import { handleWaveformMasterFile } from '../actions/forms';
 
 const apiUtils = new APIUtils();
 
@@ -30,7 +30,8 @@ class WaveformContainer extends Component {
   }
 
   state = {
-    alertObj: null
+    alertObj: null,
+    hasError: false
   };
 
   componentDidMount() {
@@ -57,7 +58,7 @@ class WaveformContainer extends Component {
     }
 
     const alertObj = configureAlert(status, this.clearAlert);
-    this.setState({ alertObj, error: true });
+    this.setState({ alertObj, hasError: true });
   }
 
   async initializePeaks() {
@@ -65,39 +66,49 @@ class WaveformContainer extends Component {
       const response = await apiUtils.getRequest('waveform.json');
       // Set the masterfile URL as the URI for the waveform data file
       peaksOptions.dataUri = response.request.responseURL;
+
       // Initialize Peaks
       this.props.initPeaks(this.props.smData, peaksOptions);
+
+      // Update redux-store flag for waveform file retrieval
+      this.props.handleWaveformFile(0);
     } catch (error) {
       this.handleError(error);
     }
   }
 
   render() {
-    const { alertObj } = this.state;
+    const { alertObj, hasError } = this.state;
+    const { forms } = this.props;
 
     return (
       <section className="waveform-section">
-        <WaveformErrorBoundary>
+        {!forms.waveformRetrieved && hasError ? (
+          <AlertContainer {...alertObj} />
+        ) : (
           <Waveform
             waveformRef={ref => (this.waveformContainer = ref)}
             mediaPlayerRef={ref => (this.mediaPlayer = ref)}
           />
-        </WaveformErrorBoundary>
-
-        {alertObj && <AlertContainer {...alertObj} />}
+        )}
       </section>
     );
   }
 }
 
+// For testing purposes
+export { WaveformContainer as PureWaveformContainer };
+
 const mapStateToProps = state => ({
-  smData: state.smData
+  smData: state.smData,
+  forms: state.forms
 });
 
 const mapDispatchToProps = dispatch => ({
   ...actions,
   initPeaks: (smData, options) =>
-    dispatch(peaksActions.initPeaksInstance(smData, options))
+    dispatch(peaksActions.initPeaksInstance(smData, options)),
+  handleWaveformFile: code => dispatch(handleWaveformMasterFile(code))
 });
 
 export default connect(

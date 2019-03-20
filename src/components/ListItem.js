@@ -3,7 +3,7 @@ import List from './List';
 import { connect } from 'react-redux';
 import * as smActions from '../actions/sm-data';
 import * as peaksActions from '../actions/peaks-instance';
-import * as showForms from '../actions/show-forms';
+import * as forms from '../actions/forms';
 import PropTypes from 'prop-types';
 import { ItemTypes } from '../services/Constants';
 import { DragSource, DropTarget } from 'react-dnd';
@@ -169,7 +169,7 @@ const mapDispatchToProps = {
   removeActiveDragSources: smActions.removeActiveDragSources,
   setActiveDragSource: smActions.setActiveDragSource,
   deleteSegment: peaksActions.deleteSegment,
-  handleEditingTimespans: showForms.handleEditingTimespans
+  handleEditingTimespans: forms.handleEditingTimespans
 };
 
 const mapStateToProps = state => ({

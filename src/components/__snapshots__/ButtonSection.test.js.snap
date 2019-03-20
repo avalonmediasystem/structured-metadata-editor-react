@@ -5,6 +5,13 @@ ShallowWrapper {
   Symbol(enzyme.__root__): [Circular],
   Symbol(enzyme.__unrendered__): <ButtonSection
     createTempSegment={[MockFunction]}
+    forms={
+      Object {
+        "editingDisabled": false,
+        "structureRetrieved": true,
+        "waveformRetrieved": true,
+      }
+    }
     handleEditingTimespans={[MockFunction]}
     peaksInstance={
       Object {
@@ -76,11 +83,6 @@ ShallowWrapper {
             "zoomOut": [MockFunction],
           },
         },
-      }
-    }
-    showForms={
-      Object {
-        "disabled": false,
       }
     }
     smData={

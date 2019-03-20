@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
-import showForms from './show-forms';
+import forms from './forms';
 import smData from './sm-data';
 import peaksInstance from './peaks-instance';
 
 export default combineReducers({
-  showForms,
+  forms,
   smData,
   peaksInstance
 });

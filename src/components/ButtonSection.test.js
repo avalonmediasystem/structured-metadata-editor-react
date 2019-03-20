@@ -20,21 +20,23 @@ describe('ButtonSection component', () => {
   };
   beforeEach(() => {
     const peaks = { peaks: Peaks.init(options) };
-    let forms = {
-      disabled: false
+    let initforms = {
+      editingDisabled: false,
+      structureRetrieved: true,
+      waveformRetrieved: true
     };
     props = {
       peaksInstance: peaks,
       smData: testMetadataStructure,
-      showForms: forms,
+      forms: initforms,
       createTempSegment: jest.fn(() => {
         waveformUtils.insertTempSegment(peaks.peaks);
       }),
       handleEditingTimespans: jest.fn(code => {
         if (code === 0) {
-          forms.disabled = true;
+          initforms.editingDisabled = true;
         } else {
-          forms.disabled = false;
+          initforms.editingDisabled = false;
         }
       })
     };
@@ -60,11 +62,43 @@ describe('ButtonSection component', () => {
     expect(wrapper.find('Button').at(0)).toBeDefined();
   });
 
+  test('component render null when structureRetrieved & waveformRetrieved are false', () => {
+    const newProps = {
+      ...props,
+      forms: {
+        structureRetrieved: false,
+        waveformRetrieved: false
+      }
+    };
+    // Set props which re-renders the component
+    wrapper.setProps({
+      ...newProps
+    });
+    // Component is null when both structure & waveform master files are not retrieved
+    expect(wrapper.type()).toBeNull();
+  });
+
+  test('component render null when either structureRetrieved or waveformRetrieved is false', () => {
+    const newProps = {
+      ...props,
+      forms: {
+        structureRetrieved: true,
+        waveformRetrieved: false
+      }
+    };
+    // Set props which re-renders the component
+    wrapper.setProps({
+      ...newProps
+    });
+    // Component is null when both structure & waveform master files are not retrieved
+    expect(wrapper.type()).toBeNull();
+  });
+
   test('tests Add a Heading', () => {
     const addheading = wrapper.find('Button').at(0);
     addheading.simulate('click');
 
-    expect(wrapper.instance().props.showForms.disabled).toBeTruthy();
+    expect(wrapper.instance().props.forms.editingDisabled).toBeTruthy();
 
     expect(wrapper.instance().state.headingOpen).toBeTruthy();
     expect(wrapper.instance().state.timespanOpen).toBeFalsy();
@@ -79,7 +113,7 @@ describe('ButtonSection component', () => {
     addSpan.simulate('click');
 
     expect(wrapper.instance().props.createTempSegment).toHaveBeenCalled();
-    expect(wrapper.instance().props.showForms.disabled).toBeTruthy();
+    expect(wrapper.instance().props.forms.editingDisabled).toBeTruthy();
 
     expect(wrapper.instance().state.timespanOpen).toBeTruthy();
     expect(wrapper.instance().state.headingOpen).toBeFalsy();
@@ -119,7 +153,7 @@ describe('ButtonSection component', () => {
       .at(1)
       .simulate('click');
 
-    expect(wrapper.instance().props.showForms.disabled).toBeFalsy();
+    expect(wrapper.instance().props.forms.editingDisabled).toBeTruthy();
 
     expect(wrapper.instance().state.disabled).toBeFalsy();
     expect(wrapper.instance().state.alertObj.alertStyle).toEqual('warning');

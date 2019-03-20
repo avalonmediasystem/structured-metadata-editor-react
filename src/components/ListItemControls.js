@@ -3,7 +3,7 @@ import { Button, ButtonToolbar, Overlay, Popover } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
-import { handleEditingTimespans } from '../actions/show-forms';
+import { handleEditingTimespans } from '../actions/forms';
 
 const styles = {
   buttonToolbar: {
@@ -76,7 +76,7 @@ class ListItemControls extends Component {
       handleShowDropTargetsClick,
       handleEditClick,
       item,
-      showForms
+      forms
     } = this.props;
     const { deleteMessage, showDeleteConfirm } = this.state;
 
@@ -85,7 +85,7 @@ class ListItemControls extends Component {
         {item.type === 'span' && (
           <Button
             bsStyle="link"
-            disabled={showForms.disabled}
+            disabled={forms.editingDisabled}
             onClick={handleShowDropTargetsClick}
           >
             <FontAwesomeIcon icon="dot-circle" />
@@ -94,7 +94,7 @@ class ListItemControls extends Component {
         <Button
           bsStyle="link"
           onClick={handleEditClick}
-          disabled={showForms.disabled}
+          disabled={forms.editingDisabled}
         >
           <FontAwesomeIcon icon="pen" />
         </Button>
@@ -104,7 +104,7 @@ class ListItemControls extends Component {
             <Button
               bsStyle="link"
               onClick={this.handleDeleteClick}
-              disabled={showForms.disabled}
+              disabled={forms.editingDisabled}
             >
               <FontAwesomeIcon icon="trash" />
             </Button>
@@ -146,7 +146,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = state => ({
-  showForms: state.showForms
+  forms: state.forms
 });
 
 export default connect(

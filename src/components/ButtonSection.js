@@ -6,7 +6,7 @@ import TimespanFormContainer from '../containers/TimespanFormContainer';
 import * as peaksActions from '../actions/peaks-instance';
 import { configureAlert } from '../services/alert-status';
 import AlertContainer from '../containers/AlertContainer';
-import { handleEditingTimespans } from '../actions/show-forms';
+import { handleEditingTimespans } from '../actions/forms';
 
 const styles = {
   section: {
@@ -66,10 +66,12 @@ class ButtonSection extends Component {
   };
 
   handleTimeSpanClick = () => {
-    this.props.createTempSegment();
-    // Clear the redux-store flag if it has been set to true
-    if (this.props.showForms.disabled) {
-      this.props.handleEditingTimespans(1);
+    // Disable editing other items in structure
+    this.props.handleEditingTimespans(0);
+
+    // Create a temporary segment if timespan form is closed
+    if (!this.state.timespanOpen) {
+      this.props.createTempSegment();
     }
     const tempSegment = this.props.peaksInstance.peaks.segments.getSegment(
       'temp-segment'
@@ -107,7 +109,11 @@ class ButtonSection extends Component {
       timespanOpen: this.state.timespanOpen,
       updateInitialize: this.updateInitializeFlag
     };
-    return (
+
+    const { structureRetrieved, waveformRetrieved } = this.props.forms;
+    const waveformAndStructureValid = structureRetrieved && waveformRetrieved;
+
+    return waveformAndStructureValid ? (
       <section style={styles.section}>
         <AlertContainer {...this.state.alertObj} />
         <Row>
@@ -115,7 +121,7 @@ class ButtonSection extends Component {
             <Button
               block
               onClick={this.handleHeadingClick}
-              disabled={this.state.disabled && this.props.showForms.disabled}
+              disabled={this.state.disabled && this.props.forms.editingDisabled}
             >
               Add a Heading
             </Button>
@@ -124,7 +130,7 @@ class ButtonSection extends Component {
             <Button
               block
               onClick={this.handleTimeSpanClick}
-              disabled={this.state.disabled && this.props.showForms.disabled}
+              disabled={this.state.disabled && this.props.forms.editingDisabled}
             >
               Add a Timespan
             </Button>
@@ -142,7 +148,7 @@ class ButtonSection extends Component {
           </div>
         </Collapse>
       </section>
-    );
+    ) : null;
   }
 }
 
@@ -152,7 +158,7 @@ export { ButtonSection as PureButtonSection };
 const mapStateToProps = state => ({
   smData: state.smData,
   peaksInstance: state.peaksInstance,
-  showForms: state.showForms
+  forms: state.forms
 });
 
 const mapDispatchToProps = {
