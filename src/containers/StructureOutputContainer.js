@@ -8,6 +8,7 @@ import { configureAlert } from '../services/alert-status';
 import uuidv1 from 'uuid/v1';
 import { cloneDeep } from 'lodash';
 import { buildSMUI } from '../actions/sm-data';
+import { handleStructureMasterFile } from '../actions/forms';
 
 class StructureOutputContainer extends Component {
   constructor(props) {
@@ -30,6 +31,9 @@ class StructureOutputContainer extends Component {
 
       // Update the redux store
       this.props.buildSMUI(smData);
+
+      // Update redux-store flag for structure file retrieval
+      this.props.handleStructureFile(0);
     } catch (error) {
       console.log('TCL: StructureOutputContainer -> }catch -> error', error);
       this.handleFetchError(error);
@@ -108,33 +112,44 @@ class StructureOutputContainer extends Component {
   };
 
   render() {
-    const { smData = [] } = this.props;
+    const { smData = [], forms } = this.props;
     const { alertObj } = this.state;
 
     return (
       <section>
-        <h3>HTML Structure Tree from a masterfile in server</h3>
-        <AlertContainer {...alertObj} />
-        <br />
-        <List items={smData} />
-        <Row>
-          <Col xs={12} className="text-right">
-            <Button bsStyle="primary" onClick={this.handleSaveItClick}>
-              Save Structure
-            </Button>
-          </Col>
-        </Row>
+        {!forms.structureRetrieved ? (
+          <AlertContainer {...alertObj} />
+        ) : (
+          <div>
+            <h3>HTML Structure Tree from a masterfile in server</h3>
+            <AlertContainer {...alertObj} />
+            <br />
+            <List items={smData} />
+            <Row>
+              <Col xs={12} className="text-right">
+                <Button bsStyle="primary" onClick={this.handleSaveItClick}>
+                  Save Structure
+                </Button>
+              </Col>
+            </Row>
+          </div>
+        )}
       </section>
     );
   }
 }
 
+// For testing purposes
+export { StructureOutputContainer as PureStructureOutputContainer };
+
 const mapStateToProps = state => ({
-  smData: state.smData
+  smData: state.smData,
+  forms: state.forms
 });
 
 const mapDispatchToProps = dispatch => ({
-  buildSMUI: smData => dispatch(buildSMUI(smData))
+  buildSMUI: smData => dispatch(buildSMUI(smData)),
+  handleStructureFile: code => dispatch(handleStructureMasterFile(code))
 });
 
 export default connect(

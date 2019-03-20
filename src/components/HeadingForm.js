@@ -10,7 +10,7 @@ import {
   FormGroup,
   Row
 } from 'react-bootstrap';
-import * as actions from '../actions/show-forms';
+import * as actions from '../actions/forms';
 import PropTypes from 'prop-types';
 import { isEqual } from 'lodash';
 import { getValidationTitleState } from '../services/form-helper';
@@ -51,10 +51,15 @@ class HeadingForm extends Component {
   }
 
   getOptions() {
-    const allHeaders = structuralMetadataUtils.getItemsOfType(
+    const rootHeader = structuralMetadataUtils.getItemsOfType(
+      'root',
+      this.props.smData
+    );
+    const divHeaders = structuralMetadataUtils.getItemsOfType(
       'div',
       this.props.smData
     );
+    const allHeaders = rootHeader.concat(divHeaders);
     const options = allHeaders.map(header => (
       <option value={header.id} key={header.id}>
         {header.label}
