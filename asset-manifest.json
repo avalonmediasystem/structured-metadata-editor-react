@@ -1,14 +1,14 @@
 {
-  "main.css": "/structured-metadata-editor-react/static/css/main.b1c01772.chunk.css",
-  "main.js": "/structured-metadata-editor-react/static/js/main.8dddd555.chunk.js",
-  "main.js.map": "/structured-metadata-editor-react/static/js/main.8dddd555.chunk.js.map",
+  "main.css": "/structured-metadata-editor-react/static/css/main.aee9c4a0.chunk.css",
+  "main.js": "/structured-metadata-editor-react/static/js/main.6f95d8b0.chunk.js",
+  "main.js.map": "/structured-metadata-editor-react/static/js/main.6f95d8b0.chunk.js.map",
   "runtime~main.js": "/structured-metadata-editor-react/static/js/runtime~main.774c8a81.js",
   "runtime~main.js.map": "/structured-metadata-editor-react/static/js/runtime~main.774c8a81.js.map",
-  "static/js/2.b466331a.chunk.js": "/structured-metadata-editor-react/static/js/2.b466331a.chunk.js",
-  "static/js/2.b466331a.chunk.js.map": "/structured-metadata-editor-react/static/js/2.b466331a.chunk.js.map",
+  "static/js/2.4af39e30.chunk.js": "/structured-metadata-editor-react/static/js/2.4af39e30.chunk.js",
+  "static/js/2.4af39e30.chunk.js.map": "/structured-metadata-editor-react/static/js/2.4af39e30.chunk.js.map",
   "index.html": "/structured-metadata-editor-react/index.html",
-  "precache-manifest.09b6e78354f4107356a86d50e213b4c6.js": "/structured-metadata-editor-react/precache-manifest.09b6e78354f4107356a86d50e213b4c6.js",
+  "precache-manifest.a5069ab0c45cc28f2101e459f862ad00.js": "/structured-metadata-editor-react/precache-manifest.a5069ab0c45cc28f2101e459f862ad00.js",
   "service-worker.js": "/structured-metadata-editor-react/service-worker.js",
-  "static/css/main.b1c01772.chunk.css.map": "/structured-metadata-editor-react/static/css/main.b1c01772.chunk.css.map",
+  "static/css/main.aee9c4a0.chunk.css.map": "/structured-metadata-editor-react/static/css/main.aee9c4a0.chunk.css.map",
   "static/media/utah_phillips_one.mp3": "/structured-metadata-editor-react/static/media/utah_phillips_one.786f6474.mp3"
 }
