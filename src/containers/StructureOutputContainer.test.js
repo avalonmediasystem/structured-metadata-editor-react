@@ -5,14 +5,13 @@ import mockAxios from 'axios';
 import { testMetadataStructure } from '../test/TestStructure';
 
 describe('StructureOutputContainer class', () => {
-  let props,
-    pureWrapper,
+  let props, initForms;
+  beforeEach(() => {
     initForms = {
       editingDisabled: false,
       structureRetrieved: false,
       waveformRetrieved: false
     };
-  beforeEach(() => {
     props = {
       smData: [],
       forms: initForms,
@@ -23,29 +22,27 @@ describe('StructureOutputContainer class', () => {
         }
       })
     };
+  });
+
+  test('component mounts without crashing', () => {
     mockAxios.get.mockImplementationOnce(() => {
       return Promise.resolve({
         data: testMetadataStructure[0]
       });
     });
-    pureWrapper = mount(<PureStructureOutputContainer {...props} />);
-  });
-  test('component mounts without crashing', () => {
+    const pureWrapper = mount(<PureStructureOutputContainer {...props} />);
+
     expect(mockAxios.get).toHaveBeenCalledTimes(1);
     expect(pureWrapper.instance()).toBeDefined();
 
-    // Re-render component with updated props
-    pureWrapper.setProps({
-      ...props
-    });
-
-    // expect(pureWrapper.find('h3').instance()).toBeDefined();
-    expect(
-      pureWrapper
-        .find('Button')
-        .at(0)
-        .instance().props.children
-    ).toBe('Save Structure');
+    // Test for changes in state asynchronously
+    setImmediate(() => {
+      expect(
+        pureWrapper.instance().props.forms.structureRetrieved
+      ).toBeTruthy();
+      expect(pureWrapper.instance().state.fetchAlertObj).toEqual({});
+      expect(pureWrapper.instance().state.postAlertObj).toEqual({});
+    }, 0);
   });
 
   test('component renders AlertContainer when error occurs in API call', () => {
@@ -56,17 +53,24 @@ describe('StructureOutputContainer class', () => {
         }
       });
     });
-
     const badWrapper = mount(<PureStructureOutputContainer {...props} />);
+
+    // Accumulated from previous GET request
+    expect(mockAxios.get).toHaveBeenCalledTimes(2);
 
     // Test for changes in state and AlertContainer asynchronously
     setImmediate(() => {
-      expect(badWrapper.instance().state.alertObj).not.toBeNull();
-      expect(badWrapper.instance().state.alertObj.alertStyle).toEqual('danger');
-      expect(badWrapper.instance().state.alertObj.message).toEqual(
+      expect(badWrapper.instance().state.fetchAlertObj).not.toBeNull();
+      expect(badWrapper.instance().state.fetchAlertObj.alertStyle).toEqual(
+        'danger'
+      );
+      expect(badWrapper.instance().state.fetchAlertObj.message).toEqual(
         'Requested masterfile not found'
       );
-      const alertContainer = badWrapper.find('AlertContainer').instance();
+      const alertContainer = badWrapper
+        .find('AlertContainer')
+        .at(1)
+        .instance();
       expect(alertContainer).toBeDefined();
       expect(alertContainer.props.message).toBe(
         'Requested masterfile not found'

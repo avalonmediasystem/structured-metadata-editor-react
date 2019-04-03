@@ -66,6 +66,9 @@ class ButtonSection extends Component {
   };
 
   handleTimeSpanClick = () => {
+    // Clear existing alertObj
+    this.clearAlert();
+
     // Disable editing other items in structure
     this.props.handleEditingTimespans(0);
 
@@ -83,7 +86,6 @@ class ButtonSection extends Component {
         disabled: false
       });
     } else {
-      this.props.handleEditingTimespans(0);
       this.setState({
         initSegment: tempSegment,
         headingOpen: false,
