@@ -2,9 +2,9 @@
 
 A ReactJS application to work on the UI/UX features of the structural metadata editor for the Avalon Media System.
 
-It helps the users of the Avalon Media System to derive and edit the structure of a media file. Each structure can have any combination of headings and time-spans, which are shown in a tree structure with nested items. Each of these time-spans are visually represented in a waveform as segments.
+It helps the users of the Avalon Media System to derive and edit the structure of a media file. Each structure can have any combination of headings and time-spans, which are shown in a tree structure with nested items. Each of these time-spans are visually represented in a waveform view, as segments.
 
-The underlying technology used in this application is mainly ReactJS, along with a third-party library [Peaks.js](https://github.com/bbc/peaks.js) developed by [BBC R&D](https://www.bbc.co.uk/rd) to allow users to interact with the waveform.
+The underlying technologies used in this application are JavaScript, ReactJS, along with a third-party library [Peaks.js](https://github.com/bbc/peaks.js) developed by [BBC R&D](https://www.bbc.co.uk/rd) to allow users to interact with the waveform.
 
 ## Full Documentation
 
@@ -20,11 +20,11 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-Make sure, you have `node` and `npm` installed in your development environment, with `node -v` and `npm -v`.
+Make sure you have `node` and `npm` installed in your development environment. Verify installations by running `node -v` and `npm -v` to check for local versions.
 
 ### Installing
 
-Clone the repository;
+#### Clone the repository
 
 Over HTTPS:
 
@@ -39,7 +39,7 @@ Over SSH:
 git clone git@github.com:avalonmediasystem/structured-metadata-editor-react.git
 ```
 
-Install dependencies;
+#### Install dependencies
 
 ```
 cd structured-metadata-editor
@@ -47,7 +47,7 @@ cd structured-metadata-editor
 yarn install
 ```
 
-Run the application;
+#### Run the application
 
 ```
 yarn start
@@ -57,7 +57,7 @@ This will start a development server in your `http://localhost:3123`, by default
 
 ## Testing
 
-This application has test suites written for React components and logic in the application. It uses Jest as a test framework, and Enzyme to render and traverse React components within the tests. At the moment not all the React compoenents has tests. To run all the tests, run;
+This application has test suites written for React components and logic in the application. It uses Jest as a test framework, and Enzyme to render and traverse React components within the tests. At the moment not all the React compoenents has tests. To run all the tests, run:
 
 ```
 yarn test
@@ -69,7 +69,8 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 ## Authors
 
-- **Adam Arling**
+- Adam Arling (Northwestern University)
+- Dananji Withana (Indiana University)
 
 ## License
 
