@@ -46,8 +46,9 @@ class HeadingForm extends Component {
   formIsValid() {
     const { headingTitle } = this.state;
     const titleValid = headingTitle && headingTitle.length > 0;
+    const childOfValid = this.state.headingChildOf.length > 0;
 
-    return titleValid;
+    return titleValid && childOfValid;
   }
 
   getOptions() {
