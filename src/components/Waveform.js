@@ -59,9 +59,23 @@ class Waveform extends Component {
   };
 
   render() {
+    // Content of aria-label for UI components
+    const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.
+    There are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below. 
+    First one contains a selected zoomed-in section from the entire waveform, while the second waveform shows an overview of the entire audio file.
+    There are multiple zoom levels, which can be changed using the zoom-in and zoom-out buttons in the waveform toolbar. 
+    These time-based visual sections will be updated by editing the matching timespans in the structure.`;
+    const audioControlsLabel = `Audio controls; play, seek, and adjust volume of the audio file`;
+    const waveformControlsLabel = `Waveform toolbar with zoom-in, zoom-out, and seek functionalities to view and traverse the waveform`;
+
     return (
       <div>
-        <div id="waveform-container" ref={this.waveformContainer} />
+        <div
+          id="waveform-container"
+          ref={this.waveformContainer}
+          aria-label={waveformLabel}
+          tabIndex="0"
+        />
         <Row>
           <Col xs={12} md={6}>
             <audio
@@ -69,31 +83,43 @@ class Waveform extends Component {
               ref={this.mediaPlayer}
               src={soundMP3}
               type="audio/mp3"
+              aria-label={audioControlsLabel}
             >
               Your browser does not support the audio element.
             </audio>
           </Col>
-          <Col xs={12} md={6} className="text-right">
-            <Form inline onSubmit={this.handleSubmit}>
+          <Col
+            xs={12}
+            md={6}
+            className="text-right"
+            tabIndex="0"
+            aria-label={waveformControlsLabel}
+          >
+            <Form inline onSubmit={this.handleSubmit} role="form">
               <FormGroup>
                 <ButtonToolbar>
                   <Button
                     className="glyphicon glyphicon-zoom-in"
+                    aria-label="Zoom in"
                     onClick={this.zoomIn}
                   />
                   <Button
                     className="glyphicon glyphicon-zoom-out"
+                    aria-label="Zoom out"
                     onClick={this.zoomOut}
                   />
                 </ButtonToolbar>
               </FormGroup>{' '}
-              <FormControl
-                className="form-control"
-                type="text"
-                value={this.state.seekTime}
-                onChange={this.handleChange}
-                placeholder="0"
-              />{' '}
+              <FormGroup>
+                <FormControl
+                  className="form-control"
+                  type="text"
+                  value={this.state.seekTime}
+                  onChange={this.handleChange}
+                  placeholder="0"
+                  aria-label="Seek time in seconds"
+                />
+              </FormGroup>{' '}
               <Button onClick={this.seekTime}>Seek</Button>
             </Form>
           </Col>
