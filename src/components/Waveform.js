@@ -11,6 +11,15 @@ import {
 import soundMP3 from '../data/utah_phillips_one.mp3';
 import { connect } from 'react-redux';
 
+// Content of aria-label for UI components
+const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.
+There are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below. 
+First one contains a selected zoomed-in section from the entire waveform, while the second waveform shows an overview of the entire audio file.
+There are multiple zoom levels, which can be changed using the zoom-in and zoom-out buttons in the waveform toolbar. 
+These time-based visual sections will be updated by editing the matching timespans in the structure.`;
+const audioControlsLabel = `Audio controls; play, seek, and adjust volume of the audio file`;
+const waveformControlsLabel = `Waveform toolbar with zoom-in, zoom-out, and seek functionalities to view and traverse the waveform`;
+
 class Waveform extends Component {
   constructor(props) {
     super(props);
@@ -24,25 +33,12 @@ class Waveform extends Component {
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
-
-    this.waveformLabel = '';
-    this.audioControlsLabel = '';
-    this.waveformControlsLabel = '';
   }
 
   componentDidMount() {
     // Grab the React `refs` now the component is mounted
     this.props.waveformRef(this.waveformContainer.current);
     this.props.mediaPlayerRef(this.mediaPlayer.current);
-
-    // Content of aria-label for UI components
-    this.waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.
-    There are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below. 
-    First one contains a selected zoomed-in section from the entire waveform, while the second waveform shows an overview of the entire audio file.
-    There are multiple zoom levels, which can be changed using the zoom-in and zoom-out buttons in the waveform toolbar. 
-    These time-based visual sections will be updated by editing the matching timespans in the structure.`;
-    this.audioControlsLabel = `Audio controls; play, seek, and adjust volume of the audio file`;
-    this.waveformControlsLabel = `Waveform toolbar with zoom-in, zoom-out, and seek functionalities to view and traverse the waveform`;
   }
 
   zoomIn = () => {
@@ -77,7 +73,7 @@ class Waveform extends Component {
         <div
           id="waveform-container"
           ref={this.waveformContainer}
-          aria-label={this.waveformLabel}
+          aria-label={waveformLabel}
           tabIndex="0"
         />
         <Row>
@@ -87,7 +83,7 @@ class Waveform extends Component {
               ref={this.mediaPlayer}
               src={soundMP3}
               type="audio/mp3"
-              aria-label={this.audioControlsLabel}
+              aria-label={audioControlsLabel}
             >
               Your browser does not support the audio element.
             </audio>
@@ -97,7 +93,7 @@ class Waveform extends Component {
             md={6}
             className="text-right"
             tabIndex="0"
-            aria-label={this.waveformControlsLabel}
+            aria-label={waveformControlsLabel}
           >
             <Form inline onSubmit={this.handleSubmit} role="form">
               <FormGroup>
