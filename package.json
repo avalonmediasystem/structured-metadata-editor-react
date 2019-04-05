@@ -9,6 +9,7 @@
     "@fortawesome/react-fontawesome": "^0.1.2",
     "axios": "^0.18.0",
     "base-64": "^0.1.0",
+    "bootstrap": "^3.3",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.8.0",
     "lodash": "^4.17.11",
