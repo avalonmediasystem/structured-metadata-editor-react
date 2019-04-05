@@ -100,7 +100,7 @@ class ListItemControls extends Component {
         </Button>
 
         {item.type !== 'root' && (
-          <>
+          <React.Fragment>
             <Button
               bsStyle="link"
               onClick={this.handleDeleteClick}
@@ -134,7 +134,7 @@ class ListItemControls extends Component {
                 </ButtonToolbar>
               </Popover>
             </Overlay>
-          </>
+          </React.Fragment>
         )}
       </div>
     );
