@@ -16,8 +16,7 @@ class StructureOutputContainer extends Component {
     this.apiUtils = new APIUtils();
   }
   state = {
-    fetchAlertObj: {},
-    postAlertObj: {}
+    alertObj: {}
   };
 
   async componentDidMount() {
@@ -73,23 +72,17 @@ class StructureOutputContainer extends Component {
     }
   }
 
-  clearFetchAlert = () => {
+  clearAlert = () => {
     this.setState({
-      fetchAlertObj: null
-    });
-  };
-
-  clearPostAlert = () => {
-    this.setState({
-      postAlertObj: null
+      alertObj: null
     });
   };
 
   handleFetchError(error) {
     let status = error.response !== undefined ? error.response.status : -2;
-    const fetchAlertObj = configureAlert(status, this.clearFetchAlert);
+    const alertObj = configureAlert(status, this.clearAlert);
 
-    this.setState({ fetchAlertObj });
+    this.setState({ alertObj });
   }
 
   handleSaveError(error) {
@@ -98,9 +91,9 @@ class StructureOutputContainer extends Component {
       error.response !== undefined
         ? error.response.status
         : error.request.status;
-    const postAlertObj = configureAlert(status, this.clearPostAlert);
+    const alertObj = configureAlert(status, this.clearAlert);
 
-    this.setState({ postAlertObj });
+    this.setState({ alertObj });
   }
 
   handleSaveItClick = () => {
@@ -109,9 +102,9 @@ class StructureOutputContainer extends Component {
       .postRequest('structure.json', postData)
       .then(response => {
         const { status } = response;
-        const postAlertObj = configureAlert(status, this.clearPostAlert);
+        const alertObj = configureAlert(status, this.clearAlert);
 
-        this.setState({ postAlertObj });
+        this.setState({ alertObj });
       })
       .catch(error => {
         this.handleSaveError(error);
@@ -120,16 +113,16 @@ class StructureOutputContainer extends Component {
 
   render() {
     const { smData = [], forms } = this.props;
-    const { fetchAlertObj, postAlertObj } = this.state;
+    const { alertObj } = this.state;
 
     return (
       <section className="structure-section">
-        {postAlertObj && <AlertContainer {...postAlertObj} />}
         {!forms.structureRetrieved ? (
-          <AlertContainer {...fetchAlertObj} />
+          <AlertContainer {...alertObj} />
         ) : (
-          <div className="scrollable">
+          <div>
             <h3>HTML Structure Tree from a masterfile in server</h3>
+            <AlertContainer {...alertObj} />
             <br />
             <List items={smData} />
             <Row>
