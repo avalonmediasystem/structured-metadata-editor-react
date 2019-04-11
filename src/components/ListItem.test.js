@@ -1,39 +1,47 @@
 import React from 'react';
 import ListItem from './ListItem';
-import { mount } from 'enzyme';
-import configureMockStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
-import { Provider } from 'react-redux';
+import { shallow } from 'enzyme';
 
-const mockStore = configureMockStore([thunk]);
+describe('ListItem component (test independent from React DnD)', () => {
+  let component;
 
-describe('ListItem component', () => {
-  let store;
+  // Reference for this solution: https://github.com/react-dnd/react-dnd/issues/925
+  const getComponent = (item = {}) => {
+    // Obtain the reference to the component before React DnD wrapping
+    let OriginalComponent = ListItem.DecoratedComponent;
+    // Stub the React DnD connector functions with an identity function
+    let identity = el => el;
+
+    if (!component) {
+      component = shallow(
+        <OriginalComponent
+          item={item}
+          key={item.id}
+          connectDragSource={identity}
+          connectDropTarget={identity}
+        />
+      );
+      return component;
+    }
+  };
+
   beforeEach(() => {
-    store = mockStore({});
+    component = undefined;
   });
+
   test('renders ListItem without crashing without a metadata item', () => {
-    const wrapper = mount(
-      <Provider store={store}>
-        <ListItem />
-      </Provider>
-    );
-    expect(wrapper.find('LisItemControls')).toBeDefined();
-    expect(wrapper.find('ListItemEditForm')).toBeDefined();
+    const wrapper = getComponent({});
+    expect(wrapper.instance().props.item).toEqual({});
   });
   test('renders ListItem without crashing with a metadata item', () => {
-    let item = {
+    const item = {
       type: 'span',
       label: 'Segment 1.1',
       id: '123a-456b-789c-3d',
       begin: '00:00:03.32',
       end: '00:00:10.32'
     };
-    const wrapper = mount(
-      <Provider store={store}>
-        <ListItem key={item.id} item={item} />
-      </Provider>
-    );
-    expect(wrapper.find(ListItem).instance().props.item).toEqual(item);
+    const wrapper = getComponent(item);
+    expect(wrapper.instance().props.item).toEqual(item);
   });
 });
