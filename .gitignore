@@ -9,6 +9,9 @@
 # production
 /build
 
+# packaged files for the npm exportable module
+/package-files
+
 # misc
 .DS_Store
 .env.local

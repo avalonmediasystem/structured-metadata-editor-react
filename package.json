@@ -9,6 +9,7 @@
     "@fortawesome/react-fontawesome": "^0.1.2",
     "axios": "^0.18.0",
     "base-64": "^0.1.0",
+    "cpy-cli": "^2.0.0",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.8.0",
     "lodash": "^4.17.11",
@@ -36,9 +37,12 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "package": "del package-files && cpy '**/*' '!index.js' '!**/__mocks__' '!**/__snapshots__' '!test' '!**/*.test.js' '!registerServiceWorker.js' '!setupTests.js' '../package-files' --cwd=src --parents"
   },
   "devDependencies": {
+    "copyfiles": "^2.1.0",
+    "del-cli": "^1.1.0",
     "gh-pages": "^2.0.1"
   },
   "browserslist": [
