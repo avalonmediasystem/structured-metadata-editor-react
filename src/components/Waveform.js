@@ -8,8 +8,8 @@ import {
   Row,
   Col
 } from 'react-bootstrap';
-import soundMP3 from '../data/utah_phillips_one.mp3';
 import { connect } from 'react-redux';
+import soundMP3 from '../data/utah_phillips_one.mp3';
 
 // Content of aria-label for UI components
 const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.

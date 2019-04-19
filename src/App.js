@@ -18,14 +18,15 @@ import {
 library.add(faDotCircle, faMinusCircle, faPen, faSave, faTrash);
 
 class App extends Component {
+  componentDidMount() {}
   render() {
     return (
       <DragDropContextProvider backend={HTML5Backend}>
         <div className="container">
-          <h1>Test Structural Metadata Editor</h1>
-          <WaveformContainer />
+          <br />
+          <WaveformContainer {...this.props.config} />
           <ButtonSection />
-          <StructureOutputContainer />
+          <StructureOutputContainer {...this.props.config} />
         </div>
       </DragDropContextProvider>
     );

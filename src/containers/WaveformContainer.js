@@ -31,7 +31,9 @@ class WaveformContainer extends Component {
 
   state = {
     alertObj: null,
-    hasError: false
+    hasError: false,
+    masterFileID: this.props.masterFileID,
+    baseURL: this.props.baseURL
   };
 
   componentDidMount() {
@@ -62,8 +64,13 @@ class WaveformContainer extends Component {
   }
 
   async initializePeaks() {
+    const { baseURL, masterFileID } = this.state;
     try {
-      const response = await apiUtils.getRequest('waveform.json');
+      const response = await apiUtils.getRequest(
+        baseURL,
+        masterFileID,
+        'waveform.json'
+      );
       // Set the masterfile URL as the URI for the waveform data file
       peaksOptions.dataUri = response.request.responseURL;
 
