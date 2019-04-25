@@ -6,7 +6,7 @@ import APIUtils from '../api/Utils';
 import AlertContainer from './AlertContainer';
 import { configureAlert } from '../services/alert-status';
 import uuidv1 from 'uuid/v1';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
 import { buildSMUI } from '../actions/sm-data';
 import { handleStructureMasterFile } from '../actions/forms';
 
@@ -16,15 +16,30 @@ class StructureOutputContainer extends Component {
     this.apiUtils = new APIUtils();
   }
   state = {
-    alertObj: {}
+    alertObj: {},
+    masterFileID: this.props.masterFileID,
+    baseURL: this.props.baseURL,
+    initStructure: this.props.initStructure
   };
 
   async componentDidMount() {
-    try {
-      const response = await this.apiUtils.getRequest('structure.json');
+    let smData = [];
 
+    const { baseURL, masterFileID, initStructure } = this.state;
+    try {
+      const response = await this.apiUtils.getRequest(
+        baseURL,
+        masterFileID,
+        'structure.json'
+      );
+
+      // Check for empty response when ingesting a new file
       // Add unique ids to every object
-      let smData = this.addIds([response.data]);
+      if (isEmpty(response.data)) {
+        smData = this.addIds([JSON.parse(initStructure)]);
+      } else {
+        smData = this.addIds([response.data]);
+      }
 
       // Tag the root element
       this.markRootElement(smData);
@@ -97,9 +112,10 @@ class StructureOutputContainer extends Component {
   }
 
   handleSaveItClick = () => {
+    const { baseURL, masterFileID } = this.state;
     let postData = { json: this.props.smData[0] };
     this.apiUtils
-      .postRequest('structure.json', postData)
+      .postRequest(baseURL, masterFileID, 'structure.json', postData)
       .then(response => {
         const { status } = response;
         const alertObj = configureAlert(status, this.clearAlert);

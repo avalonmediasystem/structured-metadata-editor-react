@@ -40,8 +40,8 @@ describe('StructureOutputContainer class', () => {
       expect(
         pureWrapper.instance().props.forms.structureRetrieved
       ).toBeTruthy();
-      expect(pureWrapper.instance().state.fetchAlertObj).toEqual({});
-      expect(pureWrapper.instance().state.postAlertObj).toEqual({});
+      expect(pureWrapper.instance().state.alertObj).toEqual({});
+      expect(pureWrapper.instance().state.alertObj).toEqual({});
     }, 0);
   });
 
@@ -60,17 +60,12 @@ describe('StructureOutputContainer class', () => {
 
     // Test for changes in state and AlertContainer asynchronously
     setImmediate(() => {
-      expect(badWrapper.instance().state.fetchAlertObj).not.toBeNull();
-      expect(badWrapper.instance().state.fetchAlertObj.alertStyle).toEqual(
-        'danger'
-      );
-      expect(badWrapper.instance().state.fetchAlertObj.message).toEqual(
+      expect(badWrapper.instance().state.alertObj).not.toBeNull();
+      expect(badWrapper.instance().state.alertObj.alertStyle).toEqual('danger');
+      expect(badWrapper.instance().state.alertObj.message).toEqual(
         'Requested masterfile not found'
       );
-      const alertContainer = badWrapper
-        .find('AlertContainer')
-        .at(1)
-        .instance();
+      const alertContainer = badWrapper.find('AlertContainer').instance();
       expect(alertContainer).toBeDefined();
       expect(alertContainer.props.message).toBe(
         'Requested masterfile not found'

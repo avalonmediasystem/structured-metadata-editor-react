@@ -22,10 +22,9 @@ class App extends Component {
     return (
       <DragDropContextProvider backend={HTML5Backend}>
         <div className="container">
-          <h1>Test Structural Metadata Editor</h1>
-          <WaveformContainer />
+          <WaveformContainer {...this.props} />
           <ButtonSection />
-          <StructureOutputContainer />
+          <StructureOutputContainer {...this.props} />
         </div>
       </DragDropContextProvider>
     );
