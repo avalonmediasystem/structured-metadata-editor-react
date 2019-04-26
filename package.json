@@ -12,6 +12,7 @@
     "cpy-cli": "^2.0.0",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.8.0",
+    "hls.js": "0.12.3-canary.4258",
     "lodash": "^4.17.11",
     "moment": "^2.22.2",
     "peaks.js": "^0.9.13",
