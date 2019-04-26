@@ -8,7 +8,7 @@ import { configureAlert } from '../services/alert-status';
 import uuidv1 from 'uuid/v1';
 import { cloneDeep, isEmpty } from 'lodash';
 import { buildSMUI } from '../actions/sm-data';
-import { handleStructureMasterFile } from '../actions/forms';
+import { retrieveStructureSuccess } from '../actions/forms';
 
 class StructureOutputContainer extends Component {
   constructor(props) {
@@ -48,7 +48,7 @@ class StructureOutputContainer extends Component {
       this.props.buildSMUI(smData);
 
       // Update redux-store flag for structure file retrieval
-      this.props.handleStructureFile(0);
+      this.props.retrieveStructureSuccess();
     } catch (error) {
       console.log('TCL: StructureOutputContainer -> }catch -> error', error);
       this.handleFetchError(error);
@@ -165,7 +165,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   buildSMUI: smData => dispatch(buildSMUI(smData)),
-  handleStructureFile: code => dispatch(handleStructureMasterFile(code))
+  retrieveStructureSuccess: () => dispatch(retrieveStructureSuccess())
 });
 
 export default connect(

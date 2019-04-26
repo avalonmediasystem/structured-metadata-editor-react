@@ -6,7 +6,7 @@ import * as actions from '../actions/forms';
 import Waveform from '../components/Waveform';
 import AlertContainer from '../containers/AlertContainer';
 import { configureAlert } from '../services/alert-status';
-import { handleWaveformMasterFile } from '../actions/forms';
+import { retrieveWaveformSuccess } from '../actions/forms';
 
 const apiUtils = new APIUtils();
 
@@ -78,7 +78,7 @@ class WaveformContainer extends Component {
       this.props.initPeaks(this.props.smData, peaksOptions);
 
       // Update redux-store flag for waveform file retrieval
-      this.props.handleWaveformFile(0);
+      this.props.retrieveWaveformSuccess();
     } catch (error) {
       this.handleError(error);
     }
@@ -115,7 +115,7 @@ const mapDispatchToProps = dispatch => ({
   ...actions,
   initPeaks: (smData, options) =>
     dispatch(peaksActions.initPeaksInstance(smData, options)),
-  handleWaveformFile: code => dispatch(handleWaveformMasterFile(code))
+  retrieveWaveformSuccess: () => dispatch(retrieveWaveformSuccess())
 });
 
 export default connect(

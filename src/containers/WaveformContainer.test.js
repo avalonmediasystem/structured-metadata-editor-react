@@ -16,10 +16,8 @@ describe('WaveformContainer class', () => {
       smData: testMetadataStructure,
       forms: initForms,
       initPeaks: jest.fn(),
-      handleWaveformFile: jest.fn(code => {
-        if (code === 0) {
-          initForms.waveformRetrieved = true;
-        }
+      retrieveWaveformSuccess: jest.fn(() => {
+        initForms.waveformRetrieved = true;
       })
     };
   });
