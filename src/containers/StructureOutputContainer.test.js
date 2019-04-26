@@ -16,10 +16,8 @@ describe('StructureOutputContainer class', () => {
       smData: [],
       forms: initForms,
       buildSMUI: jest.fn(),
-      handleStructureFile: jest.fn(code => {
-        if (code === 0) {
-          initForms.structureRetrieved = true;
-        }
+      retrieveStructureSuccess: jest.fn(() => {
+        initForms.structureRetrieved = true;
       })
     };
   });
