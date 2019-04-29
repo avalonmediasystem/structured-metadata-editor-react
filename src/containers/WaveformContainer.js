@@ -86,7 +86,7 @@ class WaveformContainer extends Component {
 
   render() {
     const { alertObj, hasError } = this.state;
-    const { forms, mp3URL } = this.props;
+    const { forms, audioStreamURL } = this.props;
 
     return (
       <section className="waveform-section">
@@ -96,7 +96,7 @@ class WaveformContainer extends Component {
           <Waveform
             waveformRef={ref => (this.waveformContainer = ref)}
             mediaPlayerRef={ref => (this.mediaPlayer = ref)}
-            mp3URL={mp3URL}
+            audioStreamURL={audioStreamURL}
           />
         )}
       </section>

@@ -25,7 +25,7 @@ class Waveform extends Component {
     super(props);
     this.state = {
       seekTime: '',
-      audioFile: this.props.mp3URL
+      audioFile: this.props.audioStreamURL
     };
 
     // Create `refs`
