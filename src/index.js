@@ -5,9 +5,10 @@ import Root from './Root';
 
 const props = {
   baseURL: 'https://spruce.dlib.indiana.edu',
-  masterFileID: 'd791sg30j',
+  masterFileID: 'sj1392061',
   initStructure: '',
-  mp3URL: ''
+  audioStreamURL:
+    'https://spruce.dlib.indiana.edu/master_files/sj1392061/auto.m3u8'
 };
 
 ReactDOM.render(<Root {...props} />, document.getElementById('root'));
